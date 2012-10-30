@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/InnerHtml.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+   <script src="../../jTAC/Calculations/Widget.js" type="text/javascript"></script>
+   <script src="../../jTAC/Calculations/WidgetConnection.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+   Widget1: 10 + 20 <br />
+      <span id="Widget1Result" ></span><br />
+   Widget2: Enter integers<br />
+   <input type='text' id='w2t1' name='w2t1' /> + <input type='text' id='w2t2' name='w2t2' /> =
+      <span id="Widget2Result" ></span><br />
+   Widget3: Enter decimals (division)<br />
+   <input type='text' id='w3t1' name='w3t1' /> / <input type='text' id='w3t2' name='w3t2' /> =
+      <span id="Widget3Result" ></span><br />
+   Widget4: Enter integers<br />
+   <input type='text' id='w4t1' name='w4t1' /> + <input type='text' id='w4t2' name='w4t2' /> =
+      <input type='text' id='Widget4Result' name='Widget4Result' /> <br />
+
+   </form>
+<script type="text/javascript">
+// Widget1: 10 + 20
+var widget1 = jTAC.create("Calculations.Widget", {elementId: "Widget1", calcItem: [10, 20]});
+widget1.displayElementId = "Widget1Result";
+widget1.ready();
+
+// Widget2: Enter integers
+var widget2 = jTAC.create("Calculations.Widget", {elementId: "Widget2", calcItem: ["w2t1", "w2t2"]});
+widget2.displayElementId = "Widget2Result";
+widget2.displayDatatype = "Integer";
+widget2.ready();
+
+// Widget3: Enter decimals (division). Show nothing when either textbox is blank
+var widget3 = jTAC.create("Calculations.Widget", {elementId: "Widget3"})
+widget3.displayElementId = "Widget3Result";
+var ci1 = jTAC.create("CalcItems.Element", {elementId: "w3t1"});
+ci1.valueWhenNull = jTAC.create("CalcItems.Null");
+var ci2 = jTAC.create("CalcItems.Element", {elementId: "w3t2"});
+ci2.operator = "/";
+ci2.valueWhenNull = jTAC.create("CalcItems.Null");
+widget3.calcItem.addItem(ci1);
+widget3.calcItem.addItem(ci2);
+widget3.displayTypeManager.maxDecimalPlaces = 3;
+widget3.displayTypeManager.roundMode = 0;  // truncate
+widget3.useKeyEvt = true;
+widget3.calcItem.valueWhenNull = jTAC.create("CalcItems.Null");
+widget3.ready();
+
+// Widget4: Enter integers
+var widget4 = jTAC.create("Calculations.Widget", {elementId: "Widget4", calcItem: ["w4t1", "w4t2"]});
+widget4.displayElementId = "Widget4Result";
+widget4.displayDatatype = "Integer";
+widget4.ready();
+
+</script>
+
+</body>
+</html>

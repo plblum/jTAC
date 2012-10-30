@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-ui-1.8.11.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/InnerHtml.js" type="text/javascript"></script>
+   <script src="../../jTAC/Parser.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+   <script src="../../jTAC/Calculations/Widget.js" type="text/javascript"></script>
+   <script src="../../jTAC/Calculations/WidgetConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui%20widgets/calculator.js" type="text/javascript"></script>
+</head>
+<body>
+   <script type="text/javascript">
+      $(document).ready(
+      function ()
+      {
+         $("#Calculator1").calculator({ expression: "10 + 20", displayElementId: "Widget1Result", displayDatatype: "Integer" });
+         $("#Calculator2").calculator({ expression: "'w2t1' + 'w2t2'", displayElementId: "Widget2Result", displayDatatype: "Integer" });
+         $("#Calculator3").calculator({ 
+               expression: "'w3t1' / 'w3t2'", 
+               displayElementId: "Widget3Result", 
+               useKeyEvt: true, 
+               displayTypeManager: {"jtacClass" : "Float", "maxDecimalPlaces" : 3, "roundMode" : 0} });
+         $("#Calculator4").calculator({ expression: '"w4t1" + "w4t2"', displayElementId: "Widget4Result", displayDatatype: "Integer" });
+      }
+   );
+   </script>
+   <form action="" method="get" id="Form1">
+   Widget1: 10 + 20 <br /><input type="hidden" id="Calculator1" name="Calculator1" />
+      <span id="Widget1Result" ></span><br />
+   Widget2: Enter integers<br /><input type="hidden" id="Calculator2" name="Calculator2" />
+   <input type='text' id='w2t1' name='w2t1' /> + <input type='text' id='w2t2' name='w2t2' /> =
+      <span id="Widget2Result" ></span><br />
+   Widget3: Enter decimals (division)<br /><input type="hidden" id="Calculator3" name="Calculator3" />
+   <input type='text' id='w3t1' name='w3t1' /> / <input type='text' id='w3t2' name='w3t2' /> =
+      <span id="Widget3Result" ></span><br />
+   Widget4: Enter integers<br /><input type="hidden" id="Calculator4" name="Calculator4" />
+   <input type='text' id='w4t1' name='w4t1' /> + <input type='text' id='w4t2' name='w4t2' /> =
+      <input type='text' id='Widget4Result' name='Widget4Result' /> <br />
+
+   </form>
+
+</body>
+</html>

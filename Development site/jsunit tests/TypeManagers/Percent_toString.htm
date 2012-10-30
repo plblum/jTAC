@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Percent.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         ToStringMain(vInstance1, 10.0, "1,000.00 %");
+         ToStringMain(vInstance1, 0.01234, "1.234 %");
+         ToStringMain(vInstance1, 0.0, "0.00 %");
+         ToStringMain(vInstance1, -0.1012, "-10.12 %");
+         ToStringMain(vInstance1, -0.10102030, "-10.10203 %");
+         // integers conversion
+         vInstance1.setMaxDecimalPlaces(0);
+         ToStringMain(vInstance1, 1, "1 %");
+         ToStringMain(vInstance1, 0, "0 %");
+         ToStringMain(vInstance1, -10, "-10 %");
+         ToIllegalStringMain(vInstance1, "1.30baddata");
+      }
+
+      function testToStringOneEqualsOne()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setOneEqualsOneHundred(false);
+         ToStringMain(vInstance1, 1000.0, "1,000.00 %");
+         ToStringMain(vInstance1, 1.234, "1.234 %");
+         ToStringMain(vInstance1, 0.0, "0.00 %");
+         ToStringMain(vInstance1, -10.12, "-10.12 %");
+         ToStringMain(vInstance1, -10.102030, "-10.10203 %");
+         // integers conversion
+         ToStringMain(vInstance1, 1, "1.00 %");
+         ToStringMain(vInstance1, 0, "0.00 %");
+         ToStringMain(vInstance1, -10, "-10.00 %");
+         ToIllegalStringMain(vInstance1, "1.30baddata");
+      }
+      function testToStringAsIntegers()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.maxDecimalPlaces = 0;
+         ToStringMain(vInstance1, 1, "1 %");
+         ToStringMain(vInstance1, 0, "0 %");
+         ToStringMain(vInstance1, -10, "-10 %");
+         ToIllegalStringMain(vInstance1, "1.30baddata");
+      }
+
+      function testToStringTrailingDigits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setMaxDecimalPlaces(2);
+         ToStringMain(vInstance1, 10.0, "1,000.00 %");
+         ToStringMain(vInstance1, 0.0, "0.00 %");
+
+         ToIllegalStringMain(vInstance1, -0.1012);
+         ToIllegalStringMain(vInstance1, 0.01234);
+         ToIllegalStringMain(vInstance1, -0.10102030);
+         vInstance1.roundMode = 2;
+         ToStringMain(vInstance1, 0.01234, "1.00 %");
+         ToStringMain(vInstance1, -0.1012, "-10.00 %");
+         ToStringMain(vInstance1, -0.10102030, "-10.00 %");
+
+
+         vInstance1.setMaxDecimalPlaces(4); // roundmode is still 2
+         ToStringMain(vInstance1, 0.01234, "1.23 %");
+         ToStringMain(vInstance1, -0.1012, "-10.12 %");
+         ToStringMain(vInstance1, -0.10102030, "-10.10 %");
+
+         vInstance1.roundMode = null;
+         vInstance1.setMaxDecimalPlaces(5);
+         ToStringMain(vInstance1, 10.0, "1,000.00 %");
+         ToStringMain(vInstance1, 0.01234, "1.234 %");
+         ToStringMain(vInstance1, 0.0, "0.00 %");
+         ToStringMain(vInstance1, -0.1012, "-10.12 %");
+         ToIllegalStringMain(vInstance1, -0.10102030);
+
+      }
+
+      function testToStringNoTS()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setShowGroupSep(false);
+         ToStringMain(vInstance1, 1000.0, "100000.00 %");
+
+         ToStringMain(vInstance1, -1000.0, "-100000.00 %");
+
+      }
+
+      function testToStringNoPercentSymbol()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setShowPercentSymbol(false);
+         ToStringMain(vInstance1, 10.0, "1,000.00");
+         ToStringMain(vInstance1, 0.01234, "1.234");
+         ToStringMain(vInstance1, 0.0, "0.00");
+         ToStringMain(vInstance1, -0.1012, "-10.12");
+         ToStringMain(vInstance1, -0.10102030, "-10.10203");
+         // integers conversion
+         vInstance1.setOneEqualsOneHundred(false);
+         ToStringMain(vInstance1, 1, "1.00");
+         ToStringMain(vInstance1, 0, "0.00");
+         ToStringMain(vInstance1, -10, "-10.00");
+
+      }
+      function testToStringNoNegatives()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setAllowNegatives(false);
+         ToStringMain(vInstance1, 1.1, "110.00 %");
+         ToIllegalStringMain(vInstance1, -100000.0);
+      }
+
+      function testToValueTrailingZeroes()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent");
+         assertNotNull(vInstance1);
+         vInstance1.setOneEqualsOneHundred(false);
+         vInstance1.setTrailingZeroDecimalPlaces(3);
+         ToStringMain(vInstance1, 1.0, "1.000 %");
+         ToStringMain(vInstance1, 1.123, "1.123 %");
+         ToStringMain(vInstance1, 1.120, "1.120 %");
+
+         vInstance1.setTrailingZeroDecimalPlaces(2);
+         ToStringMain(vInstance1, 1.0, "1.00 %");
+         ToStringMain(vInstance1, 1.123, "1.123 %");
+         ToStringMain(vInstance1, 1.120, "1.12 %");
+
+         vInstance1.setTrailingZeroDecimalPlaces(4);
+         ToStringMain(vInstance1, 1.0, "1.0000 %");
+         ToStringMain(vInstance1, 1.123, "1.1230 %");
+         ToStringMain(vInstance1, 1.120, "1.1200 %");
+
+      }
+
+      function testToValueGerman()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent", {cultureName: "de-DE"});
+         assertNotNull(vInstance1);
+         ToStringMain(vInstance1, 10000.0, "1.000.000,00%");   // note no space before %
+         ToStringMain(vInstance1, -10000.0, "-1.000.000,00%");
+         ToStringMain(vInstance1, -10000.2040, "-1.000.020,40%");
+      }
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent", {cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         var gSet = vInstance1.currencyFormat("GroupSep"); // not really a space %20, but %A0
+         var valStr = "1" + gSet + "000" + gSet + "000,00 %";
+
+         ToStringMain(vInstance1, 10000.0, valStr);
+         ToStringMain(vInstance1, -10000.0, "-" + valStr);
+
+      }
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Percent", {cultureName: "fr-FR"});// forces different separator characters
+         assertNotNull(vInstance1);
+         assertEquals("1.0", vInstance1.toStringNeutral(1));
+         assertEquals("10000.123", vInstance1.toStringNeutral(10000.123));
+         assertEquals("-1.1", vInstance1.toStringNeutral(-1.1));
+         assertEquals("", vInstance1.toStringNeutral(null));
+
+         var vInstance2 = jTAC.create("TypeManagers.Percent", {cultureName: "fr-FR"}); // forces different separator characters
+         assertNotNull(vInstance2);
+         vInstance2.maxDecimalPlaces = 0; // show this does NOT impact the result. Its always a decimal with all available decimal places
+         assertEquals("1.0", vInstance2.toStringNeutral(1));
+         assertEquals("10000.123", vInstance2.toStringNeutral(10000.123));
+         assertEquals("-1.1", vInstance2.toStringNeutral(-1.1));
+         assertEquals("", vInstance1.toStringNeutral(null));
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringAsIntegers();
+         testToStringNoNegatives();
+         testToStringNoPercentSymbol();
+         testToStringNoTS();
+         testToStringOneEqualsOne();
+         testToStringTrailingDigits();
+         testToValueTrailingZeroes();
+         testToValueFrench();
+         testToValueGerman();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

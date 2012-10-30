@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");  
+         assertNotNull(vInstance1);
+
+         assertEquals("", vInstance1.getCultureName());
+         assertEquals("object", vInstance1.nativeTypeName());
+         assertEquals("timeofday", vInstance1.dataTypeName());
+         assertEquals("time", vInstance1.storageTypeName());
+         assertEquals(0, vInstance1.getTimeFormat());
+         assertFalse(vInstance1.useUTC);
+         assertFalse(vInstance1.valueAsNumber);
+         assertEquals(1, vInstance1.timeOneEqualsSeconds);
+         assertFalse(vInstance1.parseStrict);
+         assertEquals("h", vInstance1.parseTimeRequires);
+
+         var vInstance2 = jTAC.create("TypeManagers.TimeOfDay", {valueAsNumber: true});  
+         assertNotNull(vInstance2);
+
+         assertEquals("", vInstance2.getCultureName());
+         assertEquals("number", vInstance2.nativeTypeName());
+         assertEquals("timeofday", vInstance2.dataTypeName());
+         assertEquals("float", vInstance2.storageTypeName());
+         assertEquals(0, vInstance2.getTimeFormat());
+         assertFalse(vInstance2.useUTC);
+         assertTrue(vInstance2.valueAsNumber);
+         assertEquals(1, vInstance2.timeOneEqualsSeconds);
+
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "fr-FR", timeFormat: 1, valueAsNumber: true, timeOneEqualsSeconds : 60});  
+         assertNotNull(vInstance);
+         assertEquals("fr-FR", vInstance.getCultureName());
+         assertEquals(1, vInstance.getTimeFormat());
+         assertEquals(60, vInstance.getTimeOneEqualsSeconds());
+         assertEquals("number", vInstance.nativeTypeName());
+
+      // change the properties
+         setPropertyValue(vInstance, "cultureName", "en-US");
+         setPropertyValue(vInstance, "timeFormat", 0);
+         setPropertyValue(vInstance, "timeFormat", 2);
+         setInvalidPropertyValue(vInstance, "timeFormat", 3);
+         setPropertyValue(vInstance, "timeFormat", 10);
+         setPropertyValue(vInstance, "timeFormat", 11);
+         setPropertyValue(vInstance, "timeFormat", 12);
+         setInvalidPropertyValue(vInstance, "timeFormat", 13);
+         setPropertyValue(vInstance, "timeOneEqualsSeconds", 3600);
+         setPropertyValue(vInstance, "parseStrict", true);
+         setPropertyValue(vInstance, "parseTimeRequires", "s");
+         setPropertyValue(vInstance, "parseTimeRequires", "m");
+         setPropertyValue(vInstance, "parseTimeRequires", "h");
+         setInvalidPropertyValue(vInstance, "parseTimeRequires", "H");
+         setInvalidPropertyValue(vInstance, "parseTimeRequires", "d");
+
+         setPropertyValue(vInstance, "useUTC", true);
+         setPropertyValue(vInstance, "valueAsNumber", false);
+         assertEquals("object", vInstance.nativeTypeName());
+         assertEquals("timeofday", vInstance.dataTypeName());
+         assertEquals("time", vInstance.storageTypeName());
+
+      }
+
+      function testTimePatterns()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "h:mm:ss tt");
+
+         TimePatternCheck(vInstance1, 1, "h:mm tt");
+
+         TimePatternCheck(vInstance1, 2, "h:mm:ss tt");
+
+         TimePatternCheck(vInstance1, 10, "H:mm:ss");
+
+         TimePatternCheck(vInstance1, 11, "H:mm");
+
+         TimePatternCheck(vInstance1, 12, "H:mm:ss");
+      }
+
+
+      function testTimePatternsFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "fr-FR"});  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "HH:mm:ss");
+
+         TimePatternCheck(vInstance1, 1, "HH:mm");
+
+         TimePatternCheck(vInstance1, 2, "HH:mm:ss"); 
+
+         TimePatternCheck(vInstance1, 10, "HH:mm:ss");
+
+         TimePatternCheck(vInstance1, 11, "HH:mm");
+
+         TimePatternCheck(vInstance1, 12, "HH:mm:ss");
+      }
+
+      function testTimePatternsHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "hi-IN"});  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "HH:mm:ss");
+
+         TimePatternCheck(vInstance1, 1, "HH:mm");
+
+         TimePatternCheck(vInstance1, 2, "HH:mm:ss"); 
+
+         TimePatternCheck(vInstance1, 10, "HH:mm:ss");
+
+         TimePatternCheck(vInstance1, 11, "HH:mm");
+
+         TimePatternCheck(vInstance1, 12, "HH:mm:ss");
+
+      }
+
+      function testTimePatternsChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "ii-CN"});  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "H:mm:ss");
+
+         TimePatternCheck(vInstance1, 1, "tt h:mm");
+
+         TimePatternCheck(vInstance1, 2, "H:mm:ss");
+
+         TimePatternCheck(vInstance1, 10, "H:mm:ss");
+
+         TimePatternCheck(vInstance1, 11, "H:mm");
+
+         TimePatternCheck(vInstance1, 12, "H:mm:ss");
+
+      }
+
+      function testTimePatternsEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "quz-EC"});  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "H:mm:ss");
+
+         vInstance1.setTimeFormat(1);
+         TimePatternCheck(vInstance1, 1, "H:mm");
+
+         vInstance1.setTimeFormat(2);
+         TimePatternCheck(vInstance1, 2, "H:mm:ss"); 
+
+         vInstance1.setTimeFormat(10);
+         TimePatternCheck(vInstance1, 10, "H:mm:ss");
+
+         vInstance1.setTimeFormat(11);
+         TimePatternCheck(vInstance1, 11, "H:mm");
+
+         vInstance1.setTimeFormat(12);
+         TimePatternCheck(vInstance1, 12, "H:mm:ss");
+
+      }
+
+      function testTimePatternsEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {cultureName: "am-ET"});  
+         assertNotNull(vInstance1);
+         TimePatternCheck(vInstance1, 0, "h:mm:ss tt");
+
+         TimePatternCheck(vInstance1, 1, "h:mm tt");
+
+         TimePatternCheck(vInstance1, 2, "h:mm:ss tt");
+
+         TimePatternCheck(vInstance1, 10, "H:mm:ss");
+
+         TimePatternCheck(vInstance1, 11, "H:mm");
+
+         TimePatternCheck(vInstance1, 12, "H:mm:ss");
+      }
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateSetAllProperties();
+         testTimePatterns();
+         testTimePatternsFrench();
+         testTimePatternsHindi();
+         testTimePatternsChinese();
+         testTimePatternsEcuador();
+         testTimePatternsEthiopia();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

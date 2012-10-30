@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/SelectedIndex.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Value.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   <script src="../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+   <style type="text/css">
+      .customred
+      {
+         color: Red;
+      }
+      .customblue
+      {
+         color: Blue;
+      }
+   </style>
+</head>
+<body>
+Tests the Hilight Fields feature. Labels and container elements are highlighted.<br />
+
+   <form action="" method="get" id="Form1" >
+Uses a div container with data-jtac-valinputs="". Individual checkboxes disable the
+style sheet normally applied by options.inputErrorClass by using data-jtac-errorclass="".
+The label element automatically gets the options.labelErrorClass style sheet.<br />
+Requires the 3rd checkbox to be checked. Mark any other to see an error.<br />Requi
+
+      <div data-jtac-valinputs="">
+      <label for="CheckBox1">CheckboxList:</label> (3rd must be selected)<br />
+      <input type="checkbox" id="CheckBox1" name="CheckBox1" data-jtac-errorclass="" />
+      <input type="checkbox" id="CheckBox2" name="CheckBox2" data-jtac-errorclass="" />
+      <input type="checkbox" id="CheckBox3" name="CheckBox3" data-jtac-errorclass="" />
+      <input type="checkbox" id="CheckBox4" name="CheckBox4" data-jtac-errorclass="" />
+      <input type="checkbox" id="CheckBox5" name="CheckBox5" data-jtac-errorclass="" />
+      <span id="CheckBox1_Result" data-valmsg-for="CheckBox1"></span>
+      </div><br />
+Uses a div container with data-jtac-valinputs="TextBox1". 
+The label element automatically gets the options.labelErrorClass style sheet.<br />
+Requires one to be filled in. Fill in more to see an error.<br />
+
+      <div data-jtac-valinputs="TextBox1"><br />
+      <label for="TextBox1">TextBoxes:</label>
+      <input type="text" id="TextBox1" name="TextBox1" />
+      <input type="text" id="TextBox2" name="TextBox2" />
+      <input type="text" id="TextBox3" name="TextBox3" />
+      <input type="text" id="TextBox4" name="TextBox4" />
+      <input type="text" id="TextBox5" name="TextBox5" />
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1"></span>
+      </div><br />
+Uses a custom style sheet that changes the text in the textbox to red with
+data-jtac-errorclass="customred".<br />
+A difference sheet is also applied to the label using data-jtac-errorclass="customblue".<br />
+Requires only digits. Enter anything else to see an error.<br />
+      <label for="TextBox10" data-jtac-errorclass="customblue" >Digits only:</label>
+      <input type="text" id="TextBox10" name="TextBox10" data-jtac-errorclass="customred" data-jtac-datatype="Integer" />
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+
+
+      function Init()
+      {
+         $("#Form1").validate({ onkeyup: false, debug: true});
+         $("#CheckBox1").rules("add",
+         {
+
+            selectedindex:
+            {
+               param: { index: 2, connection: { buttons: ["CheckBox1", "CheckBox2", "CheckBox3", "CheckBox4", "CheckBox5"]} }
+            },
+            messages:
+            {
+               selectedindex: "Select the 3rd checkbox"
+            }
+
+         });
+         $("#TextBox1").rules("add",
+         {
+
+            advrequired:
+            {
+               param: { mode:"One", moreConnections: ["TextBox2", "TextBox3", "TextBox4", "TextBox5"]} 
+            },
+            messages:
+            {
+               required: "Assign only one"
+            }
+
+         });
+         $("#TextBox10").rules("add",
+         {
+
+            datatypecheck:
+            {
+            }
+
+         });
+
+         jTAC.jqueryValidate.attachMultiConnections("#Form1");
+
+      }
+      $(document).ready(Init());
+
+   </script>
+</body>
+</html>

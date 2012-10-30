@@ -1,0 +1,1 @@
+jTAC._internal.temp._Conditions_[ClassName]={extend:"Conditions.[BaseClass]",constructor:function(a){this.callParent([a])},config:{},configrules:{},};jTAC.define("Conditions.[ClassName]",jTAC._internal.temp._Conditions_[ClassName]);

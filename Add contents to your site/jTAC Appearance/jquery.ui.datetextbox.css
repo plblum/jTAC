@@ -1,0 +1,45 @@
+﻿/* -----------------------------------------------------
+For use with the jTAC datetextbox widget.
+Numerous formatting elements are left to the jquery-ui-datepicker
+widget's own style sheets and images in \jquery\themes\[themename]\jquery.ui.datepicker.css.
+Be sure to include that file too.
+--------------------------------------------------------*/
+
+/* Class name required by datepicker for the toggle button.
+This provides style sheets to establish the background of the button. */
+.ui-datepicker-trigger
+{
+   vertical-align:middle;
+   border : none;
+   margin-left: 2px;
+   margin-right: 2px;
+   margin-bottom:2px;
+   background-image:url('ToggleCalendar20x20.gif');
+   background-repeat:no-repeat;
+   background-position:left;
+   width: 22px;
+   height:22px;
+   color: transparent;  /* hides the text on the button while allowing it to be a tooltip */
+}
+
+/*
+The hover style only works on HTML 5 with CSS 3 browsers
+on most tags, including button and img.
+*/
+.ui-datepicker-trigger:hover
+{
+   background-image:url('ToggleCalendar20x20MouseOver.gif');
+}
+
+/*
+Requires the toggle button gets its onmousedown event to set this
+as the style sheet and onmouseup and onmouseout to restore the original
+style sheet.
+datetextbox can do this for you by defining a new property, buttonImagePressedCss,
+in the datepicker options.
+datetextbox({datepicker: {buttonImagePressedCss : 'ui-datepicker-trigger-pressed'} })
+*/
+.ui-datepicker-trigger-pressed
+{
+   background-image:url('ToggleCalendar20x20Pressed.gif') !important;
+}

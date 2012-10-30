@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-all.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+
+         // Only values that are false: "", 0, false, null, undefined.
+         ToStringMain(vInstance1, 0, "false");
+         ToStringMain(vInstance1, 1, "true");
+         ToStringMain(vInstance1, false, "false");
+         ToStringMain(vInstance1, true, "true");
+         ToStringMain(vInstance1, null, "false");
+         ToStringMain(vInstance1, "", "false");
+
+         vInstance1.falseStr = "zero";
+         vInstance1.trueStr = "one";
+         ToStringMain(vInstance1, false, "zero");
+         ToStringMain(vInstance1, true, "one");
+      }
+
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+
+         assertEquals("true", vInstance1.toStringNeutral(true));
+         assertEquals("false", vInstance1.toStringNeutral(false));
+         assertEquals("", vInstance1.toStringNeutral(null));
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

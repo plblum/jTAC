@@ -1,0 +1,1 @@
+jTAC._internal.temp._CalcItems_[ClassName]={extend:"CalcItems.[BaseClass]",constructor:function(a){this.callParent([a])},config:{},configrules:{},};jTAC.define("CalcItems.[ClassName]",jTAC._internal.temp._CalcItems_[ClassName]);

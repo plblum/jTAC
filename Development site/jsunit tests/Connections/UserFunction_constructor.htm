@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script> 
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/UserFunction.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testValueConnection()
+      {
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.fnc);
+         assertNotNull(vInstance1.connections);
+         assertTrue(vInstance1.connections instanceof Array);
+         assertNotNull(vInstance1.required);
+         assertTrue(vInstance1.required instanceof Array);
+         assertEquals("", vInstance1.datatype);
+         assertNull(vInstance1.typeManager);
+         assertEquals("", vInstance1.typeName);
+      }
+
+      function testAttachSubclassFunction()
+      {
+         var members = {
+            extend: "Connections.UserFunction",
+
+            userFunction: function(sender, vals) {
+               return "hi there";
+            }
+         }
+         jTAC.define("Connections.UserFunction2", members);
+
+         var vInstance1 = jTAC.create("Connections.UserFunction2");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.fnc);
+         vInstance1._prepare();  // ensures fnc is defined
+         assertFunction(vInstance1.fnc);
+         assertEquals("hi there", vInstance1.fnc.call(vInstance1, vInstance1, []));
+
+      }
+
+      function testAttachExternalFunction()
+      {
+         var userFunction = function(sender, vals) {
+               return "hi there2";
+         }
+
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.fnc);
+         vInstance1.fnc = userFunction;
+         vInstance1._prepare();
+         assertFunction(vInstance1.fnc);
+         assertEquals("hi there2", vInstance1.fnc.call(vInstance1, vInstance1, []));
+
+      }
+
+
+      function testAttachExternalFunctionByName()
+      {
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.fnc);
+         vInstance1.fnc = "external_userFunction";
+         vInstance1._prepare();
+         assertFunction(vInstance1.fnc);
+         assertEquals("hi there3", vInstance1.fnc.call(vInstance1, vInstance1, []));
+
+      }
+
+      function external_userFunction(sender, vals) {
+            return "hi there3";
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testValueConnection();
+         testAttachSubclassFunction();
+         testAttachExternalFunction();
+         testAttachExternalFunctionByName();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

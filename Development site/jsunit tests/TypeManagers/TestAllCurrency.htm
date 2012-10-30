@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+</head>
+<body>
+<script type="text/javascript">
+   function suite()
+   {
+      var vBasePath = document.location.protocol + "//" + document.location.host + "/Development Site/jsunit tests/TypeManagers/";
+      var vJsUnit = new JsUnitTestSuite();
+      vJsUnit.addTestPage(vBasePath + "Currency_constructor.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toString.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_compare.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_isValid.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_isValidChar.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_commands.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine en-US.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine de-DE.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine fr-FR.htm");
+
+      vBasePath = document.location.protocol + "//" + document.location.host + "/Development Site/jsunit tests/TypeManagers/Merged Scripts/";
+
+      vJsUnit.addTestPage(vBasePath + "Currency_constructor.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toString.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_compare.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_isValid.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_isValidChar.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_commands.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine en-US.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine de-DE.htm");
+      vJsUnit.addTestPage(vBasePath + "Currency_toValue native culture engine fr-FR.htm");
+
+      return vJsUnit;
+   }
+</script>
+</body>
+</html>

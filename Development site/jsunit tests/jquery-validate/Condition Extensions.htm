@@ -1,0 +1,554 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Currency.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/MockFormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseCounter.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareToValue.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseRegExp.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/RegExp.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BooleanLogic.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CharacterCount.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareTwoElements.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CountSelections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Difference.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DuplicateEntry.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Range.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/RequiredIndex.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/SelectedIndex.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/WordCount.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Value.js" type="text/javascript"></script>
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+   <script type="text/javascript">
+      function testInstalled() {
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.Conditions);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.Conditions.Base.prototype.replaceTokens);
+         assertFunction(jTAC.Conditions.Base.prototype.defaultErrorMessage);
+         assertFunction(jTAC.Conditions.Base.prototype.setDepends);
+         assertFunction(jTAC.Conditions.Base.prototype.ruleName);
+      }
+
+      function testDataTypeCheck()
+      {
+         runReplaceToken("Conditions.DataTypeCheck", null,  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid integer.", 
+            "abc", 0);
+         runReplaceToken("Conditions.DataTypeCheck", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {DATATYPE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid integer.", 
+            "abc", 0);
+
+         // {NEWLINE} test
+         runReplaceToken("Conditions.DataTypeCheck", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {DATATYPE}.{NEWLINE}Fix it.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid integer.<br />Fix it.", 
+            "abc", 0);
+
+         // {VALUE} test
+         runReplaceToken("Conditions.DataTypeCheck", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {DATATYPE}. You entered [{VALUE}].",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid integer. You entered [abc].", 
+            "abc", 0);
+
+         // {DATATYPE} test
+         runReplaceToken("Conditions.DataTypeCheck", {datatype: "Currency"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {DATATYPE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid currency.", 
+            "abc", 0);
+      }
+
+      function testRange()
+      {
+         runReplaceToken("Conditions.Range", {minimum: 1, maximum: 10},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between 1 and 10.", 
+            20, 0);
+         runReplaceToken("Conditions.Range", {minimum: 1, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between {MINIMUM} and {MAXIMUM}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between 1 and 10.", 
+            20, 0);
+         runReplaceToken("Conditions.Range", {minimum: 1, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between {MINIMUM} and {MAXIMUM}. The value was {VALUE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between 1 and 10. The value was 20.", 
+            20, 0);
+
+         // TypeManagers format {MINIMUM} and {MAXIMUM}
+         runReplaceToken("Conditions.Range", {datatype: "Date", minimum: "2012-01-01", maximum: "2012-12-31"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between {MINIMUM} and {MAXIMUM}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be between 1/1/2012 and 12/31/2012.", 
+            "2013-01-01", 0);
+      }
+
+      function testCompareToValue()
+      {
+         runReplaceToken("Conditions.CompareToValue", {valueToCompare: 10, operator: "="},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = 10.", 
+            20, 0);
+         runReplaceToken("Conditions.CompareToValue", {valueToCompare: 10, operator: "="},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} {VALUETOCOMPARE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = 10.", 
+            20, 0);
+
+         // {OPERATOR}. NOTE: Not loading /Translations/CultureNeutral here. If loaded, the operator text is different
+         runReplaceToken("Conditions.CompareToValue", {valueToCompare: 10, operator: "<"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} {VALUETOCOMPARE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be &lt; 10.", 
+            20, 0);
+
+         // TypeManagers format {VALUETOCOMPARE}
+         runReplaceToken("Conditions.CompareToValue", {datatype: "Date", valueToCompare: "2012-01-01", operator: "<="},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} {VALUETOCOMPARE}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be &lt;= 1/1/2012.", 
+            "2013-01-01", 0);
+      }
+
+      function testCompareTwoElements()
+      {
+         runReplaceToken("Conditions.CompareTwoElements", null,  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = <span class='{ERRORLABEL}'>{LABEL2}</span>.", 
+            20, 30);
+         runReplaceToken("Conditions.CompareTwoElements", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} <span class='{ERRORLABEL}'>{LABEL2}</span>.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = <span class='{ERRORLABEL}'>{LABEL2}</span>.", 
+            20, 30);
+
+         // {OPERATOR}
+         runReplaceToken("Conditions.CompareTwoElements", {operator: ">="},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} <span class='{ERRORLABEL}'>{LABEL2}</span>.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be &gt;= <span class='{ERRORLABEL}'>{LABEL2}</span>.", 
+            20, 30);
+
+         // {VALUE2} token 
+         runReplaceToken("Conditions.CompareTwoElements", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} <span class='{ERRORLABEL}'>{LABEL2}</span>. You entered {VALUE} and {VALUE2}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = <span class='{ERRORLABEL}'>{LABEL2}</span>. You entered 20 and 30.", 
+            20, 30);
+         // TypeManager is a date
+         runReplaceToken("Conditions.CompareTwoElements", {datatype: "Date"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be {OPERATOR} <span class='{ERRORLABEL}'>{LABEL2}</span>. You entered {VALUE} and {VALUE2}.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be = <span class='{ERRORLABEL}'>{LABEL2}</span>. You entered 1/1/2012 and 1/1/2013.", 
+            "2012-01-01", "2013-01-01");
+      }
+
+      function testDifference()
+      {
+         runReplaceToken("Conditions.Difference", {differenceValue: 5},  
+            null, // use the default message
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be = 5.", 
+            20, 30);
+         runReplaceToken("Conditions.Difference", {differenceValue: 5},  
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be {OPERATOR} {DIFFVALUE}.",
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be = 5.", 
+            20, 30);
+
+         // {OPERATOR}
+         runReplaceToken("Conditions.Difference", {operator: "<>", differenceValue: 10},  
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be {OPERATOR} {DIFFVALUE}.",
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be &lt;&gt; 10.", 
+            20, 30);
+
+         // {VALUE2} token 
+         runReplaceToken("Conditions.Difference", {operator: "<>", differenceValue: 10},  
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be {OPERATOR} {DIFFVALUE}. You entered {VALUE} and {VALUE2}.",
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be &lt;&gt; 10. You entered 20 and 30.", 
+            20, 30);
+         // TypeManager is a date
+         runReplaceToken("Conditions.Difference", {datatype: "Date", operator: "<>", differenceValue: 5},  
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be {OPERATOR} {DIFFVALUE}. You entered {VALUE} and {VALUE2}.",
+            "Difference between <span class='{ERRORLABEL}'>{LABEL}</span> and <span class='{ERRORLABEL}'>{LABEL2}</span> must be &lt;&gt; 5. You entered 1/1/2012 and 1/6/2012.", 
+            "2012-01-01", "2012-01-06");
+      }
+
+      function testRequired()
+      {
+         runReplaceToken("Conditions.Required", null,  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires an entry.", 
+            "", null);
+         runReplaceToken("Conditions.Required", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires an entry.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires an entry.", 
+            "", null);
+
+         runReplaceToken("Conditions.Required", {mode: "Range", minimum:1, maximum:2},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires an entry in between {MINIMUM} and {MAXIMUM} fields. You have {COUNT}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires an entry in between 1 and 2 fields. You have 0.", 
+            "", "", "", "");
+      }
+
+      function testRequiredIndex()
+      {
+         var conn = jTAC.create("Connections.MockFormElement");
+         var el = conn.getElement();
+         el.tagName = "SELECT";
+         runReplaceToken("Conditions.RequiredIndex", null,  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires a selection.", 
+            conn, null);
+
+         runReplaceToken("Conditions.RequiredIndex", null,  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires a selection.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> requires a selection.", 
+            conn, null);
+
+      }
+
+      function testSelectedIndex()
+      {
+         var conn = jTAC.create("Connections.MockFormElement");
+         var el = conn.getElement();
+         el.tagName = "SELECT";
+         runReplaceToken("Conditions.SelectedIndex", {index: 0},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> has an invalid selection. Choose another.", 
+            conn, null);
+
+         runReplaceToken("Conditions.SelectedIndex", {index: 0},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> has an invalid selection. Choose another.",
+            "<span class='{ERRORLABEL}'>{LABEL}</span> has an invalid selection. Choose another.", 
+            conn, null);
+
+      }
+
+      function testCharacterCount()
+      {
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters.", 
+            "123", null);
+
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} characters.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters.", 
+            "123", null);
+
+         // {COUNT} and {COUNT:s:p} with plural case
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} characters. You entered {COUNT} {COUNT:character:characters}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters. You entered 3 characters.", 
+            "123", null);
+
+         // {COUNT} and {COUNT:s:p} with singular case
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} characters. You entered {COUNT} {COUNT:character:characters}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters. You entered 1 character.", 
+            "1", null);
+
+         // {DIFF} and {DIFF:s:p} with plural case
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} characters. The difference is {DIFF} {DIFF:character:characters}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters. The difference is 2 characters.", 
+            "123", null);
+
+         // {DIFF} and {DIFF:s:p} with singular case
+         runReplaceToken("Conditions.CharacterCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} characters. The difference is {DIFF} {DIFF:character:characters}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 characters. The difference is 1 character.", 
+            "1234", null);
+      }
+
+      function testWordCount()
+      {
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words.", 
+            "a b c", null);
+
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} words.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words.", 
+            "a b c", null);
+
+         // {COUNT} and {COUNT:s:p} with plural case
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} words. You entered {COUNT} {COUNT:word:words}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words. You entered 3 words.", 
+            "a b c", null);
+
+         // {COUNT} and {COUNT:s:p} with singular case
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} words. You entered {COUNT} {COUNT:word:words}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words. You entered 1 word.", 
+            "z", null);
+
+         // {DIFF} and {DIFF:s:p} with plural case
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} words. The difference is {DIFF} {DIFF:word:words}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words. The difference is 2 words.", 
+            "a b c", null);
+
+         // {DIFF} and {DIFF:s:p} with singular case
+         runReplaceToken("Conditions.WordCount", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} words. The difference is {DIFF} {DIFF:word:words}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 words. The difference is 1 word.", 
+            "a b c d", null);
+      }
+
+      function testCountSelections()
+      {
+         var conn = jTAC.create("Connections.MockFormElement");
+         el = conn.getElement();
+         el.tagName = "SELECT";  // this has a predefined list of 4 items with 2 selections
+
+         runReplaceToken("Conditions.CountSelections", {minimum: 0, maximum: 1},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 0 and 1 selections.", 
+            conn, null);
+
+         runReplaceToken("Conditions.CountSelections", {minimum: 0, maximum: 1},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} selections.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 0 and 1 selections.", 
+            conn, null);
+
+         // {COUNT} and {COUNT:s:p} with plural case
+         runReplaceToken("Conditions.CountSelections", {minimum: 0, maximum: 1},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} selections. You made {COUNT} {COUNT:selection:selections}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 0 and 1 selections. You made 2 selections.", 
+            conn, null);
+
+         // {DIFF} and {DIFF:s:p} with plural case
+         runReplaceToken("Conditions.CountSelections", {minimum: 4, maximum: 5},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} selections. The difference is {DIFF} {DIFF:selection:selections}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 4 and 5 selections. The difference is 2 selections.", 
+            conn, null);
+
+
+         // {DIFF} and {DIFF:s:p} with singular case
+         runReplaceToken("Conditions.CountSelections", {minimum: 3, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} selections. The difference is {DIFF} {DIFF:selection:selections}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 3 and 10 selections. The difference is 1 selection.", 
+            conn, null);
+
+         // {COUNT} and {COUNT:s:p} with singular case
+         el.options[2].selected = false;  // eliminates one of the two selections
+         runReplaceToken("Conditions.CountSelections", {minimum: 5, maximum: 10},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between {MINIMUM} and {MAXIMUM} selections. You made {COUNT} {COUNT:selection:selections}.", // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must have between 5 and 10 selections. You made 1 selection.", 
+            conn, null);
+      }
+
+      function testRegExp()
+      {
+         runReplaceToken("Conditions.RegExp", {expression: "^\\d*$"},  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid format.", 
+            "abc", null);
+
+          runReplaceToken("Conditions.RegExp", {expression: "^\\d*$"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {PATTERN}.", 
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid format.", 
+            "abc", null);
+
+      // {PATTERN} token
+          runReplaceToken("Conditions.RegExp", {expression: "^\\d*$", patternLabel: "Number"},  
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid {PATTERN}.", 
+            "<span class='{ERRORLABEL}'>{LABEL}</span> must be a valid Number.", 
+            "abc", null);
+     }
+
+      function testDuplicateEntry()
+      {
+         runReplaceToken("Conditions.DuplicateEntry", null,  
+            null, // use the default message
+            "<span class='{ERRORLABEL}'>FIELDNAME</span> must be different from <span class='{ERRORLABEL}'>THIRDNAME</span>.", 
+            "abc", "123", "abc", "234");
+
+         runReplaceToken("Conditions.DuplicateEntry", null,  
+            "<span class='{ERRORLABEL}'>{LABEL1}</span> must be different from <span class='{ERRORLABEL}'>{LABEL2}</span>.", 
+            "<span class='{ERRORLABEL}'>FIELDNAME</span> must be different from <span class='{ERRORLABEL}'>THIRDNAME</span>.", 
+            "abc", "123", "abc", "234");
+
+         runReplaceToken("Conditions.DuplicateEntry", null,  
+            "<span class='{ERRORLABEL}'>{LABEL1}</span> must be different from <span class='{ERRORLABEL}'>{LABEL2}</span>.", 
+            "<span class='{ERRORLABEL}'>SECONDNAME</span> must be different from <span class='{ERRORLABEL}'>FOURTHNAME</span>.", 
+            "123", "abc", "asg", "abc");
+      }
+
+
+      function runReplaceToken(fullClassName, propertyValues, errorMessage, comparetext, value1, value2, value3, value4)
+      {
+         function getConnection(value, labelName)
+         {
+            var conn;
+            if (value && (value instanceof jTAC.Connections.Base))
+               conn = value;
+            else {
+               conn = jTAC.create("Connections.MockFormElement");
+               var el = conn.getElement();
+               if (value != null)
+                  el.value = value.toString();
+            }
+            conn.defaultLabel = labelName;
+            return conn;
+         }
+
+         var instance = jTAC.create(fullClassName, propertyValues, true);
+         assertNotNull(instance);
+         assertFunction(instance.replaceTokens);
+         if (instance.getConnection)
+         {
+            instance.connection = getConnection(value1, "FIELDNAME");
+/*
+            if (value1 instanceof jTAC.Connections.Base)
+               instance.connection = value1;
+            else {
+               var conn = jTAC.create("Connections.MockFormElement");
+               var el = conn.getElement();
+               el.value = value1;
+               instance.connection = conn;
+            }
+            instance.connection.defaultLabel = "FIELDNAME";
+*/
+         }
+         if (instance.getConnection2 && (value2 !== undefined)) {
+            instance.connection2 = getConnection(value2, "SECONDNAME");
+/*
+            if (value2 instanceof jTAC.Connections.Base)
+               instance.connection2 = value2;
+            else {
+               var conn = jTAC.create("Connections.MockFormElement");
+               var el = conn.getElement();
+               el.value = value2;
+               instance.connection2 = conn;
+            }
+            instance.connection2.defaultLabel = "SECONDNAME";
+*/
+         }
+         if (instance.getMoreConnections) {
+            if (value2 != null)
+               instance.moreConnections.push(getConnection(value2, "SECONDNAME"));
+            if (value3 != null)
+               instance.moreConnections.push(getConnection(value3, "THIRDNAME"));
+            if (value4 != null)
+               instance.moreConnections.push(getConnection(value4, "FOURTHNAME"));
+            
+         }
+         var er = instance.evaluate();
+
+         
+         if (!errorMessage)
+            errorMessage = instance.defaultErrorMessage();
+
+         var validator = { settings: { /* messagelabel : 'message-label' */ } };
+         comparetext = comparetext.replace("{LABEL}", "FIELDNAME").replace("{LABEL2}", "SECONDNAME");
+         comparetext = jTAC.replaceAll(comparetext, "{ERRORLABEL}", "message-label");
+
+         var r = instance.replaceTokens(errorMessage, {context: 'html', element: {}, value: "abc", validator: validator, messagelabel: "message-label"});
+
+         assertEquals(r, comparetext);
+      }
+
+      function testDepends()
+      {
+         var cond = jTAC.create("Conditions.DataTypeCheck", {datatype:"Integer"});
+         cond.connection = jTAC.create("Connections.MockFormElement");
+         var el = cond.connection.getElement();
+         el.value = "abc"; // not an integer
+
+         assertTrue(cond.canEvaluate());
+         assertEquals(0, cond.evaluate());
+
+         // with the dependency
+         var dependcond = jTAC.create("Conditions.Required");
+         cond.depends = dependcond;
+         dependcond.connection = jTAC.create("Connections.MockFormElement");
+         var dependsel = dependcond.connection.getElement();
+         dependsel.value = "abc";   // has text. Will allow evaluation
+         assertTrue(cond.canEvaluate());
+         dependsel.value = "";  // no evaluation
+         assertFalse(cond.canEvaluate());
+
+      }
+
+      function testDependsWithFunction()
+      {
+         var cond = jTAC.create("Conditions.DataTypeCheck", {datatype:"Integer"});
+         cond.connection = jTAC.create("Connections.MockFormElement");
+         var el = cond.connection.getElement();
+         el.value = "abc"; // not an integer
+
+         assertTrue(cond.canEvaluate());
+         assertEquals(0, cond.evaluate());
+
+         // with the dependency
+         cond.depends = function(element) {
+            return true;
+         };
+         assertTrue(cond.canEvaluate());
+         cond.depends = function(element) {
+            return false;
+         };
+         assertFalse(cond.canEvaluate());
+
+      }
+
+      function testRuleName()
+      {
+         var cond = jTAC.create("Conditions.DataTypeCheck");
+         assertFunction(cond.ruleName);
+         assertEquals("datatypecheck", cond.ruleName());
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInstalled();
+         testDataTypeCheck();
+         testRange();
+         testCompareToValue();
+         testCompareTwoElements();
+         testDifference();
+         testRequired();
+         testRequiredIndex();
+         testSelectedIndex();
+         testCharacterCount();
+         testWordCount();
+         testCountSelections();
+         testRegExp();
+         testDuplicateEntry();
+         testDepends();
+         testDependsWithFunction();
+         testRuleName();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   
+   </script>
+</body>
+</html>

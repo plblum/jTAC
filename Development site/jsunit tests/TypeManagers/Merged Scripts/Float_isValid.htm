@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testIsValidTrue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Float");
+         assertNotNull(vInstance1);
+         var vR = vInstance1.isValid("1000.45");
+         assertEquals(vR, true);
+         vR = vInstance1.isValid("1,000,000.45");
+         assertEquals(vR, true);
+         vR = vInstance1.isValid(1000000.45);
+         assertEquals(vR, true);
+
+      // integers still work
+         vR = vInstance1.isValid("1000");
+         assertEquals(vR, true);
+         vR = vInstance1.isValid(1000);
+         assertEquals(vR, true);
+      }
+
+      function testIsValidFalse()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Float");
+         assertNotNull(vInstance1);
+         var vR = vInstance1.isValid("10.00.30");  // extra decimal separator
+         assertEquals(vR, false);
+         vR = vInstance1.isValid("1_000_000");
+         assertEquals(vR, false);
+         vR = vInstance1.isValid(false);
+         assertEquals("invalid parameter", vR, false);
+         vInstance1.setAllowNegatives(false);
+         vR = vInstance1.isValid(-10);
+         assertEquals("AllowNegatives=false", vR, false);
+         vInstance1.setMaxDecimalPlaces(2);
+         vR = vInstance1.isValid(10.1); // valid
+         assertEquals("MaxDecimalPlaces OK", vR, true); 
+         vR = vInstance1.isValid(10.123); // invalid
+         assertEquals("MaxDecimalPlaces exceeded", vR, false);
+
+
+      }
+      function testIsValidCannotEval()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Float");
+         assertNotNull(vInstance1);
+         var vR = vInstance1.isValid(null);
+         assertEquals(vR, false);
+         vR = vInstance1.isValid("");
+         assertEquals(vR, false);
+         vR = vInstance1.isValid("  ");   // trim
+         assertEquals(vR, false);
+         vR = vInstance1.isValid(null, false); // cannoteval = false
+         assertEquals(vR, false);
+         vR = vInstance1.isValid(null, true); // cannoteval = true
+         assertEquals(vR, true);
+      }
+
+      function testIsValidGerman()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Float", {cultureName: "de-DE"});
+         assertNotNull(vInstance1);
+         var vR = vInstance1.isValid("1000,012");
+         assertEquals(vR, true);
+         vR = vInstance1.isValid("1.000.000,023");
+         assertEquals(vR, true);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testIsValidTrue();
+         testIsValidFalse();
+         testIsValidCannotEval();
+         testIsValidGerman();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

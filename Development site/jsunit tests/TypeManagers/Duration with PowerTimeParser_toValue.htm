@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Duration.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PowerTimeParser.js" type="text/javascript"></script>
+   <!-- the next scripts are only needed for DecimalCharacterMode=1 -->
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+</head>
+<body>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function severalTimes(instance, textToParse, zerosecs, zerominutes)
+      {
+         textToParse = textToParse.replace(/'/g, "");
+
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, zerominutes ? 0 : 59, zerosecs ? 0 : 59);
+         var date4 = new Date(2012, 0, 1, 23, zerominutes ? 0 : 59, zerosecs ? 0 : 59);
+
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, textToParse, date1), 0, 0, 0);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, textToParse, date2), 12, 0, 0);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, textToParse, date3), 11, zerominutes ? 0 : 59, zerosecs ? 0 : 59);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, textToParse, date4), 23, zerominutes ? 0 : 59, zerosecs ? 0 : 59);
+      }
+
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance1);
+
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         severalTimes(vInstance1, "H:mm", true);
+         severalTimes(vInstance1, "HH:mm", true);
+         severalTimes(vInstance1, "HH:mm:", true, false);
+         severalTimes(vInstance1, " HH:mm:ss ");
+         severalTimes(vInstance1, "x HH:mm:ss y");
+
+
+      // parseTimeRequires determines if minutes and seconds are required. By default minutes are required
+         var saved = vInstance1.parseTimeRequires;
+         setPropertyValue(vInstance1, "parseTimeRequires", "s");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToIllegalValueMain(vInstance1, "13:01");
+         ToIllegalValueMain(vInstance1, "13");
+         setPropertyValue(vInstance1, "parseTimeRequires", "m");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToValueForTimes(vInstance1, "13:01", 13, 1, 0);
+         ToIllegalValueMain(vInstance1, "13");
+         setPropertyValue(vInstance1, "parseTimeRequires", "h");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToValueForTimes(vInstance1, "13:01", 13, 1, 0);
+         ToValueForTimes(vInstance1, "13", 13, 0, 0);
+         ToValueForTimes(vInstance1, "1", 1, 0, 0);
+         ToValueForTimes(vInstance1, "0::", 0, 0, 0);
+         ToValueForTimes(vInstance1, "0::01", 0, 0 ,1);
+         vInstance1.parseTimeRequires = saved; // restore default
+
+         ToIllegalValueMain(vInstance1, "24:00:00");  // because it uses a Date object which limits the hours to 23
+         ToIllegalValueMain(vInstance1, "26:01:02");  // because it uses a Date object which limits the hours to 23
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "22:60:00");
+         ToIllegalValueMain(vInstance1, "::");
+         ToIllegalValueMain(vInstance1, ":1:1");
+
+      }
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "fr-FR"});  
+         assertNotNull(vInstance1);
+
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         severalTimes(vInstance1, "H:mm", true);
+         severalTimes(vInstance1, "HH:mm", true);
+      }
+
+      function testToValueHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "hi-IN"});  
+         assertNotNull(vInstance1);
+
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+
+         severalTimes(vInstance1, "H:mm", true);
+         severalTimes(vInstance1, "HH:mm", true);
+      }
+
+      function testToValueEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "quz-EC"});  
+
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         severalTimes(vInstance1, "H:mm", true);
+         severalTimes(vInstance1, "HH:mm", true);
+      }
+
+      function testToValueEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "am-ET"});  
+         assertNotNull(vInstance1);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         severalTimes(vInstance1, "H:mm", true);
+         severalTimes(vInstance1, "HH:mm", true);
+      }
+
+      function testToValueAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:1});  
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "2:3:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "14:03:30", 14 * 3600 + 3 * 60 + 30);
+         ToValueMain(vInstance1, "0:00:00", 0);
+         ToValueMain(vInstance1, "0:0:0", 0);
+         ToValueMain(vInstance1, "01:02:03", 1 * 3600 + 2 * 60 + 3);
+         ToValueMain(vInstance1, "12:00:00", 12 * 3600);
+         ToValueMain(vInstance1, "11:59:59", (12 * 3600) - 1);
+         ToValueMain(vInstance1, "24:03:00", 24 * 3600 + 3 * 60 + 0);   // durations allow hours greater than 24
+         ToValueMain(vInstance1, "80:03:30", 80 * 3600 + 3 * 60 + 30);
+
+         ToValueMain(vInstance1, "2:03", 2 * 3600 + 3 * 60);
+         ToValueMain(vInstance1, "0:00", 0);
+         ToValueMain(vInstance1, "12:00", 12 * 3600);
+         ToValueMain(vInstance1, "24:03", 24 * 3600 + 3 * 60);   // durations allow hours greater than 24
+         ToValueMain(vInstance1, "80:03", 80 * 3600 + 3 * 60);
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:3600});  
+         assertNotNull(vInstance2);
+         ToValueMain(vInstance2, "2:00:00", 2);
+         ToValueMain(vInstance2, "14:00:00", 14);
+         ToValueMain(vInstance2, "2:30:00", 2.5);
+         ToValueMain(vInstance2, "14:30:00", 14.5);
+         ToValueMain(vInstance2, "24:30:00", 24.5);   // durations allow hours greater than 24
+
+         ToValueMain(vInstance2, "2:00", 2);
+         ToValueMain(vInstance2, "14:00", 14);
+         ToValueMain(vInstance2, "2:30", 2.5);
+         ToValueMain(vInstance2, "14:30", 14.5);
+         ToValueMain(vInstance2, "24:30", 24.5);   // durations allow hours greater than 24
+      }
+      function testToValueDecimalCharacterMode()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:1});  
+         assertNotNull(vInstance1);
+         vInstance1.parserOptions.decimalCharacterMode = 1; // decimal values allowed
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "2.5", 2 * 3600 + 30 * 60);
+         ToValueMain(vInstance1, "30.5", 30 * 3600 + 30 * 60);
+
+         vInstance1.parserOptions.decimalCharacterMode = 2; // decimal characters treated as time separators
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "2.3.0", 2 * 3600 + 3 * 60 + 0);
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance2);
+         vInstance2.parserOptions.decimalCharacterMode = 1; // decimal values allowed
+         ToValueForTimes(vInstance2, "2:03:00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "2.5", 2, 30, 0);
+
+         vInstance2.parserOptions.decimalCharacterMode = 2; // decimal characters treated as time separators
+         ToValueForTimes(vInstance2, "2:03:00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "2.3.0", 2, 3, 0);
+
+         var vInstance3 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:3600});  
+         assertNotNull(vInstance3);
+         vInstance3.parserOptions.decimalCharacterMode = 1;
+         vInstance3.setTimeFormat(11);
+         ToValueMain(vInstance3, "2:00", 2);
+         ToValueMain(vInstance3, "2.0", 2);
+         ToValueMain(vInstance3, "14:30", 14.5);
+         ToValueMain(vInstance3, "14.5", 14.5);
+         ToValueMain(vInstance3, "24:30", 24.5);   // durations allow hours greater than 24
+
+      }
+
+      function testToValueMaxHours()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:1});  
+         assertNotNull(vInstance1);
+         vInstance1.setMaxHours(19);
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "19:59:59", (20 * 3600) - 1);
+         ToIllegalValueMain(vInstance1, "20:00:00"); 
+         ToIllegalValueMain(vInstance1, "80:03:30");
+
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds:3600});  
+         assertNotNull(vInstance2);
+         vInstance2.setMaxHours(19);
+         ToValueMain(vInstance2, "2:00:00", 2);
+         ToValueMain(vInstance2, "19:30:00", 19.5);
+         ToIllegalValueMain(vInstance2, "20:00:00");
+
+         var vInstance3 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance3);
+         vInstance3.setMaxHours(19);
+         ToValueForTimes(vInstance3, "2:03:00", 2, 3, 0);
+         ToValueForTimes(vInstance3, "19:59:59", 19, 59, 59);
+         ToIllegalValueMain(vInstance3, "20:03:00");
+
+      }
+
+      function testOptionTrimParts()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance1);
+         
+         ToIllegalValueMain(vInstance1, "2 :03:00");
+         ToIllegalValueMain(vInstance1, "2: 03:00");
+         ToIllegalValueMain(vInstance1, "2:03 :00");
+         ToIllegalValueMain(vInstance1, "2:03: 00");
+         ToIllegalValueMain(vInstance1, "14: 03:00");
+
+      // create a new instance because it caches a regex that must be changed if changing trimParts
+         var vInstance2 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance2);
+         vInstance2.parserOptions.trimParts = true;
+         ToValueForTimes(vInstance2, "2 :03:00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "2: 03:00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "2:03 :00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "2:03: 00", 2, 3, 0);
+         ToValueForTimes(vInstance2, "14: 03:00", 14, 3, 0);
+      }
+
+
+      function testOptionMoreTimeSeps()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance1);
+         
+         ToIllegalValueMain(vInstance1, "2-03-00");
+         ToIllegalValueMain(vInstance1, "2+03+00");
+
+         vInstance1.parserOptions.moreTimeSeps = "-+";
+         ToValueForTimes(vInstance1, "2-03-00", 2, 3, 0);
+         ToValueForTimes(vInstance1, "2+03+00", 2, 3, 0);
+      }
+
+      function testOptionNoSecsEnforced()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance1);
+         vInstance1.timeFormat = 11; // no seconds
+         ToIllegalValueMain(vInstance1, "2:03:01");
+         ToIllegalValueMain(vInstance1, "14:03:01");
+         ToValueForTimes(vInstance1, "2:03:00", 2, 3, 0);   // always allowed when seconds = 0
+
+         vInstance1.parserOptions.noSecsEnforced = false;
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+         ToValueForTimes(vInstance1, "2:03:00", 2, 3, 0);   // always allowed when seconds = 0
+      }
+
+      function testOptionInsertTimeSeps()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");  
+         assertNotNull(vInstance1);
+         ToValueForTimes(vInstance1, "20300", 2, 3, 0);
+         ToValueForTimes(vInstance1, "140300", 14, 3, 0);
+         ToValueForTimes(vInstance1, "1000", 10, 0, 0);
+
+         vInstance1.parserOptions.insertTimeSeps = false;
+         ToIllegalValueMain(vInstance1, "20300");
+         ToIllegalValueMain(vInstance1, "140300");
+         ToIllegalValueMain(vInstance1, "1000");
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testToValueFrench();
+         testToValueHindi();
+         testToValueEcuador();
+         testToValueEthiopia();
+         testToValueAsNumber();
+         testToValueDecimalCharacterMode();
+         testToValueMaxHours();
+         testOptionTrimParts();
+         testOptionMoreTimeSeps();
+         testOptionNoSecsEnforced();
+         testOptionInsertTimeSeps();
+
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</body>
+</html>

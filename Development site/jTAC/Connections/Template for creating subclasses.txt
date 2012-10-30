@@ -1,0 +1,58 @@
+﻿// jTAC/Connections/[ClassName].js
+/* -----------------------------------------------------------
+JavaScript Types and Conditions ("jTAC")
+Copyright (C) 2012  Peter L. Blum
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-------------------------------------------------------------
+Module: Connection objects
+Class : Connections.[ClassName]
+Extends: Connections.[BaseClass]
+
+Purpose:
+
+See \jTAC\Connections\Base.js for an overview of Connections.
+
+Properties introduced by this class:
+
+Requires: 
+ALWAYS LOAD jTAC.js BEFORE THIS FILE IS LOADED
+Connections.Base
+
+----------------------------------------------------------- */
+jTAC._internal.temp._Connections_[ClassName] = {
+   extend: "Connections.[BaseClass]",
+
+   constructor: function ( propertyVals ) {
+      this.callParent( [propertyVals] );
+
+   },
+
+   config: {
+   },
+
+   configrules: {
+   },
+
+   /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------
+   These members are GETTER and SETTER methods associated with properties
+   of this class.
+   Not all are defined here. Any that are defined in this.config
+   can be setup by the autoGet and autoSet capability. If they are, they 
+   will not appear here.
+   ---------------------------------------------------------------------*/
+
+}
+jTAC.define("Connections.[ClassName]", jTAC._internal.temp._Connections_[ClassName]);
+

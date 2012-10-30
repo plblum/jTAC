@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PowerDateParser.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      
+      function testIsValidCharFormat0()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+         checkAllChars(vInstance1, "109/", true);
+         checkAllChars(vInstance1, "aAmM,. -", false);   // letters chosen from en-US month names
+      }
+
+      function testIsValidCharFormat1()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+         vInstance1.setDateFormat(1);
+         checkAllChars(vInstance1, "109/aAmM", true);
+         checkAllChars(vInstance1, ",. -Zz", false);
+      }
+
+      function testIsValidCharFormat10()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+         vInstance1.setDateFormat(10);
+         checkAllChars(vInstance1, "109aAmM, /", true);
+         checkAllChars(vInstance1, ".-zZ", false);
+      }
+
+      function testIsValidCharFormat20()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+         vInstance1.setDateFormat(20);
+         checkAllChars(vInstance1, "109aAmM, /", true);
+         checkAllChars(vInstance1, ".-zZ", false);
+      }
+
+
+      function testIsValidCharChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date", {cultureName: "ii-CN"});   
+         assertNotNull(vInstance1);
+         vInstance1.setDateFormat(0);
+         checkAllChars(vInstance1, "109/", true);
+         checkAllChars(vInstance1, "aAzZ.-ꋍꆪꆏꊂꇖ, ", false);
+         vInstance1.setDateFormat(1);
+         checkAllChars(vInstance1, "109/ꆪꋍ", true);
+         checkAllChars(vInstance1, "aAzZ.-ꆏꊂ, ", false);
+         // chinese does not use the day of week or month name
+         vInstance1.setDateFormat(10);
+         checkAllChars(vInstance1, "109ꆪ ꈎ/", true);
+         checkAllChars(vInstance1, "aAzZꆏꊂꋍꊂ.-,", false);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+
+         testIsValidCharFormat0();
+         testIsValidCharFormat1();
+         testIsValidCharFormat10();
+         testIsValidCharFormat20();
+         testIsValidCharChinese();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

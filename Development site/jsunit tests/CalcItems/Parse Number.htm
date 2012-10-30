@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Parser.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+</head>
+<body>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testDefineParse()
+      {
+         assertNotNull(jTAC.parser);
+         var calcItem = jTAC.create("CalcItems.Number");
+         assertNotNull(calcItem);
+         assertNotNull(calcItem.parse);   // ensure the method was attached.
+      }
+      function testPatterns()
+      {
+         // try patterns to see that some work and some are rejected by the parse() method.
+         assertFailedParse("");
+         assertFailedParse("  ");
+         assertFailedParse('"1"');
+         assertSuccessParse("1", 1);
+         assertSuccessParse("12", 12);
+         assertSuccessParse("0.1", 0.1);
+         assertSuccessParse('1.10000', 1.1);
+         assertSuccessParse('-1', -1);
+         assertFailedParse("1.1.2");
+         assertFailedParse(".2");
+         assertSuccessParse("  1", 1);
+         assertSuccessParse("  12", 12);
+         assertSuccessParse("  0.1", 0.1);
+         assertSuccessParse('  1.10000', 1.1);
+         assertSuccessParse('  -1', -1);
+
+         assertSuccessParse("1;", 1);
+         assertSuccessParse("1+", 1);
+         assertSuccessParse("1)", 1);
+         assertSuccessParse("1#", 1);
+         assertSuccessParse("1 ", 1);
+         assertFailedParse("2a");
+         assertFailedParse("2.0.");
+      }
+
+      function testEvaluate()
+      {
+         Evaluate("10", 10);
+         Evaluate("-30", -30);
+         Evaluate("3.50", 3.5);
+      }
+
+      function assertSuccessParse(text, compare)
+      {
+         var calcItem = jTAC.create("CalcItems.Number");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Number);
+         assertEquals(compare, r.obj.number);
+      }
+
+      function assertFailedParse(text)
+      {
+         var calcItem = jTAC.create("CalcItems.Number");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNull(r);
+      }
+
+      function assertExceptionParse(text)
+      {
+         var success = true;
+         try
+         {
+            var calcItem = jTAC.create("CalcItems.Number");
+            var r = calcItem.parse(text, jTAC.parser); // exception expected here
+            success = false;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("Exception was expected for: " + text);
+      }
+
+      function Evaluate(text, result)
+      {
+         var calcItem = jTAC.create("CalcItems.Number");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Number);
+         assertEquals(result, r.obj.evaluate());
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testDefineParse();
+         testPatterns();
+         testEvaluate();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

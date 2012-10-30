@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/CreditCardNumber.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.CreditCardNumber");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "", "");
+
+         // brands are applied by default
+         ToValueMain(vInstance1, "4563960122001999", "4563960122001999");  // # from http://www.ee.unb.ca/cgi-bin/tervo/luhn.pl . Matches Visa-16 char
+         // source of these numbers: http://www.paypalobjects.com/en_US/vhelp/paypalmanager_help/credit_card_numbers.htm
+         ToValueMain(vInstance1, "378282246310005", "378282246310005"); // AMex
+         ToValueMain(vInstance1, "371449635398431", "371449635398431"); // AMex
+         ToValueMain(vInstance1, "378734493671000", "378734493671000"); // AMex
+         ToValueMain(vInstance1, "30569309025904", "30569309025904");   // Diner's club
+         ToValueMain(vInstance1, "38520000023237", "38520000023237");   // Diner's club
+         ToValueMain(vInstance1, "6011111111111117", "6011111111111117");  // Discover
+         ToValueMain(vInstance1, "6011000990139424", "6011000990139424"); // Discover
+         ToValueMain(vInstance1, "5555555555554444", "5555555555554444");  // MasterCard
+         ToValueMain(vInstance1, "5105105105105100", "5105105105105100");  // MasterCard
+         ToValueMain(vInstance1, "4111111111111111", "4111111111111111");  // Visa-16 char
+         ToValueMain(vInstance1, "4012888888881881", "4012888888881881");  // Visa-16 char
+         ToValueMain(vInstance1, "4222222222222", "4222222222222");  // Visa-13 char
+
+
+         TestExceptionMsg(vInstance1, 1, "Not enough digits");
+         TestExceptionMsg(vInstance1, "1", "Not enough digits");
+         TestExceptionMsg(vInstance1, "abc", "Not enough digits");
+         TestExceptionMsg(vInstance1, "abcabcabcabcabcabc", "Illegal character");
+         TestExceptionMsg(vInstance1, "456396012200199b", "Illegal character");
+         TestExceptionMsg(vInstance1, "4563 9601 2200 1999", "Illegal character");
+         TestExceptionMsg(vInstance1, "456396012200199", "Brand mismatch");  // 15 chars, must be 16
+         TestExceptionMsg(vInstance1, "9563960122001999", "Brand mismatch");  // none start with 9
+         TestExceptionMsg(vInstance1, "4563960122001998", "Failed Luhns");  // last digit should be 9
+         TestExceptionMsg(vInstance1, "4563960122001990", "Failed Luhns");  // last digit should be 9
+         TestExceptionMsg(vInstance1, "4663960122001999", "Failed Luhns");  // 2nd digit should be 5
+
+         TestExceptionMsg(vInstance1, "378282247310005", "Failed Luhns"); // AMex
+         TestExceptionMsg(vInstance1, "371449637398431", "Failed Luhns"); // AMex
+         TestExceptionMsg(vInstance1, "378734497671000", "Failed Luhns"); // AMex
+         TestExceptionMsg(vInstance1, "30569309725904", "Failed Luhns");   // Diner's club
+         TestExceptionMsg(vInstance1, "38520000723237", "Failed Luhns");   // Diner's club
+         TestExceptionMsg(vInstance1, "6011111171111117", "Failed Luhns");  // Discover
+         TestExceptionMsg(vInstance1, "6011000970139424", "Failed Luhns"); // Discover
+         TestExceptionMsg(vInstance1, "5555555575554444", "Failed Luhns");  // MasterCard
+         TestExceptionMsg(vInstance1, "5105105175105100", "Failed Luhns");  // MasterCard
+         TestExceptionMsg(vInstance1, "4111111171111111", "Failed Luhns");  // Visa-16 char
+         TestExceptionMsg(vInstance1, "4012888878881881", "Failed Luhns");  // Visa-16 char
+         TestExceptionMsg(vInstance1, "4222222272222", "Failed Luhns");  // Visa-13 char
+
+
+
+         TestExceptionMsg(vInstance1, "5610591081018250", "Brand mismatch");  // Australian BankCard valid with luhns, but its not listed in the brands. 
+         TestExceptionMsg(vInstance1, "3530111333300000", "Brand mismatch");  // JCB valid with luhns, but its not listed in the brands. 
+         TestExceptionMsg(vInstance1, "3566002020360505", "Brand mismatch");  // JCB valid with luhns, but its not listed in the brands. 
+         TestExceptionMsg(vInstance1, "5019717010103742", "Brand mismatch");  // Dankort (PBS) valid with luhns, but its not listed in the brands. 
+         TestExceptionMsg(vInstance1, "6331101999990016", "Brand mismatch");  // Switch/Solo (Paymentech) valid with luhns, but its not listed in the brands. 
+      }
+
+      function testNoBrands()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.CreditCardNumber");
+         assertNotNull(vInstance1);
+         vInstance1.brands = null;
+
+         // brands are applied by default
+         ToValueMain(vInstance1, "4563960122001999", "4563960122001999");  // # from http://www.ee.unb.ca/cgi-bin/tervo/luhn.pl . Matches Visa-16 char
+         // source of these numbers: http://www.paypalobjects.com/en_US/vhelp/paypalmanager_help/credit_card_numbers.htm
+         ToValueMain(vInstance1, "378282246310005", "378282246310005"); // AMex
+         ToValueMain(vInstance1, "371449635398431", "371449635398431"); // AMex
+         ToValueMain(vInstance1, "378734493671000", "378734493671000"); // AMex
+         ToValueMain(vInstance1, "30569309025904", "30569309025904");   // Diner's club
+         ToValueMain(vInstance1, "38520000023237", "38520000023237");   // Diner's club
+         ToValueMain(vInstance1, "6011111111111117", "6011111111111117");  // Discover
+         ToValueMain(vInstance1, "6011000990139424", "6011000990139424"); // Discover
+         ToValueMain(vInstance1, "5555555555554444", "5555555555554444");  // MasterCard
+         ToValueMain(vInstance1, "5105105105105100", "5105105105105100");  // MasterCard
+         ToValueMain(vInstance1, "4111111111111111", "4111111111111111");  // Visa-16 char
+         ToValueMain(vInstance1, "4012888888881881", "4012888888881881");  // Visa-16 char
+         ToValueMain(vInstance1, "4222222222222", "4222222222222");  // Visa-13 char
+
+      // these did not work when brands were setup
+         ToValueMain(vInstance1, "5610591081018250", "5610591081018250");  // Australian BankCard valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "3530111333300000", "3530111333300000");  // JCB valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "3566002020360505", "3566002020360505");  // JCB valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "5019717010103742", "5019717010103742");  // Dankort (PBS) valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "6331101999990016", "6331101999990016");  // Switch/Solo (Paymentech) valid with luhns, but its not listed in the brands. 
+
+      }
+
+      function testChangeBrands()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.CreditCardNumber");
+         assertNotNull(vInstance1);
+
+      // support only the brands previously not supported
+         vInstance1.brands = 
+         [{len: 16, prefix: '56'}, // Australian BankCard
+          {len: 16, prefix: '35'}, // JCB
+          {len: 11, prefix: '7600'}, // Dankort (PBS) valid
+          {len: 16, prefix: '501'}, // Dankort (PBS) valid
+          {len: 16, prefix: '6331'}, // Switch/Solo (Paymentech)
+         ];
+         ToValueMain(vInstance1, "5610591081018250", "5610591081018250");  // Australian BankCard valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "3530111333300000", "3530111333300000");  // JCB valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "3566002020360505", "3566002020360505");  // JCB valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "5019717010103742", "5019717010103742");  // Dankort (PBS) valid with luhns, but its not listed in the brands. 
+         ToValueMain(vInstance1, "6331101999990016", "6331101999990016");  // Switch/Solo (Paymentech) valid with luhns, but its not listed in the brands. 
+
+         // these no longer work
+         TestExceptionMsg(vInstance1, "378282246310005", "Brand mismatch"); // AMex
+         TestExceptionMsg(vInstance1, "371449635398431", "Brand mismatch"); // AMex
+         TestExceptionMsg(vInstance1, "378734493671000", "Brand mismatch"); // AMex
+         TestExceptionMsg(vInstance1, "30569309025904", "Brand mismatch");   // Diner's club
+         TestExceptionMsg(vInstance1, "38520000023237", "Brand mismatch");   // Diner's club
+         TestExceptionMsg(vInstance1, "6011111111111117", "Brand mismatch");  // Discover
+         TestExceptionMsg(vInstance1, "6011000990139424", "Brand mismatch"); // Discover
+         TestExceptionMsg(vInstance1, "5555555555554444", "Brand mismatch");  // MasterCard
+         TestExceptionMsg(vInstance1, "5105105105105100", "Brand mismatch");  // MasterCard
+         TestExceptionMsg(vInstance1, "4111111111111111", "Brand mismatch");  // Visa-16 char
+         TestExceptionMsg(vInstance1, "4012888888881881", "Brand mismatch");  // Visa-16 char
+         TestExceptionMsg(vInstance1, "4222222222222", "Brand mismatch");  // Visa-13 char
+
+      }
+
+      function testAllowSeps()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.CreditCardNumber");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "", "");
+
+         // brands are applied by default
+         vInstance1.allowSeps = " ";
+         ToValueMain(vInstance1, "4563 9601 2200 1999", "4563960122001999");
+         ToValueMain(vInstance1, "3782   82246310005", "378282246310005"); // AMex
+
+         vInstance1.allowSeps = "-";
+         ToValueMain(vInstance1, "4563-9601-2200-1999", "4563960122001999");
+      }
+
+      function TestExceptionMsg(instance, text, msg)
+      {
+         try
+         {
+            instance.toValue(text);
+            fail("Should have generated an error.");
+         }
+         catch (e)
+         {
+            assertTrue(e.message.indexOf(msg) > -1);
+         }
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testNoBrands();
+         testChangeBrands();
+         testAllowSeps();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

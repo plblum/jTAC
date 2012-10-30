@@ -1,0 +1,463 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/DateTime.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function severalDates(instance, pattern)
+      {
+         pattern = pattern.replace(/'/g, "");
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date1), date1);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date2), date2);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date3), date3);
+         var date4 = new Date(1965, 4, 31, 16, 36, 0);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date4), date4);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date5), date5);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+         ToValueForDates(instance, UpdatePatternWithDateTime(instance, pattern, date6), date6);
+      }
+      function testToValue()
+      {
+
+         var vInstance1 = jTAC.create("TypeManagers.DateTime");   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+
+         var date1 = new Date(2000, 1, 1, 1, 0, 0);
+         var date2 = new Date(2010, 10, 30, 12, 59, 59);
+
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "M/d/yyyy h:mm:ss tt");
+         severalDates(vInstance1, "MM/dd/yyyy hh:mm:ss tt");
+
+         var saved = vInstance1.timeOptions.parseTimeRequires;
+         vInstance1.timeOptions.parseTimeRequires = "h";
+         ToValueForDates(vInstance1, "2/1/2000 1:00 AM", date1);
+         ToValueForDates(vInstance1, "2/1/2000 1 AM", date1);
+         ToValueForDates(vInstance1, "2/1/2000 1", date1);
+         vInstance1.timeOptions.parseTimeRequires = "m";
+         ToValueForDates(vInstance1, "2/1/2000 1:00 AM", date1);
+         ToIllegalValueMain(vInstance1, "2/1/2000 1 AM", date1);
+         ToIllegalValueMain(vInstance1, "2/1/2000 1", date1);
+         vInstance1.timeOptions.parseTimeRequires = "s";
+         ToValueForDates(vInstance1, "2/1/2000 1:00:00 AM", date1);
+         ToIllegalValueMain(vInstance1, "2/1/2000 1:00 AM", date1);
+         ToIllegalValueMain(vInstance1, "2/1/2000 1 AM", date1);
+         ToIllegalValueMain(vInstance1, "2/1/2000 1", date1);
+         vInstance1.timeOptions.parseTimeRequires = saved; // restore default
+
+         ToIllegalValueMain(vInstance1, "21/1/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "1/41/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "1/1/19000 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "1/1/1900 24:00:00 AM");
+         ToIllegalValueMain(vInstance1, "1/1/1900 1:60:00 AM");
+         ToIllegalValueMain(vInstance1, "1/1/1900 1:00:60 AM");
+         ToIllegalValueMain(vInstance1, "1/20/1900");
+         assertNull(vInstance1.toValue(""));
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "M/d/yyyy h:mm tt");
+         severalDates(vInstance1, "MM/dd/yyyy hh:mm tt");
+         ToIllegalValueMain(vInstance1, "J/1/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Ja/1/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "January/1/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jank/1/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jan/41/1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Feb/1/19000 1:00:00 AM");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMM/d/yyyy h:mm:ss tt");
+         ToValueForDates(vInstance1, "FEB/1/2000 1:00:00 AM", date1);
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "MMM/d/yyyy h:mm tt");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMM/d/yyyy h:mm:ss tt"); 
+         ToValueForDates(vInstance1, "FEB/1/2000 1:00:00 AM", date1);
+         ToValueForDates(vInstance1, "feb/1/2000 1:00:00 AM", date1);
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "MMM/d/yyyy h:mm tt");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMM dd, yyyy h:mm:ss tt");
+         ToValueForDates(vInstance1, "feb 1, 2000 1:00:00 AM", date1);
+         ToValueForDates(vInstance1, "FEB 1, 2000 1:00:00 AM", date1);
+
+         ToIllegalValueMain(vInstance1, "Feb      1, 2000 1:00:00 AM");  // may become legal in a later release. Its failure is currently a bug in globalize.
+         ToIllegalValueMain(vInstance1, "FEB 1,2000 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "J 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Ja 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "January 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jank 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jan 41, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jan 1 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Feb 1, 19000 1:00:00 AM");
+
+         ToIllegalValueMain(vInstance1, "2/1/2000 1:00:00 AM");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "MMM dd, yyyy h:mm tt");
+
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMMM dd, yyyy h:mm:ss tt");
+         ToValueForDates(vInstance1, "february 1, 2000 1:00:00 AM", date1);
+         ToValueForDates(vInstance1, "FEBRUARY 1, 2000 1:00:00 AM", date1);
+
+         ToIllegalValueMain(vInstance1, "February      1, 2000 1:00:00 AM");  // may become legal in a later release. Its failure is currently a bug in globalize.
+         ToIllegalValueMain(vInstance1, "FEBRUARY 1,2000 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "J 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Ja 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Jan 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "Februaryk 1, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "January 41, 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "January 1 1900 1:00:00 AM");
+         ToIllegalValueMain(vInstance1, "February 1, 19000 1:00:00 AM");
+
+         ToIllegalValueMain(vInstance1, "2/1/2000 1:00:00 AM");
+
+*/
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(0);
+
+         severalDates(vInstance1, "yyyy-MM-dd h:mm:ss tt");
+         ToIllegalValueMain(vInstance1, "2011-02-29 12:59:59 PM");
+         ToIllegalValueMain(vInstance1, "2012-02-30 12:59:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", { cultureName: "fr-FR" });   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MM/yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd/MM/yyyy HH:mm");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MMM/yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MMM/yyyy HH:mm:ss");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "d MMM yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "d MMM yyyy HH:mm");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "d MMMM yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "d MMMM yyyy HH:mm");
+*/
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      function testToValueHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", { cultureName: "hi-IN" });   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd-MM-yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd-MM-yyyy HH:mm");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd-MMM-yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd-MMM-yyyy HH:mm");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd-MMM-yyyy HH:mm:ss");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd MMM yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd MMM yyyy HH:mm");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd MMMM yyyy HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd MMMM yyyy HH:mm");
+*/
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      function testToValueChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", { cultureName: "ii-CN" });   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy/M/d H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "yyyy/M/d tt h:mm");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy/MMM/d H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "yyyy/MMM/d H:mm");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy/MMM/d H:mm:ss");   // same as 1.
+
+         // chinese uses the month number and does not use the day of the week. 10-22 are the same
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy'ꈎ' M'ꆪ' d'ꑍ' H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "yyyy'ꈎ' M'ꆪ' d'ꑍ' H:mm");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy'ꈎ' M'ꆪ' d'ꑍ' H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "yyyy'ꈎ' M'ꆪ' d'ꑍ' H:mm");
+*/
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy-MM-dd H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      function testToValueEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", { cultureName: "quz-EC" });   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MM/yyyy H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd/MM/yyyy H:mm");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MMM/yyyy H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd/MMM/yyyy H:mm");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd/MMM/yyyy H:mm:ss");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd/MMM/yyyy H:mm");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd' de 'MMM' de 'yyyy H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd' de 'MMM' de 'yyyy H:mm");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "dd' de 'MMMM' de 'yyyy H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "dd' de 'MMMM' de 'yyyy H:mm");
+
+*/
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy-MM-dd H:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      function testToValueEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", { cultureName: "am-ET" });   // DateFormat = 20, FallbackDateFormats = null, TimeFormat= 0
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "d/M/yyyy h:mm:ss tt");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "d/M/yyyy h:mm tt");
+/* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "d/MMM/yyyy h:mm:ss tt");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "d/MMM/yyyy h:mm tt");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "d/MMM/yyyy h:mm:ss tt");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(2);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "d/MMM/yyyy h:mm tt");   // same as 1.
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMM d 'ቀን' yyyy h:mm:ss tt");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "MMM d 'ቀን' yyyy h:mm tt");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "MMMM d 'ቀን' yyyy h:mm:ss tt");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         vInstance1.timeOptions.setTimeFormat(1);
+         severalDates(vInstance1, "MMMM d 'ቀን' yyyy h:mm tt");
+
+*/
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(0);
+         severalDates(vInstance1, "yyyy-MM-dd h:mm:ss tt");
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm:ss");
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testToValueFrench();
+         testToValueHindi();
+         testToValueChinese();
+         testToValueEcuador();
+         testToValueEthiopia();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</body>
+</html>

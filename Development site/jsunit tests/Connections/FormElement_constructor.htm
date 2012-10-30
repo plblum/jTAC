@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script> 
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testFormConnection()
+      {
+         var vInstance1 = jTAC.create("Connections.FormElement");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.id);
+         assertFalse(vInstance1.allowNone);
+         assertTrue(vInstance1.trim);
+         assertNull(vInstance1.unassigned);
+         assertFalse(vInstance1.unassignedCase);
+
+         vInstance1.id = "test";
+         assertEquals("test", vInstance1.id);
+         vInstance1.allowNone = true;
+         assertTrue(vInstance1.allowNone);
+         vInstance1.unassigned = "water";
+         assertEquals("water", vInstance1.unassigned);
+         vInstance1.unassignedCase = true;
+         assertTrue(vInstance1.unassignedCase);
+
+         var vInstance2 = jTAC.create("Connections.FormElement", {id: "test2", allowNone: true});
+         assertNotNull(vInstance2);
+         assertEquals("test2", vInstance2.id);
+         assertTrue(vInstance2.allowNone);
+         vInstance2.trim = false;
+         assertFalse(vInstance2.trim);
+
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testFormConnection();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

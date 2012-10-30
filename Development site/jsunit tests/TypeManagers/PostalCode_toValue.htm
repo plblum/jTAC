@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseRegionString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PostalCode.js" type="text/javascript"></script>
+   <script type="text/javascript">
+
+      function testUnitedStates()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedStates";
+         // Pattern: "(^(\d{5}-\d{4}|\d{5})$)"
+         // Means: #####-### or #####
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "12345", "12345");
+         ToValueMain(vInstance1, "12345-6789", "12345-6789");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "12345 6789");
+         ToIllegalValueMain(vInstance1, "123456-6789");
+         ToIllegalValueMain(vInstance1, "12345-67896");
+         ToIllegalValueMain(vInstance1, "1234-6789"); 
+         ToIllegalValueMain(vInstance1, "12345-67");
+         ToIllegalValueMain(vInstance1, "1234");
+         ToIllegalValueMain(vInstance1, "12345-");
+         ToIllegalValueMain(vInstance1, "12c45-6789");
+         ToIllegalValueMain(vInstance1, "12c45");
+      }
+
+      function testCanada()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "Canada";
+         // Pattern: "(^[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z][ ]?\\d[ABCEGHJ-NPRSTV-Z]\\d$)"
+         // Means: A#A #A# where A is most letters, case insensitive
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "A1A 1A1", "A1A 1A1");
+         ToValueMain(vInstance1, "a1a 1a1", "a1a 1a1");
+         ToValueMain(vInstance1, "A1A1A1", "A1A1A1");
+         ToValueMain(vInstance1, "a1a1A1", "a1a1A1");
+         ToValueMain(vInstance1, "Y9Z 5Z6", "Y9Z 5Z6");
+         ToValueMain(vInstance1, "J0H 2N8", "J0H 2N8");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "A1A 1A1A");  // extra letter
+         ToIllegalValueMain(vInstance1, "A1A 1A11");   // extra digit
+         ToIllegalValueMain(vInstance1, "A1A1 1A1");  // extra digit
+         ToIllegalValueMain(vInstance1, "A1A11A1"); 
+         ToIllegalValueMain(vInstance1, "Z1A 1A1");   // Z not in first alpha
+         ToIllegalValueMain(vInstance1, "A1F 1A1");   // F not in second alpha
+         ToIllegalValueMain(vInstance1, "A1A 1I1");  // I not in third alpha
+         ToIllegalValueMain(vInstance1, "A1A-1A1");
+         ToIllegalValueMain(vInstance1, "A,1A 1A1");
+      }
+
+
+      function testFrance()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "France"; 
+         // Pattern: "(^\d{5}$)"
+         // Means: #####
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "12345", "12345");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "123451"); 
+         ToIllegalValueMain(vInstance1, "1234"); 
+         ToIllegalValueMain(vInstance1, "12d45"); 
+         ToIllegalValueMain(vInstance1, "123 45"); 
+         ToIllegalValueMain(vInstance1, "12345-1234"); 
+
+      }
+      function testJapan()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "Japan"; 
+         // Pattern: "(^\d{3}(-(\d{4}|\d{2}))?$)"
+         // Means: ### or ###-#### or ###-##
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "123", "123");
+         ToValueMain(vInstance1, "123-4567", "123-4567");
+         ToValueMain(vInstance1, "123-45", "123-45");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "123-45671");
+         ToIllegalValueMain(vInstance1, "1123-4567"); 
+         ToIllegalValueMain(vInstance1, "1234567");  
+         ToIllegalValueMain(vInstance1, "123 4567"); 
+         ToIllegalValueMain(vInstance1, "123-45b7");
+         ToIllegalValueMain(vInstance1, "1b3-4567");
+         ToIllegalValueMain(vInstance1, "-4567");
+
+      }     
+      function testGermany()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "Germany"; 
+         // Pattern: "(^\d{5}$)"
+         // Means: #####
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "12345", "12345");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "123451"); 
+         ToIllegalValueMain(vInstance1, "1234"); 
+         ToIllegalValueMain(vInstance1, "12d45"); 
+         ToIllegalValueMain(vInstance1, "123 45"); 
+         ToIllegalValueMain(vInstance1, "12345-1234"); 
+
+      }           
+      function testChina()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "China"; 
+         // Pattern: "(^\d{6}$)"
+         // Means: ######
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "123456", "123456");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "1234561"); 
+         ToIllegalValueMain(vInstance1, "12345"); 
+         ToIllegalValueMain(vInstance1, "12d456"); 
+         ToIllegalValueMain(vInstance1, "123 456"); 
+         ToIllegalValueMain(vInstance1, "123456-1234"); 
+
+
+      }
+
+      function testUnitedKingdom()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedKingdom"; 
+         // Pattern: "(^(GIR 0AA|[A-PR-UWYZ]([0-9][0-9A-HJKPS-UW]?|[A-HK-Y][0-9][0-9ABEHMNPRV-Y]?) [0-9][ABD-HJLNP-UW-Z]{2})$)"
+         // Means: A# #AA or A## #AA or AA# #AA or AA## #AA or A#A #AA or AA#A #AA, where A is any capital letter.
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "M1 1AA", "M1 1AA");
+         ToValueMain(vInstance1, "B33 8TH", "B33 8TH");
+         ToValueMain(vInstance1, "CR2 6XH", "CR2 6XH");
+         ToValueMain(vInstance1, "DN55 1PT", "DN55 1PT");
+         ToValueMain(vInstance1, "W1A 1HQ", "W1A 1HQ");
+         ToValueMain(vInstance1, "EC1A 1BB", "EC1A 1BB");
+
+         // some special codes taken from http://en.wikipedia.org/wiki/Postcodes_in_the_United_Kingdom
+
+         ToValueMain(vInstance1, "BX2 1LB", "BX2 1LB"); // Bank of scotland
+         ToValueMain(vInstance1, "DH98 1BT", "DH98 1BT");   // British Telecom
+         ToValueMain(vInstance1, "SW1A 2AA", "SW1A 2AA");   // 10 Downing Street (prime minister)
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "M1 1AA1");   // extra digit 
+         ToIllegalValueMain(vInstance1, "m1 1aa");   // lowercase
+         ToIllegalValueMain(vInstance1, "M11AA");   // no space
+         ToIllegalValueMain(vInstance1, "1M1 1AA");   // digit lead char
+
+         ToIllegalValueMain(vInstance1, "ASCN 1ZZ");  // Actual code for Ascension Island, but since the first part is all letters, it's not valid
+      }
+
+      function testNorthAmerica()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PostalCode");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "NorthAmerica";  // becomes "UnitedStates|CountryCode"; 
+
+         ToValueMain(vInstance1, "", "");
+         // valid US patterns
+         ToValueMain(vInstance1, "12345", "12345");
+         ToValueMain(vInstance1, "12345-6789", "12345-6789");
+
+         // valid Canada codes
+         ToValueMain(vInstance1, "A1A 1A1", "A1A 1A1");
+         ToValueMain(vInstance1, "a1a 1a1", "a1a 1a1");
+         ToValueMain(vInstance1, "A1A1A1", "A1A1A1");
+         ToValueMain(vInstance1, "a1a1A1", "a1a1A1");
+         ToValueMain(vInstance1, "Y9Z 5Z6", "Y9Z 5Z6");
+         ToValueMain(vInstance1, "J0H 2N8", "J0H 2N8");
+
+         // Invalid US
+         ToIllegalValueMain(vInstance1, "12345 6789");
+         ToIllegalValueMain(vInstance1, "123456-6789");
+         ToIllegalValueMain(vInstance1, "12345-67896");
+         ToIllegalValueMain(vInstance1, "1234-6789"); 
+         ToIllegalValueMain(vInstance1, "12345-67");
+         ToIllegalValueMain(vInstance1, "1234");
+         ToIllegalValueMain(vInstance1, "12345-");
+         ToIllegalValueMain(vInstance1, "12c45-6789");
+         ToIllegalValueMain(vInstance1, "12c45");
+
+         // Invalid Canada
+         ToIllegalValueMain(vInstance1, "A1A 1A1A");  // extra letter
+         ToIllegalValueMain(vInstance1, "A1A 1A11");   // extra digit
+         ToIllegalValueMain(vInstance1, "A1A1 1A1");  // extra digit
+         ToIllegalValueMain(vInstance1, "A1A11A1"); 
+         ToIllegalValueMain(vInstance1, "Z1A 1A1");   // Z not in first alpha
+         ToIllegalValueMain(vInstance1, "A1F 1A1");   // F not in second alpha
+         ToIllegalValueMain(vInstance1, "A1A 1I1");  // I not in third alpha
+         ToIllegalValueMain(vInstance1, "A1A-1A1");
+         ToIllegalValueMain(vInstance1, "A,1A 1A1");
+
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testUnitedStates();
+         testCanada();
+         testFrance();
+         testJapan();
+         testGermany();
+         testChina();
+         testUnitedKingdom();
+         testNorthAmerica();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

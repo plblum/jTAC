@@ -1,0 +1,719 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Command%20extensions.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+
+
+</head>
+<body>
+   <form action="" method="get" id="Form1" >
+      <input type="text" id="TextBox1" name="TextBox1" />
+   </form>
+   <script type="text/javascript">
+
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testInvokeClear()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+         assertNotNull(vInstance1._initCmd); // has this function
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var args = { commandName : "Clear", connection : conn};
+         InvokeCmd(vInstance1, args, "");
+
+         conn.setTextValue("1:30:00 AM");
+         InvokeCmd(vInstance1, args, "");
+
+         conn.setTextValue("abc");  // invalid value is ignored
+         InvokeCmd(vInstance1, args, "");
+
+      }
+
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testInvokeNow()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var now = new Date(); // creates now in local time
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var args = { commandName : "Now", connection : conn, now : now};
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(now.getHours() == args.value.getHours());
+         assertTrue(now.getMinutes() == args.value.getMinutes());
+         assertTrue(now.getSeconds() == args.value.getSeconds());
+         assertTrue(args.changed);
+         assertFalse(args.error);
+
+         conn.setTextValue("abc");  // invalid value is ignored
+         args = { commandName : "Now", connection : conn, now : now};
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(now.getHours() == args.value.getHours());
+         assertTrue(now.getMinutes() == args.value.getMinutes());
+         assertTrue(now.getSeconds() == args.value.getSeconds());
+         assertTrue(args.changed);
+         assertFalse(args.error);
+      }
+
+
+      function testInvokeAddSeconds()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("1:30:00 AM");
+         var nextargs = { commandName : "NextSeconds", connection : conn};
+         var prevargs = { commandName : "PrevSeconds", connection : conn};
+         InvokeCmd(vInstance1, nextargs, "1:30:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:30:02 AM");
+         InvokeCmd(vInstance1, prevargs, "1:30:01 AM");
+
+         conn.setTextValue("11:59:59 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+         InvokeCmd(vInstance1, nextargs, "12:00:01 PM");
+         InvokeCmd(vInstance1, prevargs, "12:00:00 PM");
+         InvokeCmd(vInstance1, prevargs, "11:59:59 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddSecondsAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {valueAsNumber: true, timeOneEqualsSeconds : 1});   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("1:30:00 AM");
+         var nextargs = { commandName : "NextSeconds", connection : conn};
+         var prevargs = { commandName : "PrevSeconds", connection : conn};
+         InvokeCmd(vInstance1, nextargs, "1:30:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:30:02 AM");
+         InvokeCmd(vInstance1, prevargs, "1:30:01 AM");
+
+
+         conn.setTextValue("11:59:59 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+         InvokeCmd(vInstance1, nextargs, "12:00:01 PM");
+         InvokeCmd(vInstance1, prevargs, "12:00:00 PM");
+         InvokeCmd(vInstance1, prevargs, "11:59:59 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddSecondsBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("");
+         var now = new Date(2012, 0, 1, 5, 0, 0); // 5:00:00 for consistent tests using this
+         var nextargs = { commandName : "NextSeconds", connection : conn, now : now};
+         var prevargs = { commandName : "PrevSeconds", connection : conn, now : now};
+
+      // BlankStartsAt default rule is used: will use 12:00:00AM
+         InvokeCmd(vInstance1, nextargs, "12:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:01 AM");
+
+         conn.setTextValue("");
+
+      // PrevSeconds will use 11:59:59: PM
+         InvokeCmd(vInstance1, prevargs, "11:59:59 PM");
+         InvokeCmd(vInstance1, prevargs, "11:59:58 PM");
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:00:01 AM");
+
+         conn.setTextValue("");
+
+      // PrevSeconds will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "1:59:59 PM");
+         InvokeCmd(vInstance1, prevargs, "1:59:58 PM");
+
+
+      // while min and max are still set, this forces using now. We've force it to be 5:00:00 AM
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = "Now";
+
+         InvokeCmd(vInstance1, nextargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:00:01 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "4:59:59 AM");
+
+      // set any specific time
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = new Date(2012, 0, 1, 5, 30, 0);  // 5:30 AM
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:30:01 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "5:29:59 AM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddSecondsBlankStartsAtAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {valueAsNumber: true, timeOneEqualsSeconds : 1});   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var now = 5 * 3600; // 5:00:00 for consistent tests using this
+
+         var nextargs = { commandName : "NextSeconds", connection : conn, now : now};
+         var prevargs = { commandName : "PrevSeconds", connection : conn, now : now};
+
+      // BlankStartsAt default rule is used: use MinValue which is 0
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:01 AM");
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: use MaxValue which is 23:59:59
+         InvokeCmd(vInstance1, prevargs, "11:59:59 PM");
+         InvokeCmd(vInstance1, prevargs, "11:59:58 PM");
+
+         vInstance1.minValue = 1 * 3600;  // 1 AM
+         vInstance1.maxValue = 14 * 3600 - 1;   // 1:59:59 PM
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:00:01 AM");
+
+         conn.setTextValue("");
+
+      // PrevSeconds will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "1:59:59 PM");
+         InvokeCmd(vInstance1, prevargs, "1:59:58 PM");
+
+      // while min and max are still set, this forces using now. We've forced it to 5:00:00 AM
+         vInstance1.blankStartsAt = "Now";
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:00:01 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "4:59:59 AM");
+
+      // set any specific date
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = 5 * 3600 + 30 * 60;  // 5:30 AM
+
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:30:01 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "5:29:59 AM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddSecondsMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var nextargs = { commandName : "NextSeconds", connection : conn};
+         var prevargs = { commandName : "PrevSeconds", connection : conn};
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+         conn.setTextValue("1:59:58 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:59 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:59 PM", true);   // stuck at this time
+
+         conn.setTextValue("1:00:01 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM", true);   // stuck at this time
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddSecondsMinMaxLimitsAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay", {valueAsNumber: true, timeOneEqualsSeconds : 1});   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("");
+         var nextargs = { commandName : "NextSeconds", connection : conn};
+         var prevargs = { commandName : "PrevSeconds", connection : conn};
+
+         vInstance1.minValue = 1 * 3600;  // 1 AM
+         vInstance1.maxValue = "13:59:59";   // 1:59:59 PM (in culture neutral format)
+
+         conn.setTextValue("1:59:58 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:59 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:59 PM", true);   // stuck at this time
+
+         conn.setTextValue("1:00:01 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM", true);   // stuck at this time
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddSecondsInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("abc");
+
+         var args = { commandName : "NextSeconds", connection : conn};
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+         conn.setTextValue("35:00:00"); // illegal time
+         args = { commandName : "PrevSeconds", connection : conn};
+         InvokeCmd(vInstance1, args, "35:00:00", true, true);
+
+      }
+
+      function testInvokeAddMinutes()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("1:02:00 AM");
+         var nextargs = { commandName : "NextMinutes", connection : conn};
+         var prevargs = { commandName : "PrevMinutes", connection : conn};
+
+         InvokeCmd(vInstance1, nextargs, "1:03:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:04:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:03:00 AM");
+
+         conn.setTextValue("11:59:59 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+         InvokeCmd(vInstance1, nextargs, "12:01:00 PM");
+         InvokeCmd(vInstance1, prevargs, "12:00:00 PM");
+
+         conn.setTextValue("12:00:00 PM");
+         InvokeCmd(vInstance1, prevargs, "11:59:00 AM");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 PM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddMinutesBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var now = new Date(2012, 0, 1, 5, 0, 0); // 5:00:00 for consistent tests using this
+
+      // BlankStartsAt default rule is used: use MinValue which is 0
+         var nextargs = { commandName : "NextMinutes", connection : conn, now : now};
+         var prevargs = { commandName : "PrevMinutes", connection : conn, now : now};
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "12:01:00 AM");
+
+
+      // BlankStartsAt default rule is used: use MaxValue which is 11:59:59 PM
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "11:59:00 PM");
+         InvokeCmd(vInstance1, prevargs, "11:58:00 PM");
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:01:00 AM");
+
+         conn.setTextValue("");
+
+      // PrevMinutes will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "1:59:00 PM");
+         InvokeCmd(vInstance1, prevargs, "1:58:00 PM");
+
+      // while min and max are still set, this forces using now. We've forced Now to 5:00:00 AM
+         vInstance1.blankStartsAt = "Now";
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:01:00 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "4:59:00 AM");
+
+      // set any specific time
+         vInstance1.blankStartsAt = new Date(2012, 0, 1, 5, 30, 0);
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:31:00 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "5:29:00 AM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddMinutesMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextMinutes", connection : conn};
+         var prevargs = { commandName : "PrevMinutes", connection : conn};
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+         conn.setTextValue("1:57:30 PM");
+         InvokeCmd(vInstance1, nextargs, "1:58:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:00 PM", true);   // stuck at this time
+
+         conn.setTextValue("1:02:30 AM");
+         InvokeCmd(vInstance1, prevargs, "1:02:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:01:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM", true);   // stuck at this time
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddMinutesInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("abc");
+
+         var args = { commandName : "NextMinutes", connection : conn};
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+
+         conn.setTextValue("34:00:00"); // illegal time
+         args = { commandName : "PrevMinutes", connection : conn};
+         InvokeCmd(vInstance1, args, "34:00:00", true, true);
+      }
+
+
+      function testInvokeAddHours()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextHours", connection : conn};
+         var prevargs = { commandName : "PrevHours", connection : conn};
+
+         conn.setTextValue("1:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "2:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "3:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "2:30:00 AM");
+
+         conn.setTextValue("11:15:00 AM");
+         InvokeCmd(vInstance1, nextargs, "12:15:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:15:00 PM");
+         InvokeCmd(vInstance1, prevargs, "12:15:00 PM");
+
+         conn.setTextValue("1:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "12:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "2:00:00 AM");
+
+
+         conn.setTextValue("11:15:05 AM");
+         InvokeCmd(vInstance1, nextargs, "11:16:00 AM"); // first case rounds to the next minute
+         InvokeCmd(vInstance1, nextargs, "12:16:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:16:00 PM");
+
+         conn.setTextValue("11:15:59 AM");   // special case: when at 59 seconds, it rounds up to the next minute (11:16:00) before adjusting due to args.settings.nextMin
+         InvokeCmd(vInstance1, prevargs, "10:16:00 AM");
+         InvokeCmd(vInstance1, prevargs, "9:16:00 AM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddHoursBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var now = new Date(2012, 0, 1, 5, 0, 0); // 5:00:00 for consistent tests using this
+         var nextargs = { commandName : "NextHours", connection : conn, now : now};
+         var prevargs = { commandName : "PrevHours", connection : conn, now : now};
+
+      // BlankStartsAt default rule is used: use MinValue which is 0
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "12:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+
+
+      // BlankStartsAt default rule is used: use MaxValue which is 0
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "11:59:00 PM");
+         InvokeCmd(vInstance1, prevargs, "10:59:00 PM");
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+
+      // BlankStartsAt default rule is used: will use minvalue
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "2:00:00 AM");
+
+
+      // PrevHours will use maxvalue
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "1:59:00 PM");
+         InvokeCmd(vInstance1, prevargs, "12:59:00 PM");
+
+      // while min and max are still set, this forces using now. Now is set to 5:00:00 AM
+         vInstance1.blankStartsAt = "Now";
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "6:00:00 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "4:00:00 AM");
+
+      // set any specific date
+         vInstance1.blankStartsAt = new Date(2012, 0, 1, 5, 30, 00);
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "6:30:00 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "4:30:00 AM");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddHoursMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextHours", connection : conn};
+         var prevargs = { commandName : "PrevHours", connection : conn};
+
+         vInstance1.minValue = new Date(2012, 0, 1, 1, 0, 0);  // 1 AM
+         vInstance1.maxValue = new Date(2012, 0, 1, 13, 59, 59);   // 1:59:59 PM
+
+         conn.setTextValue("12:30:30 PM");
+         InvokeCmd(vInstance1, nextargs, "12:31:00 PM"); // first case rounds to the next minute
+         InvokeCmd(vInstance1, nextargs, "1:31:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:00 PM");
+         InvokeCmd(vInstance1, nextargs, "1:59:00 PM", true);   // stuck at this time
+
+         conn.setTextValue("2:15:30 AM");
+         InvokeCmd(vInstance1, prevargs, "2:15:00 AM"); // first case rounds to the minute
+         InvokeCmd(vInstance1, prevargs, "1:15:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM", true);   // stuck at this time
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddHoursInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("abc");
+
+         var args = { commandName : "NextHours", connection : conn};
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+         conn.setTextValue("35:00:00"); // illegal date
+         args = { commandName : "PrevHours", connection : conn};
+         InvokeCmd(vInstance1, args, "35:00:00", true, true);
+
+      }
+
+      function testInvokeRoundByMinutes()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+         var nextcmdargs = vInstance1.getCmd("NextMinutes");
+         nextcmdargs.roundBy = 5 * 60;  // 5 minutes
+         var prevcmdargs = vInstance1.getCmd("PrevMinutes");
+         prevcmdargs.roundBy = 5 * 60;  // 5 minutes
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var nextargs = { commandName : "NextMinutes", connection : conn};
+         var prevargs = { commandName : "PrevMinutes", connection : conn};
+
+         conn.setTextValue("1:00:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:05:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:10:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:05:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+
+
+         conn.setTextValue("1:00:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:05:00 AM");
+
+         conn.setTextValue("1:04:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:05:00 AM");
+
+         conn.setTextValue("1:05:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:10:00 AM");
+
+         conn.setTextValue("1:04:01 AM");
+         InvokeCmd(vInstance1, prevargs, "1:00:00 AM");
+
+         conn.setTextValue("1:06:01 AM");
+         InvokeCmd(vInstance1, prevargs, "1:05:00 AM");
+
+      // cases using args.settings.nextMin. Only applies when decrementing and the number of seconds exceeds args.settings.nextMin.
+         conn.setTextValue("1:05:59 AM"); // adjusts to 1:06:00 before applying the round
+         InvokeCmd(vInstance1, prevargs, "1:05:00 AM");
+
+         conn.setTextValue("1:09:59 AM"); // adjusts to 1:10:00 before applying the round
+         InvokeCmd(vInstance1, prevargs, "1:05:00 AM");
+
+         conn.setTextValue("11:59:59 AM"); // adjusts to 12:00:00 PM before applying the round
+         InvokeCmd(vInstance1, prevargs, "11:55:00 AM");
+
+         conn.setTextValue("11:59:59 PM"); // adjusts to 24:00:00 before applying the round
+         InvokeCmd(vInstance1, prevargs, "11:55:00 PM");
+
+         var prevhrargs = { commandName : "PrevHours", connection : conn};
+         conn.setTextValue("11:59:59 AM"); // adjusts to 12:00:00 PM before applying the round
+         InvokeCmd(vInstance1, prevhrargs, "11:00:00 AM");
+         InvokeCmd(vInstance1, prevhrargs, "10:00:00 AM");
+
+         conn.setTextValue("11:59:59 PM"); // adjusts to 24:00:00 before applying the round
+         InvokeCmd(vInstance1, prevhrargs, "11:00:00 PM");
+         InvokeCmd(vInstance1, prevhrargs, "10:00:00 PM");
+
+      }
+
+      function testInvokeRoundBySeconds()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");   // DateFormat = null, TimeFormat=0, fallbackTimeFormats=null
+         assertNotNull(vInstance1);
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var nextargs = { commandName : "NextSeconds", connection : conn};
+         var prevargs = { commandName : "PrevSeconds", connection : conn};
+
+         var nextcmdargs = vInstance1.getCmd("NextSeconds");
+         var prevcmdargs = vInstance1.getCmd("PrevSeconds");
+         nextcmdargs.roundBy = 30;  // 30 seconds
+         nextcmdargs.keepSecs = true;
+         prevcmdargs.roundBy = 30;
+         prevcmdargs.keepSecs = true;
+
+         conn.setTextValue("1:04:01 AM");
+         InvokeCmd(vInstance1, nextargs, "1:04:30 AM");
+         InvokeCmd(vInstance1, nextargs, "1:05:00 AM");
+         InvokeCmd(vInstance1, nextargs, "1:05:30 AM");
+
+         conn.setTextValue("1:04:01 AM");
+         InvokeCmd(vInstance1, prevargs, "1:04:00 AM");
+         InvokeCmd(vInstance1, prevargs, "1:03:30 AM");
+         InvokeCmd(vInstance1, prevargs, "1:03:00 AM");
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInvokeClear();
+         testInvokeNow();
+         testInvokeAddSeconds();
+         testInvokeAddSecondsBlankStartsAt();
+         testInvokeAddSecondsMinMaxLimits();
+         testInvokeAddSecondsInvalid();
+         testInvokeAddSecondsAsNumber();
+         testInvokeAddSecondsBlankStartsAtAsNumber();
+         testInvokeAddSecondsMinMaxLimitsAsNumber();
+
+         testInvokeAddMinutes();
+         testInvokeAddMinutesBlankStartsAt();
+         testInvokeAddMinutesMinMaxLimits();
+         testInvokeAddMinutesInvalid();
+
+         testInvokeAddHours();
+         testInvokeAddHoursBlankStartsAt();
+         testInvokeAddHoursMinMaxLimits();
+         testInvokeAddHoursInvalid();
+
+         testInvokeRoundByMinutes();
+         testInvokeRoundBySeconds();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

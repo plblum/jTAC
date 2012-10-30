@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-strings-common.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.String");
+         assertNotNull(vInstance1);
+         assertFalse(vInstance1.caseIns);
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.String");
+         assertNotNull(vInstance1);
+
+         vInstance1.caseIns = true;
+         assertTrue(vInstance1.caseIns);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateSetAllProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

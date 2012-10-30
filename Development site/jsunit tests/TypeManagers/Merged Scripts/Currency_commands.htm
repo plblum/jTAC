@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC/TypeManagers/Command%20extensions.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1" >
+      <input type="text" id="TextBox1" name="TextBox1" />
+   </form>
+   <script type="text/javascript">
+
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testInvokeClear()
+      {
+         var vInstance1 = new jTAC.create("TypeManagers.Currency", null, true);
+         assertNotNull(vInstance1);
+         assertNotNull(vInstance1._initCmd); // has this function
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var args = { commandName : "Clear", connection : conn};
+         InvokeCmd(vInstance1, args, "");
+
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, args, "");
+
+         conn.setTextValue("abc");  // invalid value is ignored
+         InvokeCmd(vInstance1, args, "");
+
+      }
+
+
+      function testInvokeVariousCommands()
+      {
+         var vInstance1 = new jTAC.create("TypeManagers.Currency", null, true);
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextBy1", connection : conn};
+         var prevargs = { commandName : "PrevBy1", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$2.30");
+         InvokeCmd(vInstance1, nextargs, "$3.30");
+         InvokeCmd(vInstance1, prevargs, "$2.30");
+
+         nextargs = { commandName : "NextBy10", connection : conn};
+         prevargs = { commandName : "PrevBy10", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$11.30");
+         InvokeCmd(vInstance1, nextargs, "$21.30");
+         InvokeCmd(vInstance1, prevargs, "$11.30");
+
+         nextargs = { commandName : "NextBy100", connection : conn};
+         prevargs = { commandName : "PrevBy100", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$101.30");
+         InvokeCmd(vInstance1, nextargs, "$201.30");
+         InvokeCmd(vInstance1, prevargs, "$101.30");
+
+         nextargs = { commandName : "NextBy1000", connection : conn};
+         prevargs = { commandName : "PrevBy1000", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$1,001.30");
+         InvokeCmd(vInstance1, nextargs, "$2,001.30");
+         InvokeCmd(vInstance1, prevargs, "$1,001.30");
+
+         nextargs = { commandName : "NextByPt1", connection : conn};
+         prevargs = { commandName : "PrevByPt1", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$1.40");
+         InvokeCmd(vInstance1, nextargs, "$1.50");
+         InvokeCmd(vInstance1, prevargs, "$1.40");
+
+         nextargs = { commandName : "NextByPt01", connection : conn};
+         prevargs = { commandName : "PrevByPt01", connection : conn};
+         conn.setTextValue("$1.30");
+         InvokeCmd(vInstance1, nextargs, "$1.31");
+         InvokeCmd(vInstance1, nextargs, "$1.32");
+         InvokeCmd(vInstance1, prevargs, "$1.31");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeBlankStartsAt()
+      {
+         var vInstance1 = new jTAC.create("TypeManagers.Currency", null, true);
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextBy1", connection : conn};
+         var prevargs = { commandName : "PrevBy1", connection : conn};
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use $0
+         InvokeCmd(vInstance1, nextargs, "$0.00");
+         InvokeCmd(vInstance1, nextargs, "$1.00");
+
+         conn.setTextValue("");
+
+      // PrevSeconds will use 0
+         InvokeCmd(vInstance1, prevargs, "$0.00");
+         InvokeCmd(vInstance1, prevargs, "($1.00)");
+
+         vInstance1.allowNegatives = false;
+         conn.setTextValue("");
+
+      // PrevSeconds will use 0
+         InvokeCmd(vInstance1, prevargs, "$0.00");
+         InvokeCmd(vInstance1, prevargs, "$0.00", true); // minvalue is 0 because allowNegatives
+
+         vInstance1.minValue = 10;
+         vInstance1.maxValue = 99;
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "$10.00");
+         InvokeCmd(vInstance1, nextargs, "$11.00");
+
+         conn.setTextValue("");
+
+      // PrevSeconds will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "$99.00");
+         InvokeCmd(vInstance1, prevargs, "$98.00");
+
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeMinMaxLimits()
+      {
+         var vInstance1 = new jTAC.create("TypeManagers.Currency", null, true);
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var nextargs = { commandName : "NextBy1", connection : conn};
+         var prevargs = { commandName : "PrevBy1", connection : conn};
+
+         vInstance1.minValue = 10;
+         vInstance1.maxValue = 99.99;
+
+         conn.setTextValue("$98.50");
+         InvokeCmd(vInstance1, nextargs, "$99.50");
+         InvokeCmd(vInstance1, nextargs, "$99.99");
+         InvokeCmd(vInstance1, nextargs, "$99.99", true);   // stuck at this time
+
+         conn.setTextValue("$11.40");
+         InvokeCmd(vInstance1, prevargs, "$10.40");
+         InvokeCmd(vInstance1, prevargs, "$10.00");
+         InvokeCmd(vInstance1, prevargs, "$10.00", true);   // stuck at this time
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeInvalid()
+      {
+         var vInstance1 = new jTAC.create("TypeManagers.Currency", null, true);
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         conn.setTextValue("abc");
+
+         var args = { commandName : "NextBy1", connection : conn};
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+         conn.setTextValue("35:00:00"); // illegal time
+         args = { commandName : "PrevBy1", connection : conn};
+         InvokeCmd(vInstance1, args, "35:00:00", true, true);
+
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInvokeClear();
+         testInvokeVariousCommands();
+         testInvokeBlankStartsAt();
+         testInvokeMinMaxLimits();
+         testInvokeInvalid();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

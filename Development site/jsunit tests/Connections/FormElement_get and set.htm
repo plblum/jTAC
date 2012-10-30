@@ -1,0 +1,680 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script> 
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+   <form id="Form1" method="post" action="Connections_get and set.htm" >
+
+      <input type="text" id="Text1" name="Text1" />
+      <input type="checkbox" id="CheckBox1" />
+      <input type="radio" id="Radio1" />
+      <select id="Select1">
+         <option value="one">1</option>
+         <option value="two">2</option>
+         <option value="three">3</option>
+      </select>
+      <select id="MultiSelect1" multiple="multiple">
+         <option value="one">1</option>
+         <option value="two">2</option>
+         <option value="three">3</option>
+      </select>
+      <br />
+      <textarea id="TextArea1" rows="5" cols="200" ></textarea>
+
+      <br />
+      HTML 5 support. (Try Opera as it supports these)<br />
+      <input type="date" id="Date1" /> 
+      <input type="datetime" id="DateTime1" /> 
+      <input type="time" id="Time1" /> 
+      <input type="month" id="Month1" /> 
+      <input type="number" id="Number1" />
+      <input type="range" id="Range1" />
+      <br />
+      Radio list:<input type="radio" id="RadioList1" name="Group1" checked="checked" />
+      <input type="radio" id="RadioList2" name="Group1" />
+      <input type="radio" id="RadioList3" name="Group1" />
+      <br />
+      Checkbox list:<input type="checkbox" id="CheckBoxList1" />
+      <input type="checkbox" id="CheckBoxList2" checked="checked" />
+      <input type="checkbox" id="CheckBoxList3" />
+
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testFormConnection()
+      {
+         InputTest("Text1", "Test", "");
+         InputTest("CheckBox1", "on", "");
+         InputTest("Radio1", "on", "");
+         InputTest("Select1", "two", "one");
+         InputTest("TextArea1", "Something to fill it in", "");
+      }
+
+      function InputTest(id, textToAssign, origText)
+      {
+         var vTextInstance = jTAC.create("Connections.FormElement", {id: id} )
+         assertNotNull(vTextInstance);
+         try
+         {
+            var vValue = vTextInstance.getTextValue();
+            assertEquals(origText, vValue);
+            vTextInstance.setTextValue(textToAssign);
+            assertEquals(textToAssign, vTextInstance.getTextValue());
+
+            assertFalse(vTextInstance.isNullValue());
+            vTextInstance.setTextValue("");
+            if (!vTextInstance._isCheckable(vTextInstance.getElement()))   // blank value does not mean null on checkboxes and radios unless isNullValue is passed a parameter
+               assertTrue(vTextInstance.isNullValue());
+            else
+            {
+               assertFalse(vTextInstance.isNullValue());
+               assertTrue(vTextInstance.isNullValue(true)); // parameter makes "" mean null
+            }
+         }
+         finally
+         {
+            // reset to the original value to allow further tests to run with the defaults
+            document.getElementById(id).value = origText;
+         }
+      }
+
+      function testCheckBoxAsBoolean()
+      {
+         var vCBElement = jTAC.create("Connections.FormElement", {id: "CheckBox1"} );
+         try
+         {
+            if (vCBElement.typeSupported("boolean"))
+            {
+               vCBElement.setTypedValue(true);
+               assertTrue(vCBElement.getTypedValue());
+
+               assertEquals("on", vCBElement.getTextValue());
+            }
+            else
+               fail("Must support boolean");
+            assertFalse(vCBElement.typeSupported("integer"));
+            assertFalse(vCBElement.typeSupported("float"));
+            assertFalse(vCBElement.typeSupported("date"));
+
+            var vSuccess = false;
+            try
+            {
+               vCBElement.setTypedValue(1);
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("Integer not allowed.");
+
+            vSuccess = false;
+            try
+            {
+               vCBElement.setTypedValue("string value");
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("String not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("CheckBox1").checked = false;
+         }
+      }
+      function testCheckBoxAsIndex()
+      {
+         var vCBElement = jTAC.create("Connections.FormElement", {id: "CheckBoxList1"} );
+         try
+         {
+            vCBElement.buttons = ["Fake1", "CheckBoxList1", "CheckBoxList2", "Fake2", "CheckBoxList3", "Fake3"];  // those called "Fake" will be stripped out because they are not found page
+            if (vCBElement.typeSupported("index"))
+            {
+               assertEquals(1, vCBElement.getTypedValue("index")); // initially the 2nd radio button
+               vCBElement.setTypedValue(0);
+               assertEquals(0, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(1);
+               assertEquals(1, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(2);
+               assertEquals(2, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(-1);
+               assertEquals(-1, vCBElement.getTypedValue("index"));
+
+            }
+            else
+               fail("Must support index");
+         }
+         finally
+         {
+            document.getElementById("CheckBoxList1").checked = false;
+            document.getElementById("CheckBoxList2").checked = true;
+            document.getElementById("CheckBoxList3").checked = false;
+         }
+      }
+
+      function testCheckBoxAsIndices()
+      {
+         var vCBElement = jTAC.create("Connections.FormElement", {id: "CheckBoxList1"} );
+         try
+         {
+            vCBElement.buttons = ["CheckBoxList1", "CheckBoxList2", "CheckBoxList3"];
+            if (vCBElement.typeSupported("indices"))
+            {
+               assertArrayEquals([1], vCBElement.getTypedValue("indices")); // initially index = 1 set
+               vCBElement.setTypedValue([0]);
+               assertArrayEquals([0], vCBElement.getTypedValue("indices"));
+               vCBElement.setTypedValue([1, 2]);
+               assertArrayEquals([1, 2], vCBElement.getTypedValue("indices"));
+               vCBElement.setTypedValue(2);  // will set as a single index, clearing all others
+               assertArrayEquals([2], vCBElement.getTypedValue("indices"));
+               vCBElement.setTypedValue([]);
+               assertArrayEquals([], vCBElement.getTypedValue("indices"));
+
+
+            }
+            else
+               fail("Must support indices");
+         }
+         finally
+         {
+            document.getElementById("CheckBoxList1").checked = false;
+            document.getElementById("CheckBoxList2").checked = true;
+            document.getElementById("CheckBoxList3").checked = false;
+         }
+
+      }
+      function testRadioAsBoolean()
+      {
+         var vCBElement = jTAC.create("Connections.FormElement", {id: "Radio1"} );
+         try
+         {
+            if (vCBElement.typeSupported("boolean"))
+            {
+               vCBElement.setTypedValue(true);
+               assertTrue(vCBElement.getTypedValue());
+
+               assertEquals("on", vCBElement.getTextValue());
+            }
+            else
+               fail("Must support boolean");
+            assertFalse(vCBElement.typeSupported("integer"));
+            assertFalse(vCBElement.typeSupported("float"));
+            assertFalse(vCBElement.typeSupported("date"));
+
+            var vSuccess = false;
+            try
+            {
+               vCBElement.setTypedValue(1);
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("Integer not allowed.");
+
+            vSuccess = false;
+            try
+            {
+               vCBElement.setTypedValue("string value");
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("String not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("Radio1").checked = false;
+         }
+
+      }
+      function testRadioAsIndex()
+      {
+         var vCBElement = jTAC.create("Connections.FormElement", {id: "RadioList1"} );
+         try
+         {
+            // find by name property on radiolist1.        vCBElement.buttons = ["RadioList1", "RadioList2", "RadioList3"];
+            if (vCBElement.typeSupported("index"))
+            {
+               assertEquals(0, vCBElement.getTypedValue("index")); // initially first radio button
+               vCBElement.setTypedValue(0);
+               assertEquals(0, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(1);
+               assertEquals(1, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(2);
+               assertEquals(2, vCBElement.getTypedValue("index"));
+               vCBElement.setTypedValue(-1);
+               assertEquals(-1, vCBElement.getTypedValue("index"));
+
+            }
+            else
+               fail("Must support index");
+         }
+         finally
+         {
+            document.getElementById("RadioList1").checked = true;
+            document.getElementById("RadioList2").checked = false;
+            document.getElementById("RadioList3").checked = false;
+         }
+      }
+
+      function testSelectAsIndex()
+      {
+         var vSelectElement = jTAC.create("Connections.FormElement", {id: "Select1"} );
+         try
+         {
+            if (vSelectElement.typeSupported("index"))
+            {
+               vSelectElement.setTypedValue(1);  // second index
+               assertEquals(1, vSelectElement.getTypedValue());
+               assertEquals("two", vSelectElement.getTextValue());
+
+               vSelectElement.setTypedValue(-1);  // no selection
+               assertEquals(-1, vSelectElement.getTypedValue("index"));
+               assertEquals("", vSelectElement.getTextValue());
+            }
+            else
+               fail("Must support 'index'");
+
+
+            var vSuccess = false;
+            try
+            {
+               vSelectElement.setTypedValue("one");   // does not support strings. use setTextValue instead
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("string not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("Select1").selectedIndex = -1;
+         }
+      }
+
+      function testSelectAsIndices()
+      {
+         var vSelectElement = jTAC.create("Connections.FormElement", {id: "MultiSelect1"} );
+         try
+         {
+            if (vSelectElement.typeSupported("indices"))
+            {
+               // first unselect all
+               vSelectElement.setTypedValue([]); // no selections in an array
+               assertArrayEquals([], vSelectElement.getTypedValue("indices"));
+
+               vSelectElement.setTypedValue([1, 2]);
+               assertArrayEquals([1, 2], vSelectElement.getTypedValue("indices"));
+
+               assertEquals(1, vSelectElement.getTypedValue("index"));  // confirm the selectedIndex is the first selection, which is the 2nd element
+               assertEquals("two", vSelectElement.getTextValue());
+
+               vSelectElement.setTypedValue([0]);
+               assertArrayEquals([0], vSelectElement.getTypedValue("indices"));
+               assertEquals(0, vSelectElement.getTypedValue("index"));  // confirm the selectedIndex is the first selection, which is the 2nd element
+               assertEquals("one", vSelectElement.getTextValue());
+            }
+            else
+               fail("Must support 'indices'");
+         }
+         finally
+         {
+            document.getElementById("MultiSelect1").selectedIndex = -1;
+
+         }
+      }
+
+      function testDateAsDate()
+      {
+         var vDateElement = jTAC.create("Connections.FormElement", {id: "Date1"} );
+         try
+         {
+            if (vDateElement.typeSupported("date"))   // NOTE: Will return false for browsers that do not support the valueAsDate property on the DOM element. Opera always works.
+            {
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+
+               var date1 = new Date();
+               date1.setUTCFullYear(2010, 5, 15);
+               date1.setUTCHours(0, 0, 0, 0);
+               vDateElement.setTypedValue(date1);
+               var date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               assertEquals(date1.getUTCFullYear(), date2.getUTCFullYear());
+               assertEquals(date1.getUTCMonth(), date2.getUTCMonth());
+               assertEquals(date1.getUTCDate(), date2.getUTCDate());
+               assertEquals("2010-06-15", vDateElement.getTextValue());
+
+               vDateElement.setTypedValue(null);
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+
+               date1 = new Date();  // time is going to be stripped
+               date1.setUTCFullYear(2010, 5, 15);
+               date1.setUTCHours(1, 30, 2, 0);
+               vDateElement.setTypedValue(date1);
+               date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               assertEquals(date1.getUTCFullYear(), date2.getUTCFullYear());
+               assertEquals(date1.getUTCMonth(), date2.getUTCMonth());
+               assertEquals(date1.getUTCDate(), date2.getUTCDate());
+               assertEquals(0, date2.getUTCHours());
+               assertEquals(0, date2.getUTCMinutes());
+               assertEquals(0, date2.getUTCSeconds());
+               assertEquals("2010-06-15", vDateElement.getTextValue());
+
+            }
+            else
+            {
+               if (vDateElement.getElement().valueAsDate !== undefined)
+                  fail("Must support 'date'");
+            }
+
+
+            var vSuccess = false;
+            try
+            {
+               vDateElement.getTypedValue("integer");   // does not support integer requests
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("string not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("Date1").value = "";
+         }
+      }
+
+      function testDateTimeAsDate()
+      {
+         var vDateElement = jTAC.create("Connections.FormElement", {id: "DateTime1"} );
+         try
+         {
+            if (vDateElement.typeSupported("datetime"))   // NOTE: Will return false for browsers that do not support the valueAsDate property on the DOM element. Opera always works.
+            {
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+
+               var date1 = new Date();
+               date1.setUTCFullYear(2010, 5, 15);
+               date1.setUTCHours(1, 30, 2, 0);
+
+               vDateElement.setTypedValue(date1);
+               var date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               assertEquals(date1.getUTCFullYear(), date2.getUTCFullYear());
+               assertEquals(date1.getUTCMonth(), date2.getUTCMonth());
+               assertEquals(date1.getUTCDate(), date2.getUTCDate());
+               assertEquals(date1.getUTCHours(), date2.getUTCHours());
+               assertEquals(date1.getUTCMinutes(), date2.getUTCMinutes());
+   /*  Opera does not support seconds, even though its part of the w3c spec. So assume correct hours and minutes is fine.
+               assertEquals(date1.getSeconds(), date2.getSeconds());
+   */
+               assertTrue(vDateElement.getTextValue().indexOf("2010-06-15T01:30") == 0);   // with or without secs looks the same. Skip seconds
+
+                  /* Opera refuses to clear its datetime picker when you set e.value to "". Bug 367020
+                  vDateElement.setTypedValue(null);
+                  assertNull(vDateElement.getTypedValue());
+                  assertEquals("", vDateElement.getTextValue());
+                  */
+               date1 = new Date();
+               date1.setUTCFullYear(1980, 11, 31);
+               date1.setUTCHours(0, 0, 0, 0);
+
+               vDateElement.setTypedValue(date1);
+               date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               assertEquals(date1.getUTCFullYear(), date2.getUTCFullYear());
+               assertEquals(date1.getUTCMonth(), date2.getUTCMonth());
+               assertEquals(date1.getUTCDate(), date2.getUTCDate());
+               assertEquals(date1.getUTCHours(), date2.getUTCHours());
+               assertEquals(date1.getUTCMinutes(), date2.getUTCMinutes());
+               assertEquals(date1.getUTCSeconds(), date2.getUTCSeconds());
+               assertTrue(vDateElement.getTextValue().indexOf("1980-12-31T00:00") == 0);   // with or without secs looks the same. Skip seconds
+            }
+            else
+            {
+               if (vDateElement.getElement().valueAsDate !== undefined)
+                  fail("Must support 'datetime'");
+            }
+
+         
+            var vSuccess = false;
+            try
+            {
+               vDateElement.getTypedValue("integer");   // does not support integer requests
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("string not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("DateTime1").value = "";
+         }
+
+      }
+
+      function testTimeAsDate()
+      {
+         var vDateElement = jTAC.create("Connections.FormElement", {id: "Time1"} );
+         try
+         {
+            if (vDateElement.typeSupported("time"))   // NOTE: Will return false for browsers that do not support the valueAsDate property on the DOM element. Opera always works.
+            {
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+
+               var date1 = new Date();
+               date1.setUTCFullYear(2010, 5, 15);
+               date1.setUTCHours(1, 30, 2, 0);
+               vDateElement.setTypedValue(date1);
+               var date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               assertEquals(date1.getUTCHours(), date2.getUTCHours());
+               assertEquals(date1.getUTCMinutes(), date2.getUTCMinutes());
+   /*  Opera does not support seconds, even though its part of the w3c spec. So assume correct hours and minutes is fine.
+               assertEquals(date1.getSeconds(), date2.getSeconds());
+   */
+               assertTrue(vDateElement.getTextValue().indexOf("01:30") == 0);   // with or without secs looks the same. Skip seconds
+
+                  /* Opera refuses to clear its time picker when you set e.value to "". Bug 367020
+               vDateElement.setTypedValue(null);
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+               */
+            }
+            else
+            {
+               if (vDateElement.getElement().valueAsDate !== undefined)
+                  fail("Must support 'time'");
+            }
+
+         
+            var vSuccess = false;
+            try
+            {
+               vDateElement.getTypedValue("integer");   // does not support integer requests
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("string not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("Time1").value = "";
+         }
+
+      }
+
+      function testMonthAsDate()
+      {
+         var vDateElement = jTAC.create("Connections.FormElement", {id: "Month1"} );
+         try
+         {
+            if (vDateElement.typeSupported("date"))   // NOTE: Will return false for browsers that do not support the valueAsDate property on the DOM element. Opera always works.
+            {
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+
+               var date1 = new Date();
+               date1.setUTCFullYear(2100, 2, 19);
+               date1.setUTCHours(0, 0, 0, 0);
+
+               vDateElement.setTypedValue(date1);
+               var date2 = vDateElement.getTypedValue();
+               assertNotNull(date2);
+               /* Opera bug 367017 due to date2 = Dec 30 0018 19:00:00 instead of March 2100
+               assertEquals(date1.getUTCFullYear(), date2.getUTCFullYear());
+               assertEquals(date1.getUTCMonth(), date2.getUTCMonth());
+               */
+               assertEquals("2100-03", vDateElement.getTextValue());
+
+               vDateElement.setTypedValue(null);
+               assertNull(vDateElement.getTypedValue());
+               assertEquals("", vDateElement.getTextValue());
+            }
+            else
+            {
+               if (vDateElement.getElement().valueAsDate !== undefined)
+                  fail("Must support 'month'");
+            }
+
+
+            var vSuccess = false;
+            try
+            {
+               vDateElement.getTypedValue("integer");   // does not support integer requests
+            }
+            catch (e)
+            {
+               vSuccess = true;
+            }
+            if (!vSuccess)
+               fail("string not allowed.");
+
+         }
+         finally
+         {
+            document.getElementById("Month1").value = "";
+         }
+
+      }
+      function testMissingElement()
+      {
+         var vNoElementInstance = jTAC.create("Connections.FormElement", {id: "test2"} );   // does not exist on the page
+         assertNotNull(vNoElementInstance);
+         var vSuccess = false;
+         try
+         {
+            var vValue = vNoElementInstance.getTextValue();
+            assertNull(vValue);
+         }
+         catch (e)
+         {
+            vSuccess = true;
+         }
+         if (!vSuccess)
+            fail("Returned a value from missing control.");
+
+         vNoElementInstance.allowNone = true;
+         var vValue = vNoElementInstance.getTextValue();
+         assertNull(vValue);
+         vNoElementInstance.setTextValue("blah"); // should do nothing
+         vValue = vNoElementInstance.getTextValue(); // still should be null
+         assertNull(vValue);
+
+      }
+
+      function testWatermark()
+      {
+         var vInstance = jTAC.create("Connections.FormElement", {id: "Text1"} );
+         try
+         {
+            vInstance.unassigned = "water";
+            vInstance.setTextValue("");
+            assertEquals("", vInstance.getTextValue());
+            assertTrue(vInstance.isNullValue());
+            vInstance.setTextValue(vInstance.unassigned);
+            assertTrue(vInstance.isNullValue());
+            assertEquals("", vInstance.getTextValue());
+            vInstance.setTextValue("WATER"); // still case insensitive
+            assertTrue(vInstance.isNullValue());
+            assertEquals("", vInstance.getTextValue());
+            vInstance.unassignedCase = true;   // now it won't match
+            assertFalse(vInstance.isNullValue());
+            assertEquals("WATER", vInstance.getTextValue());
+
+            vInstance.setTextValue("abc");
+            assertFalse(vInstance.isNullValue());
+            assertEquals("abc", vInstance.getTextValue());
+         }
+         finally
+         {
+            document.getElementById("Text1").value = "";
+         }
+         
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testFormConnection();
+         testCheckBoxAsBoolean();
+         testCheckBoxAsIndex();
+         testCheckBoxAsIndices();
+         testRadioAsBoolean();
+         testRadioAsIndex();
+         testSelectAsIndex();
+         testSelectAsIndices();
+         testDateAsDate();
+         testDateTimeAsDate();
+         testMonthAsDate();
+         testTimeAsDate();
+         testMissingElement();
+         testWatermark();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

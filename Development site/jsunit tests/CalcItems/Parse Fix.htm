@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Parser.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/BaseFunction.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Fix.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testDefineParse()
+      {
+         var calcItem = jTAC.create("CalcItems.Fix");
+         assertNotNull(calcItem);
+         assertNotNull(calcItem.parse);   // ensure the method was attached.
+      }
+      function testPatterns()
+      {
+         // try patterns to see that some work and some are rejected by the parse() method.
+         assertSuccessParse("Fix('TextBox1', null, NaN)");
+         assertSuccessParse("Fix('TextBox1', 1, NaN)");
+         assertSuccessParse("Fix('TextBox1', 1, null)");
+         assertSuccessParse("Fix('TextBox1', 1, 2)");
+         assertSuccessParse("Fix('TextBox1', 1, Fix('TextBox2', 0))");
+
+
+         assertSuccessParse("Fix(10)");
+         assertSuccessParse("Fix('abc')");
+         assertSuccessParse("Fix(  'abc'  )");
+         assertSuccessParse("  Fix(-10)");
+         assertSuccessParse("Fix('abc', 10)");
+         assertSuccessParse("Fix(10, 12, -30)");
+         assertSuccessParse("Fix(10 + 20, 'abc' + 'def')");
+         assertExceptionParse("Fix()");
+         assertExceptionParse("Fix(abc)");
+         assertExceptionParse("Fix('abc',)");
+         assertExceptionParse("Fix(10 + 20, 'abc + def')");
+
+         assertFailedParse("");
+         assertFailedParse("  ");
+         assertFailedParse("Round('abc')");
+         assertFailedParse("'abc'");
+
+      }
+
+      function testEvaluate()
+      {
+         Evaluate("Fix('TextBox1', 12)", "", 12);
+         Evaluate("Fix('TextBox1', 12)", "10", 10);
+         Evaluate("Fix('TextBox1', 1, -30)", "20", 20);
+         Evaluate("Fix('TextBox1', 1, -30)", "", 1);
+         Evaluate("Fix('TextBox1', 1, -30)", "abc", -30);
+         Evaluate("Fix('TextBox1', 1, null)", "abc", null);
+         Evaluate("Fix('TextBox1', 1, NaN)", "abc", NaN);
+      }
+
+      function assertSuccessParse(text)
+      {
+         var calcItem = jTAC.create("CalcItems.Fix");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Fix);
+      }
+
+      function assertFailedParse(text)
+      {
+         var calcItem = jTAC.create("CalcItems.Fix");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNull(r);
+      }
+
+      function assertExceptionParse(text)
+      {
+         var success = true;
+         try
+         {
+            var calcItem = jTAC.create("CalcItems.Fix");
+            var r = calcItem.parse(text, jTAC.parser); // exception expected here
+            success = false;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("Exception was expected for: " + text);
+      }
+
+      function Evaluate(text, textbox1value, result)
+      {
+         document.getElementById("TextBox1").value = textbox1value.toString();
+         var calcItem = jTAC.create("CalcItems.Fix");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Fix);
+         var r = r.obj.evaluate();
+         if (isNaN(result))
+            assertNaN(r);
+         else if (result == null)
+            assertNull(r);
+         else
+            assertEquals(result, r);
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testDefineParse();
+         testPatterns();
+         testEvaluate();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+jTAC._internal.temp._Connections_[ClassName]={extend:"Connections.[BaseClass]",constructor:function(a){this.callParent([a])},config:{},configrules:{},};jTAC.define("Connections.[ClassName]",jTAC._internal.temp._Connections_[ClassName]);

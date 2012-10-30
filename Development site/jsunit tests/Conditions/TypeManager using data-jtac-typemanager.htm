@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Duration.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Value.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Range.js" type="text/javascript"></script>
+</head>
+<body>
+The TypeManager is assigned to the textbox via its data-jtac-datatype property.<br />
+<form id="Form1" method="get" action="" >
+   <input id="integerTextBox1" type="text" data-jtac-typemanager="{ 'jtacClass' : 'Integer' }" />
+   <input id="dateTextBox1" type="text" data-jtac-typemanager="{ 'jtacClass' : 'Date' }" />
+   <input id="timeofdayTextBox1" type="text" data-jtac-typemanager="{ 'jtacClass' : 'TimeOfDay' }" />
+   <input id="durationTextBox1" type="text" data-jtac-typemanager="{ 'jtacClass' : 'Duration.InSeconds' }" />
+</form>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+     
+
+      function testIntegerSuccess()
+      {
+         var textboxid = "integerTextBox1";
+         RunRange(textboxid, "1", 0, 100, true, 1);
+         RunRange(textboxid, "0", 0, 100, true, 1);
+         RunRange(textboxid, "99", 0, 100, true, 1);
+         RunRange(textboxid, "100", 0, 100, false, 1);
+
+         RunRange(textboxid, "1", 0, 100, true, 0, { "not" : true });
+
+         // missing one of the limits
+         RunRange(textboxid, "110", 0, null, true, 1);
+         RunRange(textboxid, "-100", null, 100, true, 1);
+
+
+      }
+
+      function testIntegerFailed()
+      {
+         var textboxid = "integerTextBox1";
+         RunRange(textboxid, "-1", 0, 100, true, 0);
+         RunRange(textboxid, "100", 0, 100, true, 0);
+         RunRange(textboxid, "1000", 0, 100, true, 0);
+      }
+
+      function testIntegerCannotEval()
+      {
+         var textboxid = "integerTextBox1";
+         RunRange(textboxid, "", 0, 100, true, -1);
+         RunRange(textboxid, "", 0, 100, true, -1, { "not" : true }); // not should not change the result of -1
+      }
+
+      function testDateSuccess()
+      {
+         var textboxid = "dateTextBox1";
+         var min = new Date(2012, 0, 1);   //jan 1
+         var max = new Date(2012, 1, 1);  // feb 1
+         RunRange(textboxid, "1/20/2012", min, max, true, 1);
+         RunRange(textboxid, "1/31/2012", min, max, true, 1);
+         RunRange(textboxid, "2/1/2012", min, max, false, 1);
+
+         RunRange(textboxid, "1/20/2012", min, max, true, 0, { "not" : true });
+
+      }
+
+      function testDateFailed()
+      {
+         var textboxid = "dateTextBox1";
+         var min = new Date(2012, 0, 1);   //jan 1
+         var max = new Date(2012, 1, 1);  // feb 1
+         RunRange(textboxid, "12/31/2011", min, max, true, 0);
+         RunRange(textboxid, "2/1/2012", min, max, true, 0);
+         RunRange(textboxid, "12/31/2012", min, max, true, 0);
+
+         RunRange(textboxid, "12/20/2012", min, max, true, 1, { "not" : true });
+      }
+
+      function testTimeOfDaySuccess()
+      {
+         var textboxid = "timeofdayTextBox1";
+         var min = new Date(2012, 0, 1, 1, 0, 0);   //jan 1, 1 AM
+         var max = new Date(2012, 0, 1, 5, 0, 0);  // jan 1, 5 AM
+         RunRange(textboxid, "1:30:00 AM", min, max, true, 1);
+         RunRange(textboxid, "1:00:00 AM", min, max, true, 1);
+         RunRange(textboxid, "4:59:59 AM", min, max, true, 1);
+         RunRange(textboxid, "5:00:00 AM", min, max, false, 1);
+
+         RunRange(textboxid, "1:30:10 AM", min, max, true, 0, { "not" : true });
+
+      }
+
+      function testTimeOfDayFailed()
+      {
+         var textboxid = "timeofdayTextBox1";
+         var min = new Date(2012, 0, 1, 1, 0, 0);   //jan 1, 1 AM
+         var max = new Date(2012, 0, 1, 5, 0, 0);  // jan 1, 5 AM
+         RunRange(textboxid, "0:30:00 AM", min, max, true, 0);
+         RunRange(textboxid, "0:59:59 AM", min, max, true, 0);
+         RunRange(textboxid, "5:00:00 AM", min, max, true, 0);
+         RunRange(textboxid, "5:00:01 AM", min, max, false, 0);
+
+         RunRange(textboxid, "0:30:10 AM", min, max, true, 1, { "not" : true });
+      }
+
+      function testDurationSuccess()
+      {
+         var textboxid = "durationTextBox1";  // valueAsNumber representing seconds
+         var min = 1 * 3600;
+         var max = 5 * 3600;
+         RunRange(textboxid, "4:30:00", min, max, true, 1);
+         RunRange(textboxid, "1:00:00", min, max, true, 1);
+         RunRange(textboxid, "4:59:59", min, max, true, 1);
+         RunRange(textboxid, "5:00:00", min, max, false, 1);
+
+         RunRange(textboxid, "1:30:10", min, max, true, 0, { "not" : true });
+
+      }
+
+      function testDurationFailed()
+      {
+         var textboxid = "durationTextBox1";  // valueAsNumber representing seconds
+         var min = 1 * 3600;
+         var max = 5 * 3600;
+         RunRange(textboxid, "0:30:00", min, max, true, 0);
+         RunRange(textboxid, "0:59:59", min, max, true, 0);
+         RunRange(textboxid, "5:00:00", min, max, true, 0);
+         RunRange(textboxid, "5:00:01", min, max, false, 0);
+
+         RunRange(textboxid, "0:30:10", min, max, true, 1, { "not" : true });
+      }
+
+
+      function RunRange(textboxid, textToCompare, min, max, lessThanMax, expectedResult, json)
+      {
+         var vInstance1 = jTAC.create("Range");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = textboxid;
+         vInstance1.connection.setTextValue(textToCompare); // trick to use existing objects to write to the textbox
+
+         vInstance1.minimum = min;
+         vInstance1.maximum = max;
+         vInstance1.lessThanMax = lessThanMax;
+
+         if (json != null)
+            vInstance1.setProperties(json);
+
+//         assertTrue(vInstance1.canEvaluate());
+         var evalResult = vInstance1.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+         vInstance1.connection.setTextValue(""); // reset the textbox
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testIntegerSuccess();
+         testIntegerFailed();
+         testIntegerCannotEval();
+         testDateSuccess();
+         testDateFailed();
+         testTimeOfDaySuccess();
+         testTimeOfDayFailed();
+         testDurationSuccess();
+         testDurationFailed();
+
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitextboxidessage : e.message);
+      }
+
+   </script>
+
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PowerDateParser.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         assertTrue(jTAC.isDefined("TypeManagers.PowerDateParser"));
+
+         var vInstance1 = new jTAC.create("TypeManagers.Date");  
+         assertNotNull(vInstance1);
+
+         assertNotNull(vInstance1._nativeParseDate);
+         assertNotNull(vInstance1._nativeValChars);
+         assertNotNull(vInstance1.parserOptions);
+         assertTrue(vInstance1.parserOptions instanceof jTAC.TypeManagers.PowerDateParser);
+         assertFalse(vInstance1.nativeParser);
+
+         assertNotNull(vInstance1.parserOptions.defaultYear);  // will be the current year, which will change enough to avoid hardcoding the current year here
+         assertNotNull(vInstance1.parserOptions.defaultMonth);
+         assertNull(vInstance1.parserOptions.moreDateSeps);
+         assertTrue(vInstance1.parserOptions.cultureNeutral);
+         assertEquals(0, vInstance1.parserOptions.monthAllows);
+         assertTrue(vInstance1.parserOptions.monthAsTwoCharName);
+         assertTrue(vInstance1.parserOptions.insertDateSeps);
+         assertFalse(vInstance1.parserOptions.trimParts);     
+      }
+
+
+      function testChangeProperties()
+      {
+         var vInstance = jTAC.create("TypeManagers.Date");
+         assertNotNull(vInstance);
+        // this does not test the properties already on Date, except those added by PowerDateParse
+
+         setPropertyValue(vInstance, "nativeParser", true);
+         
+         setPropertyValue(vInstance.parserOptions, "defaultYear", 77);
+         setPropertyValue(vInstance.parserOptions, "defaultMonth", 2);
+         setPropertyValue(vInstance.parserOptions, "moreDateSeps", ".");
+         setPropertyValue(vInstance.parserOptions, "cultureNeutral", false);
+         setPropertyValue(vInstance.parserOptions, "monthAllows", 1);
+         setPropertyValue(vInstance.parserOptions, "monthAllows", 2);
+         setPropertyValue(vInstance.parserOptions, "monthAllows", 3);
+         setInvalidPropertyValue(vInstance.parserOptions, "monthAllows", 4);
+         setPropertyValue(vInstance.parserOptions, "monthAllows", 0);
+         setPropertyValue(vInstance.parserOptions, "monthAsTwoCharName", false);
+         setPropertyValue(vInstance.parserOptions, "insertDateSeps", false);
+         setPropertyValue(vInstance.parserOptions, "trimParts", true);
+
+         var vInstance2 = jTAC.create("TypeManagers.Date");
+         assertNotNull(vInstance2);
+
+         vInstance2.parserOptions = {defaultYear: 77, cultureNeutral: true};
+         assertEquals(77, vInstance2.parserOptions.defaultYear);
+         assertTrue(vInstance2.parserOptions.cultureNeutral);
+
+
+      }
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testChangeProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

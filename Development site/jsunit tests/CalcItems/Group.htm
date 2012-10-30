@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var vInstance = jTAC.create("CalcItems.Group")
+         assertNotNull(vInstance);
+         assertTrue(vInstance.enabled);
+         assertEquals("+", vInstance.operator);
+         assertNotNull(vInstance.valueWhenEmpty);
+         assertTrue(vInstance.valueWhenEmpty instanceof jTAC.CalcItems.Number);
+         assertNotNull(vInstance.valueWhenInvalid);
+         assertTrue(vInstance.valueWhenInvalid instanceof jTAC.CalcItems.NaN);
+         assertNotNull(vInstance.valueWhenNull);
+         assertTrue(vInstance.valueWhenNull instanceof jTAC.CalcItems.Number);
+
+         assertArrayEquals([], vInstance.items);
+
+         assertFalse(vInstance.canEvaluate()); // lacks an item
+
+         vInstance.items.push(jTAC.create("CalcItems.Number", {number: 100}));
+         assertTrue(vInstance.canEvaluate());
+
+         assertEquals(1, vInstance.items.length);
+         try
+         {
+            vInstance._cleanupItems();
+         }
+         catch (e)
+         {
+            fail(e);
+         }
+         assertEquals(1, vInstance.items.length);
+
+         // evaluate with one item
+         assertEquals(100, vInstance.evaluate());
+
+         vInstance.valueWhenEmpty = jTAC.create("CalcItems.NaN");
+         assertTrue(vInstance.valueWhenEmpty instanceof jTAC.CalcItems.NaN);
+         vInstance.valueWhenInvalid = jTAC.create("CalcItems.Number")
+         assertTrue(vInstance.valueWhenInvalid instanceof jTAC.CalcItems.Number);
+
+         vInstance.valueWhenNull = jTAC.create("CalcItems.Null");
+         assertTrue(vInstance.valueWhenNull instanceof jTAC.CalcItems.Null);
+
+         // try alternative formats to ensure conversion
+         vInstance.valueWhenEmpty = 10;
+         assertTrue(vInstance.valueWhenEmpty instanceof jTAC.CalcItems.Number);
+         assertEquals(10, vInstance.valueWhenEmpty.number);
+         vInstance.valueWhenInvalid = null;
+         assertTrue(vInstance.valueWhenInvalid instanceof jTAC.CalcItems.Null);
+         vInstance.valueWhenNull = NaN;
+         assertTrue(vInstance.valueWhenNull instanceof jTAC.CalcItems.NaN);
+      }
+
+      function testConversionToCalcItem()
+      {
+         var vInstance = jTAC.create("CalcItems.Group");
+
+         vInstance.items.push({"jtacClass" : "CalcItems.Number", "number" : 10} );
+         assertEquals(10, vInstance.evaluate());
+         vInstance.items.push(25);
+         assertEquals(35, vInstance.evaluate());   // 10 + 25
+
+         var nci = jTAC.create("CalcItems.Number", {number: 2})
+         nci.operator = "-";
+         vInstance.items = [{"jtacClass" : "CalcItems.Number", "number" : 1}, 10, nci];
+         assertEquals(9, vInstance.evaluate());   // 1 + 10 - 2
+
+         // subtract 2 by using the "-" operator as an item in the array.
+         vInstance.items = [{"jtacClass" : "CalcItems.Number", "number" : 1}, 10, "-", 2];
+         assertEquals(9, vInstance.evaluate());   // 1 + 10 - 2
+
+         vInstance.items = [NaN];
+         assertNaN(vInstance.evaluate());
+         
+      }
+
+      function testAdd()
+      {
+         var vInstance = new jTAC.create("CalcItems.Group")
+
+         vInstance.items = [10, 20, 5];
+         assertEquals(35, vInstance.evaluate());
+         vInstance.items = [];
+         assertEquals(0, vInstance.evaluate()); // because valueWhenEmpty is using NumberCalcItem(0).
+         vInstance.valueWhenEmpty = jTAC.create("CalcItems.NaN");
+         assertNaN(vInstance.evaluate());
+
+         vInstance.valueWhenEmpty = jTAC.create("CalcItems.Null");
+         assertNull(vInstance.evaluate());
+
+         vInstance.items = [10];
+         assertEquals(10, vInstance.evaluate());
+         vInstance.items = [jTAC.create("CalcItems.Number", {number: 1.5}), 
+            jTAC.create("CalcItems.Number", {number: 0.25}), 
+            jTAC.create("CalcItems.Number", {number: 0.555})];
+         assertEquals(2.305, vInstance.evaluate());
+      }
+
+      function testSubtract()
+      {
+         var vInstance = jTAC.create("CalcItems.Group")
+
+         // operator on the first item should be ignored. So this is 100 - 20 - 5 = 75
+         vInstance.items = [];
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 100}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 20}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 5}), "-");
+         assertEquals(75, vInstance.evaluate());
+
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 1.5}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.25}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.555}), "-");
+         assertEquals(0.695, vInstance.evaluate());
+
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 1.5}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.25}), "-");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.555}), "-");
+         assertEquals(-2.305, vInstance.evaluate());
+
+         vInstance.items = ["-", 0, "-", 1.5, "-", 0.25, "-", 0.555, "-"];  // intentionally begins and ends with an operator
+         assertEquals(-2.305, vInstance.evaluate());
+      }
+
+
+      function testMultiply()
+      {
+         var vInstance = jTAC.create("CalcItems.Group");
+
+         // operator on the first item should be ignored. So this is 10 * 20 * 5 = 1000
+         vInstance.items = [];
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 100}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 20}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 5}), "*");
+         assertEquals(10000, vInstance.evaluate());
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 1.5}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.25}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.555}), "*");
+         assertEquals(0.208125, vInstance.evaluate());
+
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 10}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 20}), "*");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 5}), "*");
+         assertEquals(0, vInstance.evaluate());
+      }
+
+      function testDivide()
+      {
+         var vInstance = jTAC.create("CalcItems.Group")
+
+         // operator on the first item should be ignored. So this is 10 * 20 * 5 = 1000
+         vInstance.items = [];
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 10}), "/");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 20}), "/");
+         assertEquals(0.5, vInstance.evaluate());
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 1.5}), "/");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.25}), "/");
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0.555}), "/");
+         assertEquals(10.81081081081081, vInstance.evaluate()); // actual result 10.81081081081081. Rounding adjusts to 3 significant digits
+         vInstance.items = [];  // empty the collection
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 10}));
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 0}), "/");
+         assertNaN(vInstance.evaluate()); // divide by zero
+      }
+
+      function testWithNaN()
+      {
+         var vInstance = jTAC.create("CalcItems.Group");
+
+         vInstance.items = [jTAC.create("CalcItems.Number", {number: 10}), jTAC.create("CalcItems.NaN")];
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 5}), "*");
+         assertNaN(vInstance.evaluate());
+      }
+
+      function testWithNull()
+      {
+         var vInstance = jTAC.create("CalcItems.Group");
+
+         vInstance.items = [jTAC.create("CalcItems.Number", {number: 10}), jTAC.create("CalcItems.Null")];
+         vInstance.addItem(jTAC.create("CalcItems.Number", {number: 5}), "*");
+         assertEquals(50, vInstance.evaluate()); // because valueWhenNull is CalcItems.Number
+
+         var ci = jTAC.create("CalcItems.Number", {number: 3});
+         ci.stopProcessing = true;
+         vInstance.valueWhenNull = ci;
+         assertEquals(3, vInstance.evaluate()); // because stopProcessing is true, replacing the total with 3
+
+         vInstance.valueWhenNull = jTAC.create("CalcItems.Null");
+         assertNull(vInstance.evaluate());
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testConversionToCalcItem();
+         testAdd();
+         testSubtract();
+         testMultiply();
+         testDivide();
+         testWithNaN();
+         testWithNull();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

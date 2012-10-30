@@ -1,0 +1,1 @@
+jTAC._internal.temp._CalcItems_Max={extend:"CalcItems.BaseFunction",constructor:function(a){this.callParent([a])},_func:function(a){return Math.max.apply(window,a)},_getParseName2:function(){return"Math.max"}};jTAC.define("CalcItems.Max",jTAC._internal.temp._CalcItems_Max);if(jTAC.parser){jTAC.parser.register("CalcItems.Max")};

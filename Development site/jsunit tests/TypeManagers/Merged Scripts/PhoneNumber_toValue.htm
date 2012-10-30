@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-strings-common.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testDefaultPhone()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         // vInstance1.region = "" is already in use and becomes "Any"
+         // Pattern for ANY: "(^\\+?\\d([\\-\\.]?\\d){6,19}$)",
+         // Means: optional +, 7 to 20 digits, with optional dash or period between digits
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "1234567", "1234567");
+         ToValueMain(vInstance1, "123456-7", "123456-7");
+         ToValueMain(vInstance1, "123456.7", "123456.7");
+         ToValueMain(vInstance1, "1-2-3-4-5-6-7", "1-2-3-4-5-6-7");
+         ToValueMain(vInstance1, "1.2.3.4.5.6.7", "1.2.3.4.5.6.7");
+         ToValueMain(vInstance1, "12345678901234567890", "12345678901234567890");
+         ToValueMain(vInstance1, "+1234567", "+1234567");
+         ToValueMain(vInstance1, "+123456-7", "+123456-7");
+         ToValueMain(vInstance1, "+123456.7", "+123456.7");
+         ToValueMain(vInstance1, "+1-2-3-4-5-6-7", "+1-2-3-4-5-6-7");
+         ToValueMain(vInstance1, "+1.2.3.4.5.6.7", "+1.2.3.4.5.6.7");
+         ToValueMain(vInstance1, "+12345678901234567890", "+12345678901234567890");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "123456"); // min 7 digits
+         ToIllegalValueMain(vInstance1, "1-23456"); // min 7 digits
+         ToIllegalValueMain(vInstance1, "1.23456"); // min 7 digits
+         ToIllegalValueMain(vInstance1, "1a23456"); // illegal character
+         ToIllegalValueMain(vInstance1, "-1234567"); // no lead or trailing separator
+         ToIllegalValueMain(vInstance1, "1234567-"); // no lead or trailing separator
+         ToIllegalValueMain(vInstance1, ".1234567"); // no lead or trailing separator
+         ToIllegalValueMain(vInstance1, "1234567."); // no lead or trailing separator
+         ToIllegalValueMain(vInstance1, "1234..567"); // only one separator between digits
+         ToIllegalValueMain(vInstance1, "1234--567"); // only one separator between digits
+         ToIllegalValueMain(vInstance1, "123456789012345678901"); // max 20 digits
+         ToIllegalValueMain(vInstance1, "+-1234567"); // no lead or trailing separator
+
+         ToIllegalValueMain(vInstance1, "1234567#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "1234567#0000", "1234567#0000");
+         ToValueMain(vInstance1, "1234567#0", "1234567#0");
+         ToValueMain(vInstance1, "1234567 #0", "1234567 #0");
+         ToIllegalValueMain(vInstance1, "1234567#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "1234567#0a"); // illegal character
+
+      }
+
+      function testCountryCode()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "CountryCode";
+         // Pattern: "(^\+(?:\d ?){6,14}\d$)",
+         // Means: +########. Between 7 and 15 digits, with lead and trailing digit. Single space separators allowed between digits
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "+1234567", "+1234567");
+         ToValueMain(vInstance1, "+123456 7", "+123456 7");
+         ToValueMain(vInstance1, "+1 234567", "+1 234567");
+         ToValueMain(vInstance1, "+1 2 3 4 5 6 7", "+1 2 3 4 5 6 7");
+         ToValueMain(vInstance1, "+123456789012345", "+123456789012345");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "+123456"); // min 7 digits
+         ToIllegalValueMain(vInstance1, "+1 23456"); // min 7 digits
+         ToIllegalValueMain(vInstance1, "1234567"); // missing +
+         ToIllegalValueMain(vInstance1, "+1a23456"); // illegal character
+         ToIllegalValueMain(vInstance1, "1+234567"); // plus in the wrong place
+         ToIllegalValueMain(vInstance1, "+1234567890123456"); // extra digit
+         ToIllegalValueMain(vInstance1, "+1  234567"); // to many spaces
+
+
+         ToIllegalValueMain(vInstance1, "+1234567#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "+1234567#0000", "+1234567#0000");
+         ToValueMain(vInstance1, "+1234567#0", "+1234567#0");
+         ToValueMain(vInstance1, "+1234567 #0", "+1234567 #0");
+         ToIllegalValueMain(vInstance1, "+1234567#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "+1234567#0a"); // illegal character
+
+      }
+      function testNorthAmerica()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedStates";  // will use an alias to get "NorthAmerica".
+         // Pattern: "(^([1])?[ ]?((\([2-9]\d{2}\))|([2-9]\d{2}))?[ ]?\d{3}[ \-]?\d{4}$)"
+         // Means: 1(###) ####-####.  Formatting characters and lead 1 are optional. Area codes must not start with 0 or 1.
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "12345678901", "12345678901");
+         ToValueMain(vInstance1, "1 2345678901", "1 2345678901");
+         ToValueMain(vInstance1, "1(234)5678901", "1(234)5678901");
+         ToValueMain(vInstance1, "1 (234)5678901", "1 (234)5678901");
+         ToValueMain(vInstance1, "1234567 8901", "1234567 8901");
+         ToValueMain(vInstance1, "1234567-8901", "1234567-8901");
+         ToValueMain(vInstance1, "1(234)567-8901", "1(234)567-8901");
+         ToValueMain(vInstance1, "1(234)567 8901", "1(234)567 8901");
+         ToValueMain(vInstance1, "1 (234) 567 8901", "1 (234) 567 8901");
+
+         ToValueMain(vInstance1, "2345678901", "2345678901");  // omit lead 1
+         ToValueMain(vInstance1, "(234)5678901", "(234)5678901");
+         ToValueMain(vInstance1, "234567 8901", "234567 8901");
+         ToValueMain(vInstance1, "234567-8901", "234567-8901");
+         ToValueMain(vInstance1, "(234)567-8901", "(234)567-8901");
+         ToValueMain(vInstance1, "(234)567 8901", "(234)567 8901");
+         ToValueMain(vInstance1, "(234) 567 8901", "(234) 567 8901");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "1(2345678901");
+         ToIllegalValueMain(vInstance1, "1234)5678901");
+         ToIllegalValueMain(vInstance1, "123456789012");    // extra digit
+         ToIllegalValueMain(vInstance1, "1  2345678901");   // extra spaces
+         ToIllegalValueMain(vInstance1, "1 234    5678901");    // extra spaces
+         ToIllegalValueMain(vInstance1, "1(2345)678901");
+         ToIllegalValueMain(vInstance1, "1(23)45678901");
+
+         // illegal area codes start with 0 or 1
+         ToIllegalValueMain(vInstance1, "10345678901");
+         ToIllegalValueMain(vInstance1, "11345678901");
+         ToIllegalValueMain(vInstance1, "0345678901");
+         ToIllegalValueMain(vInstance1, "1345678901");
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "(123)45678901"); // valid for China
+
+         ToIllegalValueMain(vInstance1, "12345678901#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "12345678901#0000", "12345678901#0000");
+         ToValueMain(vInstance1, "12345678901#0", "12345678901#0");
+         ToValueMain(vInstance1, "12345678901 #0", "12345678901 #0");
+         ToIllegalValueMain(vInstance1, "12345678901#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "12345678901#0a"); // illegal character
+
+      }
+
+      function testFrance()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "France"; 
+         // Pattern: "(^(0( \d|\d ))?\d\d \d\d(\d \d| \d\d )\d\d$)"
+         // Means: 0# ## ### ### or 0# ## ## ## ##  0 ### ### ### or 0 ### ## ## ##   lead digits are optional (0#)
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "01 23 456 789", "01 23 456 789");
+         ToValueMain(vInstance1, "01 23 45 67 89", "01 23 45 67 89");
+         ToValueMain(vInstance1, "0 123 456 789", "0 123 456 789");
+         ToValueMain(vInstance1, "0 123 45 67 89", "0 123 45 67 89");
+
+         ToValueMain(vInstance1, "23 456 789", "23 456 789");
+         ToValueMain(vInstance1, "23 45 67 89", "23 45 67 89");
+         ToValueMain(vInstance1, "23 456 789", "23 456 789");
+         ToValueMain(vInstance1, "23 45 67 89", "23 45 67 89");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "11 23 456 789");   // lead 1
+         ToIllegalValueMain(vInstance1, "0b 23 456 789");   // letter
+         ToIllegalValueMain(vInstance1, "01  23 456 789"); 
+         ToIllegalValueMain(vInstance1, "0  123 456 789");   // extra spaces
+         ToIllegalValueMain(vInstance1, "01 23 456 7890");    // extra digit
+         ToIllegalValueMain(vInstance1, "01-23 456 789");
+         ToIllegalValueMain(vInstance1, "01 23-456 789");
+         ToIllegalValueMain(vInstance1, "01 23-456-789");
+         ToIllegalValueMain(vInstance1, "0123456789");
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901");   // valid for N.A.
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "(123)45678901"); // valid for China
+
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "01 23 456 789#0000", "01 23 456 789#0000");
+         ToValueMain(vInstance1, "01 23 456 789#0", "01 23 456 789#0");
+         ToValueMain(vInstance1, "01 23 456 789 #0", "01 23 456 789 #0");
+         ToIllegalValueMain(vInstance1, "01 23 456 789#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "01 23 456 789#0a"); // illegal character
+
+      }
+      function testJapan()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "Japan"; 
+         // Pattern: "(^(0\d{1,4}-|\(0\d{1,4}\) ?)?\d{1,4}-\d{4}$)"
+         // Means: 0#-#-####, (0#) #-####, #-####. Any single # can be 1-4 digits
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "01-3-4567", "01-3-4567");
+         ToValueMain(vInstance1, "012-3-4567", "012-3-4567");
+         ToValueMain(vInstance1, "0123-3-4567", "0123-3-4567");
+         ToValueMain(vInstance1, "01234-3-4567", "01234-3-4567");
+
+         ToValueMain(vInstance1, "(01) 3-4567", "(01) 3-4567");
+         ToValueMain(vInstance1, "(012) 3-4567", "(012) 3-4567");
+         ToValueMain(vInstance1, "(0123) 3-4567", "(0123) 3-4567");
+         ToValueMain(vInstance1, "(01234) 3-4567", "(01234) 3-4567");
+
+         ToValueMain(vInstance1, "01-34-4567", "01-34-4567");
+         ToValueMain(vInstance1, "01-345-4567", "01-345-4567");
+         ToValueMain(vInstance1, "01-3456-4567", "01-3456-4567");
+
+         ToValueMain(vInstance1, "(01) 34-4567", "(01) 34-4567");
+         ToValueMain(vInstance1, "(01) 345-4567", "(01) 345-4567");
+         ToValueMain(vInstance1, "(01) 3456-4567", "(01) 3456-4567");
+
+         ToValueMain(vInstance1, "(01)3-4567", "(01)3-4567");
+         ToValueMain(vInstance1, "(012)3-4567", "(012)3-4567");
+         ToValueMain(vInstance1, "(0123)3-4567", "(0123)3-4567");
+         ToValueMain(vInstance1, "(01234)3-4567", "(01234)3-4567");
+
+
+// no area prefix
+         ToValueMain(vInstance1, "3-4567", "3-4567");
+
+         ToValueMain(vInstance1, "34-4567", "34-4567");
+         ToValueMain(vInstance1, "345-4567", "345-4567");
+         ToValueMain(vInstance1, "3456-4567", "3456-4567");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "012345-3-4567");   // extra lead digit
+         ToIllegalValueMain(vInstance1, "11-3-4567"); // no lead zero
+         ToIllegalValueMain(vInstance1, "01-3-45678");   // extra digit
+         ToIllegalValueMain(vInstance1, "3-45678");   // extra digit
+         ToIllegalValueMain(vInstance1, "01-b-4567"); // illegal character
+         ToIllegalValueMain(vInstance1, "01) 34-4567");
+         ToIllegalValueMain(vInstance1, "(01 34-4567");
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901");   // valid for N.A.
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "(123)45678901"); // valid for China
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+
+         ToIllegalValueMain(vInstance1, "01-3-4567#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "01-3-4567#0000", "01-3-4567#0000");
+         ToValueMain(vInstance1, "01-3-4567#0", "01-3-4567#0");
+         ToValueMain(vInstance1, "01-3-4567 #0", "01-3-4567 #0");
+         ToIllegalValueMain(vInstance1, "01-3-4567#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "01-3-4567#0a"); // illegal character
+
+      }     
+      function testGermany()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "Germany"; 
+         // Pattern: "(^(((\(0\d\d\) |(\(0\d{3}\) )?\d )?\d\d \d\d \d\d|\(0\d{4}\) \d \d\d-\d\d?)$)"
+         // Means: (0##) ## ## ## or (0###) # ## ## ## or (0####) # ##-## or (0####) # ##-# or # ## ## ##
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "(012) 34 56 78", "(012) 34 56 78");
+         ToValueMain(vInstance1, "(0123) 4 56 78 90", "(0123) 4 56 78 90");
+         ToValueMain(vInstance1, "(01234) 5 67-89", "(01234) 5 67-89");
+         ToValueMain(vInstance1, "(01234) 5 67-8", "(01234) 5 67-8");
+         ToValueMain(vInstance1, "4 56 78 90", "4 56 78 90");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "(012345) 5 67-8");   // extra digit in area code
+         ToIllegalValueMain(vInstance1, "(01234 5 67-8");
+         ToIllegalValueMain(vInstance1, "01234) 5 67-8"); 
+         ToIllegalValueMain(vInstance1, "(01234) b 67-8");   // illegal character
+         ToIllegalValueMain(vInstance1, "(11234) 5 67-8"); // no lead zero
+         ToIllegalValueMain(vInstance1, "(01234) 5 6789");  // missing dash
+         ToIllegalValueMain(vInstance1, "(01234)567-8"); // missing spaces
+         ToIllegalValueMain(vInstance1, "(01234) 5 67-890"); // extra digit
+         ToIllegalValueMain(vInstance1, "(01234) 50 67-89"); // extra digit
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901");   // valid for N.A.
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(123)45678901"); // valid for China
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "(012) 34 56 78#0000", "(012) 34 56 78#0000");
+         ToValueMain(vInstance1, "(012) 34 56 78#0", "(012) 34 56 78#0");
+         ToValueMain(vInstance1, "(012) 34 56 78 #0", "(012) 34 56 78 #0");
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78#0a"); // illegal character
+
+      }           
+      function testChina()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "China"; 
+         // Pattern: "(^(\(\d{3}\)|\d{3}-)?\d{8}$)"
+         // Means: (###)######## or ###-######## or ########
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "(123)45678901", "(123)45678901");
+         ToValueMain(vInstance1, "123-45678901", "123-45678901");
+         ToValueMain(vInstance1, "45678901", "45678901");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "(1234)56789012");   // extra digit in area code
+         ToIllegalValueMain(vInstance1, "(12345678901");
+         ToIllegalValueMain(vInstance1, "123)45678901"); 
+         ToIllegalValueMain(vInstance1, "(123)456b8901");   // illegal character
+         ToIllegalValueMain(vInstance1, "(123)456789012"); // extra digit
+         ToIllegalValueMain(vInstance1, "(123)4567 8901");  // illegal character
+         ToIllegalValueMain(vInstance1, "(123)-45678901"); // dash not allowed with ()
+         ToIllegalValueMain(vInstance1, "0(123)45678901"); // extra lead digit
+
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901");   // valid for N.A.
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+
+         ToIllegalValueMain(vInstance1, "(123)45678901#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "(123)45678901#0000", "(123)45678901#0000");
+         ToValueMain(vInstance1, "(123)45678901#0", "(123)45678901#0");
+         ToValueMain(vInstance1, "(123)45678901 #0", "(123)45678901 #0");
+         ToIllegalValueMain(vInstance1, "(123)45678901#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "(123)45678901#0a"); // illegal character
+
+      }
+
+      function testUnitedKingdom()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedKingdom"; 
+         // Pattern: "(^(((\+44\s?\d{4}|\(?0\d{4}\)?)\s?\d{3}\s?\d{3})|((\+44\s?\d{3}|\(?0\d{3}\)?)\s?\d{3}\s?\d{4})|((\+44\s?\d{2}|\(?0\d{2}\)?)\s?\d{4}\s?\d{4}))$)"
+         // Means: +44 #### ### ### or 0#### ### ### or +44 ### ### #### or 0### ### #### or +44 ## #### #### or 0## #### ####
+
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "+44 1234 567 890", "+44 1234 567 890");
+         ToValueMain(vInstance1, "+44 123 456 7890", "+44 123 456 7890");
+         ToValueMain(vInstance1, "+44 12 3456 7890", "+44 12 3456 7890");
+         ToValueMain(vInstance1, "01234 567 890", "01234 567 890");
+         ToValueMain(vInstance1, "0123 456 7890", "0123 456 7890");
+         ToValueMain(vInstance1, "012 3456 7890", "012 3456 7890");
+
+         ToValueMain(vInstance1, "+441234567890", "+441234567890");
+         ToValueMain(vInstance1, "01234567890", "01234567890");
+
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, "+44 123 456 78901");   // extra digit 
+         ToIllegalValueMain(vInstance1, "+54 123 456 7890");   // incorrect country code
+         ToIllegalValueMain(vInstance1, "+44 1b3 456 7890");   // illegal character
+         ToIllegalValueMain(vInstance1, "+44 123  456 7890");   // extra space
+         ToIllegalValueMain(vInstance1, "+44  123 456 7890");   // extra space
+         ToIllegalValueMain(vInstance1, "01234 567 8901"); // extra digit
+         ToIllegalValueMain(vInstance1, "012345 567 890");  // extra digit in area
+         ToIllegalValueMain(vInstance1, "1234 567 890"); // no lead zero or +
+
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901");   // valid for N.A.
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "(123)45678901");   // valid for China
+
+         ToIllegalValueMain(vInstance1, "+44 1234 567 890#0000"); // extension not permitted
+         ToIllegalValueMain(vInstance1, "01234 567 890#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "+44 1234 567 890#0000", "+44 1234 567 890#0000");
+         ToValueMain(vInstance1, "+44 1234 567 890#0", "+44 1234 567 890#0");
+         ToValueMain(vInstance1, "+44 1234 567 890 #0", "+44 1234 567 890 #0");
+         ToIllegalValueMain(vInstance1, "+44 1234 567 890#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "+44 1234 567 890#0a"); // illegal character
+         ToValueMain(vInstance1, "01234 567 890#0000", "01234 567 890#0000");
+         ToValueMain(vInstance1, "01234 567 890#0", "01234 567 890#0");
+         ToValueMain(vInstance1, "01234 567 890 #0", "01234 567 890 #0");
+         ToIllegalValueMain(vInstance1, "01234 567 890#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "01234 567 890#0a"); // illegal character
+
+      }
+      function testUSandChina()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedStates|China"; 
+
+         ToValueMain(vInstance1, "", "");
+         // valid US patterns
+         ToValueMain(vInstance1, "12345678901", "12345678901");
+         ToValueMain(vInstance1, "1 2345678901", "1 2345678901");
+         ToValueMain(vInstance1, "1(234)5678901", "1(234)5678901");
+         ToValueMain(vInstance1, "1 (234)5678901", "1 (234)5678901");
+         ToValueMain(vInstance1, "1234567 8901", "1234567 8901");
+         ToValueMain(vInstance1, "1234567-8901", "1234567-8901");
+         ToValueMain(vInstance1, "1(234)567-8901", "1(234)567-8901");
+         ToValueMain(vInstance1, "1(234)567 8901", "1(234)567 8901");
+         ToValueMain(vInstance1, "1 (234) 567 8901", "1 (234) 567 8901");
+
+         ToValueMain(vInstance1, "2345678901", "2345678901");  // omit lead 1
+         ToValueMain(vInstance1, "(234)5678901", "(234)5678901");
+         ToValueMain(vInstance1, "234567 8901", "234567 8901");
+         ToValueMain(vInstance1, "234567-8901", "234567-8901");
+         ToValueMain(vInstance1, "(234)567-8901", "(234)567-8901");
+         ToValueMain(vInstance1, "(234)567 8901", "(234)567 8901");
+         ToValueMain(vInstance1, "(234) 567 8901", "(234) 567 8901");
+
+         // valid Chinese patterns
+         ToValueMain(vInstance1, "(123)45678901", "(123)45678901");
+         ToValueMain(vInstance1, "123-45678901", "123-45678901");
+         ToValueMain(vInstance1, "45678901", "45678901");
+
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+
+
+      // reverse the order
+         vInstance1.region = "China|UnitedStates"; 
+
+         // valid Chinese patterns
+         ToValueMain(vInstance1, "(123)45678901", "(123)45678901");
+         ToValueMain(vInstance1, "123-45678901", "123-45678901");
+         ToValueMain(vInstance1, "45678901", "45678901");
+
+         // valid US patterns
+         ToValueMain(vInstance1, "12345678901", "12345678901");
+         ToValueMain(vInstance1, "1 2345678901", "1 2345678901");
+         ToValueMain(vInstance1, "1(234)5678901", "1(234)5678901");
+         ToValueMain(vInstance1, "1 (234)5678901", "1 (234)5678901");
+         ToValueMain(vInstance1, "1234567 8901", "1234567 8901");
+         ToValueMain(vInstance1, "1234567-8901", "1234567-8901");
+         ToValueMain(vInstance1, "1(234)567-8901", "1(234)567-8901");
+         ToValueMain(vInstance1, "1(234)567 8901", "1(234)567 8901");
+         ToValueMain(vInstance1, "1 (234) 567 8901", "1 (234) 567 8901");
+
+         ToValueMain(vInstance1, "2345678901", "2345678901");  // omit lead 1
+         ToValueMain(vInstance1, "(234)5678901", "(234)5678901");
+         ToValueMain(vInstance1, "234567 8901", "234567 8901");
+         ToValueMain(vInstance1, "234567-8901", "234567-8901");
+         ToValueMain(vInstance1, "(234)567-8901", "(234)567-8901");
+         ToValueMain(vInstance1, "(234)567 8901", "(234)567 8901");
+         ToValueMain(vInstance1, "(234) 567 8901", "(234) 567 8901");
+
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+
+
+         ToIllegalValueMain(vInstance1, "1(234)5678901#0000"); // extension not permitted
+         ToIllegalValueMain(vInstance1, "(123)45678901#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "1(234)5678901#0000", "1(234)5678901#0000");
+         ToValueMain(vInstance1, "1(234)5678901#0", "1(234)5678901#0");
+         ToValueMain(vInstance1, "1(234)5678901 #0", "1(234)5678901 #0");
+         ToIllegalValueMain(vInstance1, "1(234)5678901#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "1(234)5678901#0a"); // illegal character
+
+         ToValueMain(vInstance1, "(123)45678901#0000", "(123)45678901#0000");
+         ToValueMain(vInstance1, "(123)45678901#0", "(123)45678901#0");
+         ToValueMain(vInstance1, "(123)45678901 #0", "(123)45678901 #0");
+         ToIllegalValueMain(vInstance1, "(123)45678901#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "(123)45678901#0a"); // illegal character
+      }
+
+      function testUSandCountryCode()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+
+         vInstance1.region = "UnitedStates|CountryCode"; 
+
+         ToValueMain(vInstance1, "", "");
+         // valid US patterns
+         ToValueMain(vInstance1, "12345678901", "12345678901");
+         ToValueMain(vInstance1, "1 2345678901", "1 2345678901");
+         ToValueMain(vInstance1, "1(234)5678901", "1(234)5678901");
+         ToValueMain(vInstance1, "1 (234)5678901", "1 (234)5678901");
+         ToValueMain(vInstance1, "1234567 8901", "1234567 8901");
+         ToValueMain(vInstance1, "1234567-8901", "1234567-8901");
+         ToValueMain(vInstance1, "1(234)567-8901", "1(234)567-8901");
+         ToValueMain(vInstance1, "1(234)567 8901", "1(234)567 8901");
+         ToValueMain(vInstance1, "1 (234) 567 8901", "1 (234) 567 8901");
+
+         ToValueMain(vInstance1, "2345678901", "2345678901");  // omit lead 1
+         ToValueMain(vInstance1, "(234)5678901", "(234)5678901");
+         ToValueMain(vInstance1, "234567 8901", "234567 8901");
+         ToValueMain(vInstance1, "234567-8901", "234567-8901");
+         ToValueMain(vInstance1, "(234)567-8901", "(234)567-8901");
+         ToValueMain(vInstance1, "(234)567 8901", "(234)567 8901");
+         ToValueMain(vInstance1, "(234) 567 8901", "(234) 567 8901");
+
+         // valid Country Code patterns
+         ToValueMain(vInstance1, "+1234567", "+1234567");
+         ToValueMain(vInstance1, "+123456 7", "+123456 7");
+         ToValueMain(vInstance1, "+1 234567", "+1 234567");
+         ToValueMain(vInstance1, "+1 2 3 4 5 6 7", "+1 2 3 4 5 6 7");
+         ToValueMain(vInstance1, "+123456789012345", "+123456789012345");
+
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "(123)45678901");   // valid for China
+
+
+      // reverse the order
+         vInstance1.region = "CountryCode|UnitedStates"; 
+
+         // valid Country Code patterns
+         ToValueMain(vInstance1, "+1234567", "+1234567");
+         ToValueMain(vInstance1, "+123456 7", "+123456 7");
+         ToValueMain(vInstance1, "+1 234567", "+1 234567");
+         ToValueMain(vInstance1, "+1 2 3 4 5 6 7", "+1 2 3 4 5 6 7");
+         ToValueMain(vInstance1, "+123456789012345", "+123456789012345");
+
+         // valid US patterns
+         ToValueMain(vInstance1, "12345678901", "12345678901");
+         ToValueMain(vInstance1, "1 2345678901", "1 2345678901");
+         ToValueMain(vInstance1, "1(234)5678901", "1(234)5678901");
+         ToValueMain(vInstance1, "1 (234)5678901", "1 (234)5678901");
+         ToValueMain(vInstance1, "1234567 8901", "1234567 8901");
+         ToValueMain(vInstance1, "1234567-8901", "1234567-8901");
+         ToValueMain(vInstance1, "1(234)567-8901", "1(234)567-8901");
+         ToValueMain(vInstance1, "1(234)567 8901", "1(234)567 8901");
+         ToValueMain(vInstance1, "1 (234) 567 8901", "1 (234) 567 8901");
+
+         ToValueMain(vInstance1, "2345678901", "2345678901");  // omit lead 1
+         ToValueMain(vInstance1, "(234)5678901", "(234)5678901");
+         ToValueMain(vInstance1, "234567 8901", "234567 8901");
+         ToValueMain(vInstance1, "234567-8901", "234567-8901");
+         ToValueMain(vInstance1, "(234)567-8901", "(234)567-8901");
+         ToValueMain(vInstance1, "(234)567 8901", "(234)567 8901");
+         ToValueMain(vInstance1, "(234) 567 8901", "(234) 567 8901");
+
+
+         ToIllegalValueMain(vInstance1, "01 23 456 789");   // valid for France
+         ToIllegalValueMain(vInstance1, "01-3-4567");   // valid for Japan
+         ToIllegalValueMain(vInstance1, "(012) 34 56 78");   // valid for Germany
+         ToIllegalValueMain(vInstance1, "(123)45678901");   // valid for China
+
+
+         ToIllegalValueMain(vInstance1, "(123)45678901#0000"); // extension not permitted
+         ToIllegalValueMain(vInstance1, "+1234567#0000"); // extension not permitted
+
+         vInstance1.supportsExt = true;
+         ToValueMain(vInstance1, "1(234)5678901#0000", "1(234)5678901#0000");
+         ToValueMain(vInstance1, "1(234)5678901#0", "1(234)5678901#0");
+         ToValueMain(vInstance1, "1(234)5678901 #0", "1(234)5678901 #0");
+         ToIllegalValueMain(vInstance1, "1(234)5678901#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "1(234)5678901#0a"); // illegal character
+
+         ToValueMain(vInstance1, "+1234567#0000", "+1234567#0000");
+         ToValueMain(vInstance1, "+1234567#0", "+1234567#0");
+         ToValueMain(vInstance1, "+1234567 #0", "+1234567 #0");
+         ToIllegalValueMain(vInstance1, "+1234567#a"); // illegal character
+         ToIllegalValueMain(vInstance1, "+1234567#0a"); // illegal character
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testDefaultPhone();
+         testCountryCode();
+         testNorthAmerica();
+         testFrance();
+         testJapan();
+         testGermany();
+         testChina();
+         testUnitedKingdom();
+         testUSandChina();
+         testUSandCountryCode();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

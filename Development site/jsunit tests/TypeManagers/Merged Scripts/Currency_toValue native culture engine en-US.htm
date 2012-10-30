@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "$1020.30", 1020.3);
+         ToValueMain(vInstance1, "1020.30", 1020.3);
+         ToValueMain(vInstance1, "1,020.30", 1020.3);
+         ToValueMain(vInstance1, "$ 1020.30", 1020.3);
+         ToValueMain(vInstance1, "$1020.3", 1020.3);
+         ToValueMain(vInstance1, "$1020.", 1020);
+         ToValueMain(vInstance1, "$1020", 1020);
+         ToValueMain(vInstance1, "1020", 1020);
+         ToValueMain(vInstance1, "1,020", 1020);
+         ToValueMain(vInstance1, "$1,000,000.30", 1000000.30);
+         ToValueMain(vInstance1, "$1,00,0,0,00.30", 1000000.30);  // extra thousands separators are ignored
+         ToValueMain(vInstance1, "-$1020.30", -1020.3);
+         ToValueMain(vInstance1, "-1020.30", -1020.3);
+         ToValueMain(vInstance1, "-$1,020.30", -1020.3);
+         ToValueMain(vInstance1, "-1,020.30", -1020.3);
+         ToValueMain(vInstance1, "($1020.30)", -1020.3);
+         ToValueMain(vInstance1, "(1020.30)", -1020.3);
+         ToValueMain(vInstance1, "($1,020.30)", -1020.3);
+         ToValueMain(vInstance1, "(1,020.30)", -1020.3);
+      }
+
+      function testToIllegalValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+         ToIllegalValueMain(vInstance1, "1,020.301");
+         ToIllegalValueMain(vInstance1, "1020a03");
+         ToIllegalValueMain(vInstance1, "1,020.3.0");
+         vInstance1.setAllowNegatives(false);
+         ToIllegalValueMain(vInstance1, "($1,020.30)");
+         ToIllegalValueMain(vInstance1, "-$1,020.30");
+         ToIllegalValueMain(vInstance1, "-1,020.30");
+         vInstance1.setAllowCurrencySymbol(false);
+         ToIllegalValueMain(vInstance1, "$1,020.30");
+         ToIllegalValueMain(vInstance1, "1,020.30-");  // see if this is allowed by jquery-globalize
+         ToIllegalValueMain(vInstance1, "($1020.30");  // missing trailing )
+
+      }
+
+      function testAllowCurrencySymbol()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+         vInstance1.setAllowCurrencySymbol(false);
+         ToValueMain(vInstance1, "1020.30", 1020.3);
+         ToIllegalValueMain(vInstance1, "$1020.30");
+      }
+
+      function testRoundExtra()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+         ToIllegalValueMain(vInstance1, "1020.345");
+//      0 = Point5, 1 = Currency, 2 = Truncate, 3 = Ceiling, 4 = NextWhole
+//      Anything else throws an exception if the number of decimal digits exceeds mdp.
+
+         vInstance1.setRoundMode(0);
+         ToValueMain(vInstance1, "1020.340", 1020.34);
+         ToValueMain(vInstance1, "1020.341", 1020.34);
+         ToValueMain(vInstance1, "1020.345", 1020.35);
+         ToValueMain(vInstance1, "1020.349", 1020.35);
+         vInstance1.setRoundMode(1);
+         ToValueMain(vInstance1, "1020.340", 1020.34);
+         ToValueMain(vInstance1, "1020.341", 1020.34);
+         ToValueMain(vInstance1, "1020.345", 1020.34);
+         ToValueMain(vInstance1, "1020.349", 1020.34);
+         ToValueMain(vInstance1, "1020.350", 1020.35);
+         ToValueMain(vInstance1, "1020.351", 1020.35);
+         ToValueMain(vInstance1, "1020.355", 1020.36);
+         ToValueMain(vInstance1, "1020.359", 1020.36);
+         vInstance1.setRoundMode(2); 
+         ToValueMain(vInstance1, "1020.340", 1020.34);
+         ToValueMain(vInstance1, "1020.341", 1020.34);
+         ToValueMain(vInstance1, "1020.345", 1020.34);
+         ToValueMain(vInstance1, "1020.349", 1020.34);
+         vInstance1.setRoundMode(3);
+         ToValueMain(vInstance1, "1020.340", 1020.34);
+         ToValueMain(vInstance1, "1020.341", 1020.35);
+         ToValueMain(vInstance1, "1020.345", 1020.35);
+         ToValueMain(vInstance1, "1020.349", 1020.35);
+         ToValueMain(vInstance1, "-1020.340", -1020.34);
+         ToValueMain(vInstance1, "-1020.341", -1020.34);
+         ToValueMain(vInstance1, "-1020.345", -1020.34);
+         ToValueMain(vInstance1, "-1020.349", -1020.34);
+         vInstance1.setRoundMode(4);
+         ToValueMain(vInstance1, "1020.340", 1020.34);
+         ToValueMain(vInstance1, "1020.341", 1020.35);
+         ToValueMain(vInstance1, "1020.345", 1020.35);
+         ToValueMain(vInstance1, "1020.349", 1020.35);
+         ToValueMain(vInstance1, "-1020.340", -1020.34);
+         ToValueMain(vInstance1, "-1020.341", -1020.35);
+         ToValueMain(vInstance1, "-1020.345", -1020.35);
+         ToValueMain(vInstance1, "-1020.349", -1020.35);
+      }
+
+
+      function testUseDecimalDigits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+         ToIllegalValueMain(vInstance1, "1020.35345");
+         vInstance1.setUseDecimalDigits(false);
+         ToValueMain(vInstance1, "1020.30", 1020.3);
+         ToValueMain(vInstance1, "1020.35", 1020.35);
+         ToValueMain(vInstance1, "1020.35345", 1020.35345);
+      }
+
+      function testStrictSymbols()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Currency");
+         assertNotNull(vInstance1);
+
+         vInstance1.strictSymbols = true;
+         ToValueMain(vInstance1, "$1000.00", 1000);
+         ToValueMain(vInstance1, "1000.00", 1000);
+         ToValueMain(vInstance1, "($1000.00)", -1000);
+         ToValueMain(vInstance1, "($1000)", -1000);
+         ToValueMain(vInstance1, "($1000.)", -1000);
+         ToIllegalValueMain(vInstance1, "-1000.00");
+         ToIllegalValueMain(vInstance1, "-$1000.00");
+         ToIllegalValueMain(vInstance1, "- 1000");
+         ToIllegalValueMain(vInstance1, "1000-");
+
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testToIllegalValue();
+         testAllowCurrencySymbol();
+         testRoundExtra();
+         testUseDecimalDigits();
+         testStrictSymbols();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

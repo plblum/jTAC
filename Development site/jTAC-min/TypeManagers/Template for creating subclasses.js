@@ -1,0 +1,1 @@
+jTAC._internal.temp._TypeManagers_[ClassName]={extend:"TypeManagers.[BaseClass]",constructor:function(a){this.callParent([a])},config:{},configrules:{},nativeTypeName:function(){return"string"},dataTypeName:function(){return"string"},storageTypeName:function(){return"string"},};jTAC.define("TypeManagers.[ClassName]",jTAC._internal.temp._TypeManagers_[ClassName]);

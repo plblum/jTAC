@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/jTAC.js" type="text/javascript"></script>
+</head>
+<body>
+   <script type="text/javascript">
+      function testInstalled() {
+
+         assertNotNull(jTAC);
+         assertNotUndefined(jTAC.define);
+      }
+
+      function testDefineTest1() {
+         jTAC.define("test1", {});
+         assertNotUndefined(jTAC._internal.definitions["test1"]);
+         assertFunction(jTAC._internal.definitions["test1"].ctor);   // look at raw data
+         assertNotNull(jTAC._internal.definitions["test1"].inst);
+         var def = jTAC.getDefinition("test1"); // go through official channels to get the same
+         assertNotNull(def);
+         assertFunction(def.ctor);
+         assertNotNull(def.inst);
+
+         assertNotNull(jTAC.test1);
+         var cl = jTAC.getClass("test1", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+        
+      }
+      function testDefineTest2() {
+         jTAC.define("ns1.test2", {});
+
+         var def = jTAC.getDefinition("ns1.test2");
+         assertNotNull(def);
+         assertFunction(def.ctor);
+         assertNotNull(def.inst);
+
+         assertNotNull(jTAC.ns1);
+         assertEquals(typeof jTAC.ns1, "object");
+         assertNotNull(jTAC.ns1.test2);
+         assertFunction(jTAC.ns1.test2);
+         var cl = jTAC.getClass("ns1.test2", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+      }
+
+
+      function testDefineTest3() {
+         jTAC.define("ns1.ns2.test3", {});
+         var def = jTAC.getDefinition("ns1.ns2.test3");
+         assertNotNull(def);
+         assertFunction(def.ctor);
+         assertNotNull(def.inst);
+
+         assertNotNull(jTAC.ns1);
+         assertEquals(typeof jTAC.ns1, "object");
+         assertNotNull(jTAC.ns1.ns2);
+         assertEquals(typeof jTAC.ns1.ns2, "object");
+         assertNotNull(jTAC.ns1.ns2.test3);
+         assertFunction(jTAC.ns1.ns2.test3);
+         var cl = jTAC.getClass("ns1.ns2.test3", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+      }
+
+      function testReviewDefinitions() {
+         var cl = jTAC.getClass("test1", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+         cl = jTAC.getClass("jTAC.test1", false);  // should ignore "jTAC."
+         assertNotNull(cl);
+         assertFunction(cl);
+
+         cl = jTAC.getClass("ns1.test2", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+
+         cl = jTAC.getClass("TEST1", false);  // case sensitive
+         assertNull(cl);
+
+         cl = jTAC.getClass("jTAC.ns1.test2", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+
+         cl = jTAC.getClass("ns1.ns2.test3", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+
+         cl = jTAC.getClass("jTAC.ns1.ns2.test3", false);
+         assertNotNull(cl);
+         assertFunction(cl);
+
+         cl = jTAC.getClass("test4", false);  // does not exist. Returns null
+         assertNull(cl);
+
+         var success = true;
+         try {
+            cl = jTAC.getClass("test4", true);  // does not exist. Throws exception
+            success = false;
+         }
+         catch ( e ) {
+            // success
+         }
+         if (!success)
+            fail("Did not throw exception.");
+
+         assertNotNull(jTAC.ns1);
+         assertUndefined(jTAC.NS1);  // case sensitive
+
+      }
+
+      function testDefineMembers1() {
+         jTAC.define( "ns1.Members1", {
+            constructor: function ( propertyVals ) {
+            }
+         } );
+         var cl = jTAC.getClass("ns1.Members1");
+         assertNotNull(cl);
+         assertFunction(cl);
+         assertNotNull(cl.prototype);
+         assertFunction(cl.constructor);
+         assertFunction(cl.prototype.implement);
+         assertFunction(cl.prototype.callParent);
+         assertFunction(cl.prototype.instanceOf);
+
+         var obj = new cl({});   // run the constructor
+         assertNotNull(obj);
+         assertFunction(obj.implement);
+         assertFunction(obj.callParent);
+         assertEquals("Members1", obj.$className);
+         assertEquals("ns1.Members1", obj.$fullClassName);
+         assertNull(obj.$parentClass);
+         assertEquals("", obj.$parentName);
+
+         // further testing of the constructor is handled in other tests: /jTAC create.htm.
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInstalled();
+         testDefineTest1();
+         testDefineTest2();
+         testDefineTest3();
+         testReviewDefinitions();
+         testDefineMembers1();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   
+   </script>
+</body>
+</html>

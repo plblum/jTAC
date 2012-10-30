@@ -1,0 +1,12 @@
+﻿/* -----------------------------------------------------
+For use with the jTAC datatypeeditor widget and datetextbox.
+--------------------------------------------------------*/
+
+/* datatypeeditor's options.keyErrorClass property default. */
+.key-error
+{
+   border-color: Red;
+   background-image: url("ValErrorIcon.GIF");
+   background-position: right;
+   background-repeat: no-repeat;
+}

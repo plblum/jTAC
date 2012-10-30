@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../Shared.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BooleanLogic.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Range.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Value.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   <script src="../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>   
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+Tests the Conditions.BooleanLogic class using unobtrusive validation.<br />
+Uses jsunit as it loads. Once it passes those tests, you can interact with the UI to further test this page.<br />
+This expression is evaluated:<br />
+   TextBox1 is required AND<br /> (<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;(<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(TextBox2 is required) AND (TextBox2 holds integer) AND (TextBox2 is in range 1 to 10)<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;)<br /> 
+   &nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;(<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(TextBox3 is required) AND (TextBox3 holds integer) AND (TextBox3 is in range 1 to 10)<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;)<br />
+   )<br />
+
+
+   <form action="" method="get" id="Form1" 
+      data-val-options="{'onkeyup': false, 'debug': true}" >
+
+      <input type="text" id="TextBox1" name="TextBox1" 
+         data-val="true"
+         data-val-booleanlogic="Specify a range between 1 and 10 in the second or third textbox"
+         data-val-booleanlogic-json='{"operator": "AND", 
+              "conditions": [
+                {"jtacClass": "Required", "elementId" : "TextBox1" },
+                {"jtacClass" : "BooleanLogic", "operator": "OR", 
+                 "conditions": [
+                  { "jtacClass" : "BooleanLogic", "operator": "AND", 
+                    "conditions": [
+                     {"jtacClass" : "Required", "elementId" : "TextBox2" },
+                     {"jtacClass" : "DataTypeCheck", "elementId" : "TextBox2" },
+                     {"jtacClass" : "Range", "elementId" : "TextBox2", "minimum" : 1, "maximum" : 10 }
+                    ] },
+                  {"jtacClass" : "BooleanLogic", "operator": "AND", 
+                    "conditions": [
+                     {"jtacClass" : "Required", "elementId" : "TextBox3" },
+                     {"jtacClass" : "DataTypeCheck", "elementId" : "TextBox3" },
+                     {"jtacClass" : "Range", "elementId" : "TextBox3", "minimum" : 1, "maximum" : 10 }
+                    ] }
+                  ] }
+             ] }' />    
+
+      <input type="text" id="TextBox2" name="TextBox2" />  
+      <input type="text" id="TextBox3" name="TextBox3" />     
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span><br />
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+
+      function Init()
+      {
+
+      // ------------ jsunit tests -----------------------------
+         if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+         try
+         {
+            testInstalled();
+            testTextBox1();
+         }
+         catch (e)
+         {
+            window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+         }
+
+      }
+      jTAC.jqueryValidate.postInit.push(Init);
+
+//---- jsunit tests -------------------------------------------------
+      function testInstalled() 
+      {
+         assertNotNull(window.$);
+         assertNotNull(window.$.validator);
+         assertNotNull($.validator.methods);
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.jqueryValidate);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.jqueryValidate.createCondition);
+         assertFunction(jTAC.jqueryValidate.evaluate);
+
+         var form = $("#Form1");
+         var validator = $.data(form[0], "validator");
+         assertNotNull(validator);
+         var rules = validator.settings.rules;
+
+      }
+
+      function testTextBox1()
+      {
+         runJqueryValidate("TextBox1", "", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "", "TextBox3", "");
+         runJqueryValidate("TextBox1", "abc", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "", "TextBox3", "");
+         runJqueryValidate("TextBox1", "abc", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "def", "TextBox3", "");
+         runJqueryValidate("TextBox1", "abc", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "", "TextBox3", "def");
+         runJqueryValidate("TextBox1", "abc", true, 
+            '', 
+            "TextBox2", "1", "TextBox3", "");
+         runJqueryValidate("TextBox1", "abc", true, 
+            '', 
+            "TextBox2", "", "TextBox3", "2");
+         runJqueryValidate("TextBox1", "abc", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "11", "TextBox3", "");
+            runJqueryValidate("TextBox1", "abc", false, 
+            'Specify a range between 1 and 10 in the second or third textbox', 
+            "TextBox2", "", "TextBox3", "11");
+      }
+   </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+jTAC._internal.temp._CalcItems_Abs={extend:"CalcItems.BaseFunction",constructor:function(a){this.callParent([a])},_func:function(a){return Math.abs.apply(window,[a])},_numParms:function(){return 1},_getParseName2:function(){return"Math.abs"}};jTAC.define("CalcItems.Abs",jTAC._internal.temp._CalcItems_Abs);if(jTAC.parser){jTAC.parser.register("CalcItems.Abs")};

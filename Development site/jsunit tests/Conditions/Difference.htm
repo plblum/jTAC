@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Duration.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Difference.js" type="text/javascript"></script></head>
+<body>
+   <input id="textBox1" type="text" />
+   <input id="textBox2" type="text" />
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var cond = jTAC.create("Conditions.Difference");
+         assertNotNull(cond);
+         assertNotNull(cond.typeManager); // while not assigned before, it uses the default of TypeManagers.Integer
+         assertTrue(cond.typeManager instanceof jTAC.TypeManagers.Integer);
+         assertTrue(cond.enabled);
+         assertTrue(cond.trim);
+         assertNull(cond.lastEvaluateResult);
+         assertFalse(cond.not);
+         assertNotNull(cond.connection);
+         assertTrue(cond.connection instanceof jTAC.Connections.FormElement);
+         assertNotNull(cond.connection2);
+         assertTrue(cond.connection2 instanceof jTAC.Connections.FormElement);
+         assertEquals("=", cond.operator);
+         assertEquals(1, cond.differenceValue);
+         assertTrue(cond.canEvaluate());
+
+         cond.operator = "<>";
+         assertEquals("<>", cond.operator);
+
+         cond.differenceValue = 10;
+         assertEquals(10, cond.differenceValue);
+
+
+         cond.typeManager = jTAC.create("Float");
+         assertTrue(cond.typeManager instanceof jTAC.TypeManagers.Float);
+
+         cond.enabled = false;
+         assertFalse(cond.enabled);
+         assertFalse(cond.canEvaluate());
+
+         assertTrue(cond.connection.trim);
+         cond.trim = false;
+         assertFalse(cond.trim);
+         assertFalse(cond.connection.trim);
+
+         cond.not = true;
+         assertTrue(cond.not);
+      }
+
+      function testInteger()
+      {
+         var tm = jTAC.create("Integer");
+         RunDifference(tm, "11", "1", ">", 5, 1);
+         RunDifference(tm, "11", "1", ">", 20, 0);
+         RunDifference(tm, "11", "1", "<", 20, 1);
+         RunDifference(tm, "11", "1", ">=", 5, 1);
+         RunDifference(tm, "11", "1", ">=", 10, 1);
+         RunDifference(tm, "11", "1", ">=", 11, 0);
+         RunDifference(tm, "11", "1", "<=", 20, 1);
+         RunDifference(tm, "11", "1", "<=", 10, 1);
+         RunDifference(tm, "11", "1", "<=", 9, 0);
+         RunDifference(tm, "11", "1", "<>", 12, 1);
+         RunDifference(tm, "11", "1", "<>", 10, 0);
+         RunDifference(tm, "11", "1", "=", 10, 1);
+         RunDifference(tm, "11", "1", "=", 11, 0);
+
+         RunDifference(tm, "1", "1", "=", 0, 1);
+
+         RunDifference(tm, "1", "11", ">", 5, 1);
+         RunDifference(tm, "1", "11", ">", 20, 0);
+         RunDifference(tm, "1", "11", "<", 20, 1);
+         RunDifference(tm, "1", "11", ">=", 5, 1);
+         RunDifference(tm, "1", "11", ">=", 10, 1);
+         RunDifference(tm, "1", "11", ">=", 11, 0);
+         RunDifference(tm, "1", "11", "<=", 20, 1);
+         RunDifference(tm, "1", "11", "<=", 10, 1);
+         RunDifference(tm, "1", "11", "<=", 9, 0);
+         RunDifference(tm, "1", "11", "<>", 12, 1);
+         RunDifference(tm, "1", "11", "<>", 10, 0);
+         RunDifference(tm, "1", "11", "=", 10, 1);
+         RunDifference(tm, "1", "11", "=", 11, 0);
+
+         RunDifference(tm, "11", "1", "=", 10, 0, { "not": true });
+         RunDifference(tm, "11", "1", "<>", 15, 0, { "not": true });
+
+
+         RunDifference(tm, "", "1", "=", 10, -1);
+         RunDifference(tm, "", "1", "=", 10, -1, { "not" : true }); // not should not change the result of -1
+         RunDifference(tm, "1", "", "=", 10, -1);
+         RunDifference(tm, "1", "", "=", 10, -1, { "not" : true }); // not should not change the result of -1
+
+      }
+
+      function testFloat()
+      {
+         var tm = jTAC.create("Float");
+         RunDifference(tm, "11.5", "1.5", ">", 5, 1);
+         RunDifference(tm, "11.5", "1.5", ">", 20, 0);
+         RunDifference(tm, "11.5", "1.5", "<", 20, 1);
+         RunDifference(tm, "11.5", "1.5", ">=", 5, 1);
+         RunDifference(tm, "11.5", "1.5", ">=", 10, 1);
+         RunDifference(tm, "11.5", "1.5", ">=", 11, 0);
+         RunDifference(tm, "11.5", "1.5", "<=", 20, 1);
+         RunDifference(tm, "11.5", "1.5", "<=", 10, 1);
+         RunDifference(tm, "11.5", "1.5", "<=", 9, 0);
+         RunDifference(tm, "11.5", "1.5", "<>", 12, 1);
+         RunDifference(tm, "11.5", "1.5", "<>", 10, 0);
+         RunDifference(tm, "11.5", "1.5", "=", 10, 1);
+         RunDifference(tm, "11.5", "1.5", "=", 11, 0);
+
+         RunDifference(tm, "1", "1", "=", 0, 1);
+
+         RunDifference(tm, "1.5", "11", ">", 5, 1);
+         RunDifference(tm, "1.5", "11", ">", 20, 0);
+         RunDifference(tm, "1.5", "11", "<", 20, 1);
+         RunDifference(tm, "1.5", "11", ">=", 5, 1);
+         RunDifference(tm, "1.5", "11", ">=", 9.5, 1);
+         RunDifference(tm, "1.5", "11", ">=", 10, 0);
+         RunDifference(tm, "1.5", "11", "<=", 20, 1);
+         RunDifference(tm, "1.5", "11", "<=", 9.5, 1);
+         RunDifference(tm, "1.5", "11", "<=", 9, 0);
+         RunDifference(tm, "1.5", "11", "<>", 12, 1);
+         RunDifference(tm, "1.5", "11", "<>", 9.5, 0);
+         RunDifference(tm, "1.5", "11", "=", 9.5, 1);
+         RunDifference(tm, "1.5", "11", "=", 10, 0);
+
+         RunDifference(tm, "11", "1", "=", 10, 0, { "not": true });
+         RunDifference(tm, "11", "1", "<>", 15, 0, { "not": true });
+
+      }
+
+      function testDate()
+      {
+         var tm = jTAC.create("Date");
+         RunDifference(tm, "1/20/2012", "1/1/2012", ">", 18, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", ">", 19, 0);
+         RunDifference(tm, "1/20/2012", "1/1/2012", ">=", 18, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", ">=", 19, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", ">=", 20, 0);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<", 20, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<", 19, 0);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<=", 20, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<=", 19, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<=", 18, 0);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "=", 19, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "=", 18, 0);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<>", 18, 1);
+         RunDifference(tm, "1/20/2012", "1/1/2012", "<>", 19, 0);
+
+         RunDifference(tm, "1/1/2012", "1/1/2012", "=", 0, 1);
+
+         RunDifference(tm, "1/20/2012", "1/1/2012", "=", 0, 1, { "not" : true });
+
+      }
+
+      function testTimeOfDay()
+      {
+         var tm = jTAC.create("TimeOfDay");
+         var time30m = 30 * 60;
+         var time31m = 31 * 60;
+         var time29m = 29 * 60;
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", ">", time29m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", ">", time30m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", ">=", time29m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", ">=", time30m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", ">=", time31m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<", time31m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<", time30m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<=", time31m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<=", time30m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<=", time29m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "=", time30m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "=", time29m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "=", time31m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<>", time30m, 0);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<>", time31m, 1);
+         RunDifference(tm, "1:30:00 AM", "1:00:00 AM", "<>", time29m, 1);
+
+         RunDifference(tm, "1:00:00 AM", "1:00:00 AM", "=", 0, 1);
+      }
+
+      function testDuration()
+      {
+         var tm = jTAC.create("Duration.InSeconds");  // valueAsNumber representing seconds
+         var time30m = 30 * 60;
+         var time31m = 31 * 60;
+         var time29m = 29 * 60;
+         RunDifference(tm, "4:30:00", "5:00:00", "<", time31m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "<", time30m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", "<=", time31m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "<=", time30m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "<=", time29m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", ">", time31m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", ">", time30m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", ">", time29m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", ">=", time31m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", ">=", time30m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", ">=", time29m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "=", time30m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "=", time31m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", "=", time29m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", "<>", time31m, 1);
+         RunDifference(tm, "4:30:00", "5:00:00", "<>", time30m, 0);
+         RunDifference(tm, "4:30:00", "5:00:00", "<>", time29m, 1);
+
+         RunDifference(tm, "5:0:00", "5:00:00", "=", 0, 1);
+      }
+
+
+      function RunDifference(typeManager, textForConnection1, textForConnection2, operator, differenceValue, expectedResult, json)
+      {
+         var vInstance1 = jTAC.create("Conditions.Difference");
+         assertNotNull(vInstance1);
+         vInstance1.typeManager = typeManager;
+         vInstance1.elementId = "textBox1";
+         vInstance1.connection.setTextValue(textForConnection1); // trick to use existing objects to write to the textbox
+         vInstance1.elementId2 = "textBox2";
+         vInstance1.connection2.setTextValue(textForConnection2); // trick to use existing objects to write to the textbox
+
+         vInstance1.operator = operator;
+         vInstance1.differenceValue = differenceValue;
+
+         if (json != null)
+            vInstance1.setProperties(json);
+
+//         assertTrue(vInstance1.canEvaluate());
+         var evalResult = vInstance1.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+         vInstance1.connection.setTextValue(""); // reset the textbox
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testInteger();
+         testFloat();
+         testDate();
+         testTimeOfDay();
+         testDuration();
+
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+
+</body>
+</html>

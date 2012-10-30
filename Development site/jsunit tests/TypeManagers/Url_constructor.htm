@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseStrongPatternString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Url.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+         assertEquals("http|https", vInstance1.uriScheme);
+         assertEquals("aero|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|travel|jobs|mobi|pro|co", vInstance1.domainExt);
+         assertFalse(vInstance1.supportsIP);
+         assertFalse(vInstance1.supportsPort);
+         assertTrue(vInstance1.supportsPath);
+         assertTrue(vInstance1.requireUriScheme);
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         vInstance1.uriScheme = "ftp";
+         assertEquals("ftp", vInstance1.uriScheme);
+         vInstance1.domainExt = "com|edu";
+         assertEquals("com|edu", vInstance1.domainExt);
+         vInstance1.supportsIP = true;
+         assertTrue(vInstance1.supportsIP);
+         vInstance1.supportsPort = true;
+         assertTrue(vInstance1.supportsPort);
+         vInstance1.supportsPath = false;
+         assertFalse(vInstance1.supportsPath);
+         vInstance1.requireUriScheme = false;
+         assertFalse(vInstance1.requireUriScheme);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateSetAllProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer");
+         assertNotNull(vInstance1);
+         ToStringMain(vInstance1, 1000, "1,000");
+         ToStringMain(vInstance1, 1, "1");
+         ToStringMain(vInstance1, 0, "0");
+         ToStringMain(vInstance1, -10, "-10");
+
+         ToIllegalStringMain(vInstance1, 10.30);
+         ToIllegalStringMain(vInstance1, "01baddata");
+      }
+
+
+      function testToStringNoTS()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer");
+         assertNotNull(vInstance1);
+         vInstance1.setShowGroupSep(false);
+         ToStringMain(vInstance1, 1000, "1000");
+
+         ToStringMain(vInstance1, -1000000, "-1000000");
+
+      }
+
+      function testToStringNoNegatives()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer");
+         assertNotNull(vInstance1);
+         vInstance1.setAllowNegatives(false);
+         ToStringMain(vInstance1, 1000, "1,000");
+         ToIllegalStringMain(vInstance1, -100000);
+      }
+
+
+      function testToStringGerman()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer", { cultureName: "de-DE"});
+         assertNotNull(vInstance1);
+         ToStringMain(vInstance1, 1000000, "1.000.000");
+         ToStringMain(vInstance1, -1000000, "-1.000.000");
+      }
+
+      function testToStringFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer", { cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         var gSet = vInstance1.currencyFormat("GroupSep"); // not really a space %20, but %A0
+         var valStr = "1" + gSet + "000" + gSet + "000";
+
+         ToStringMain(vInstance1, 1000000, valStr);
+         ToStringMain(vInstance1, -1000000, "-" + valStr);
+
+      }
+
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer", { cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         assertEquals("1", vInstance1.toStringNeutral(1));
+         assertEquals("10000.123", vInstance1.toStringNeutral(10000.123)); // does not strip decimals
+         assertEquals("-1", vInstance1.toStringNeutral(-1));
+         assertEquals("", vInstance1.toStringNeutral(null));
+
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringNoNegatives();
+         testToStringNoTS();
+         testToStringGerman();
+         testToStringFrench();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

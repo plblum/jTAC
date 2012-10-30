@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseCounter.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/WordCount.js" type="text/javascript"></script>
+</head>
+<body>
+   <form action="WordCountCondition.htm" method="post" >
+      <input id="textBox1" type="text" />
+      <input id="textBox2" type="text" />
+      <input type="submit" value="Submit" />
+   </form>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var cond = jTAC.create("Conditions.WordCount");
+         assertNotNull(cond);
+         assertTrue(cond.enabled);
+         assertTrue(cond.trim);
+         assertNull(cond.lastEvaluateResult);
+         assertFalse(cond.not);
+         assertNotNull(cond.connection);
+         assertTrue(cond.connection instanceof jTAC.Connections.FormElement);
+         assertNull(cond.minimum);
+         assertNull(cond.maximum);
+         assertFalse(cond.canEvaluate()); // false because min/max are null
+
+         cond.minimum = 10;
+         assertEquals(10, cond.minimum);
+         assertTrue(cond.canEvaluate());
+         cond.minimum = null;
+         cond.maximum = 100;
+         assertEquals(100, cond.maximum);
+         assertTrue(cond.canEvaluate());
+
+      }
+
+      function testCounts()
+      {
+         RunWordCount("", null, 0, 0, 1, null); // zero words
+         RunWordCount("abc", null, 1, 1, 1, null); // 1 word
+         RunWordCount(" abc ", null, 1, 1, 1, null); // 1 word (trims spaces)
+         RunWordCount("abc.", null, 1, 1, 1, null); // 1 word
+         RunWordCount("a_c", null, 1, 1, 1, null); // 1 word
+         RunWordCount("123", null, 1, 1, 1, null); // 1 word
+         RunWordCount("a's", null, 1, 1, 1, null); // 1 word
+         RunWordCount("abc12", null, 1, 1, 1, null); // 1 word
+         RunWordCount("12abc", null, 1, 1, 1, null); // 1 word
+         RunWordCount("abc def", null, 2, 2, 1, null); // 2 words
+         RunWordCount("abc.def", null, 2, 2, 1, null); //
+         RunWordCount("abc. def", null, 2, 2, 1, null); //
+         RunWordCount("a_c       ___", null, 2, 2, 1, null); // 2 words
+         RunWordCount("123 abc", null, 2, 2, 1, null); // 2 words
+         RunWordCount("a's 'something'", null, 2, 2, 1, null); // 2 words
+         RunWordCount("abc12!!!test", null, 2, 2, 1, null); // 2 words
+         RunWordCount("12abc??test", null, 2, 2, 1, null); // 2 words
+      }
+
+      function testOneTextBox()
+      {
+         RunWordCount("", null, 0, 10, 1, null); // min=0,max=10
+         RunWordCount("", null, null, 10, 1, null); // min=null,max=10
+         RunWordCount("", null, 1, 10, 0, null); // min=1
+         RunWordCount("b", null, 0, 10, 1, null);
+         RunWordCount("b", null, 1, 10, 1, null);
+         RunWordCount("b", null, 2, 10, 0, null);
+         RunWordCount("a bc d", null, 0, 10, 1, null);
+         RunWordCount("a bc d", null, 5, null, 0, null); // min=5, max=null
+         RunWordCount("a bc d", null, 3, 10, 1, null); // min=3, max=9
+         RunWordCount("a bc d", null, 4, 10, 0, null); // min=4, max=9
+      }
+      function testTwoTextBoxes()
+      {
+         RunWordCount("", "", 0, 10, 1, null); // min=0,max=10
+         RunWordCount("b c d", "e", 4, 4, 1, null);
+         RunWordCount("b c d", "e f", 5, 5, 1, null);
+         RunWordCount("b c d", "e", 10, 20, 0, null);
+         RunWordCount("b c d", "e f", 0, 4, 0, null);
+      }
+
+      function RunWordCount(text1, text2, minimum, maximum, expectedResult, json)
+      {
+         var vInstance1 = jTAC.create("Conditions.WordCount");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = "textBox1";
+         vInstance1.connection.setTextValue(text1); // trick to use existing objects to write to the textbox
+         if (text2 != null)
+         {
+            var conn2 = jTAC.create("FormElement", {id: "textBox2"});
+            conn2.setTextValue(text2);
+            vInstance1.moreConnections.push(conn2);
+         }
+         vInstance1.minimum = minimum;
+         vInstance1.maximum = maximum;
+
+         if (json != null)
+            vInstance1.setProperties(json);
+
+//         assertTrue(vInstance1.canEvaluate());
+         var evalResult = vInstance1.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+         vInstance1.connection.setTextValue(""); // reset the textbox
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testCounts();
+         testOneTextBox();
+         testTwoTextBoxes();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+
+</body>
+</html>

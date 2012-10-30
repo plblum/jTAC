@@ -1,0 +1,97 @@
+﻿/* -----------------------------------------------------
+For use with jquery-validate.
+Many of these classes are not the defaults supplied by jquery-validate.
+Those defaults are internally overridden if you don't assign them explicitly.
+--------------------------------------------------------*/
+
+/*
+For options.inputErrorClass (introduced in jTAC) or options.errorClass.
+If you use options.errorClass, it will be reassigned to options.inputErrorClass.
+The class assigned to the input elements showing an error.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.input-validation-error
+{
+   background-color: #FFEEEE;
+}
+
+/*
+For options.inputValidClass (introduced in jTAC) or options.validClass.
+If you use options.validClass, it will be reassigned to options.inputValidClass.
+The class assigned to the input elements that are valid.
+Can be overridden on the individual field with the data-jtac-validclass attribute.
+*/
+.input-validation-valid
+{
+}
+
+/*
+For options.messageErrorClass (introduced in jTAC).
+Assigned to the container of the error message when there is an error.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.message-validation-error
+{
+   color: Red;
+}
+
+/*
+For options.messageValidClass (introduced in jTAC).
+Assigned to the container of the error message when there is no error.
+Can be overridden on the individual field with the data-jtac-validclass attribute.
+*/
+.message-validation-valid
+{
+}
+
+/*
+For options.messageLabel (introduced in jTAC).
+Replacement for the "{ERRORLABEL}" token within error messages.
+*/
+.message-label
+{
+   font-weight : bold;
+   text-transform : capitalize;
+}
+
+/* 
+For options.labelErrorClass (introduced in jTAC).
+Assigned to the <label for="inputelement"> element associated with the error message.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.label-validation-error
+{
+   font-weight : bold;
+}
+
+/* 
+For options.containerErrorClass (introduced in jTAC).
+Assigned to elements with the data-jtac-valinputs attribute.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.container-validation-error
+{
+   background-color:whitesmoke;
+}
+
+
+/* 
+For options.summaryErrorClass (introduced in jTAC).
+Assigned to elements with the data-valmsg-summary="true" attribute
+when a validation error is shown.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.validation-summary-errors
+{
+   color : red;
+}
+
+/* 
+For options.summaryValidClass (introduced in jTAC).
+Assigned to elements with the data-valmsg-summary="true" attribute
+when there are no validation errors shown.
+Can be overridden on the individual field with the data-jtac-errorclass attribute.
+*/
+.validation-summary-valid
+{
+}

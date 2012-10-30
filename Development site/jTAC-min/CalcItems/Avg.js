@@ -1,0 +1,1 @@
+jTAC._internal.temp._CalcItems_Avg={extend:"CalcItems.BaseFunction",constructor:function(a){this.callParent([a])},_func:function(d){var a=d.length;if(!a){return NaN}var c=0;for(var b=0;b<a;b++){c+=d[b]}return c/a}};jTAC.define("CalcItems.Avg",jTAC._internal.temp._CalcItems_Avg);if(jTAC.parser){jTAC.parser.register("CalcItems.Avg")};

@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/DayMonth.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         assertNotNull(vInstance1);
+
+         assertEquals("object", vInstance1.nativeTypeName());
+         assertEquals("daymonth", vInstance1.dataTypeName());
+         assertEquals("date", vInstance1.storageTypeName());
+         assertEquals(0, vInstance1.dateFormat);
+         assertFalse(vInstance1.useUTC);
+         assertTrue(vInstance1.twoDigitYear);
+
+      }
+
+      function testCreateFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         assertEquals("fr-FR", vInstance1.getCultureName());
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance = jTAC.create("TypeManagers.DayMonth", {cultureName: "fr-FR", dateFormat: 10});
+         assertNotNull(vInstance);
+         assertEquals("fr-FR", vInstance.getCultureName());
+         assertEquals(10, vInstance.dateFormat);
+
+      // change the properties
+         vInstance.setCultureName("en-US");
+         assertEquals("getCultureName must be en-US", vInstance.getCultureName(), "en-US");
+
+         setPropertyValue(vInstance, "dateFormat", 0);
+         setPropertyValue(vInstance, "dateFormat", 1);
+         setPropertyValue(vInstance, "dateFormat", 2);
+         setPropertyValue(vInstance, "dateFormat", 10);
+         setPropertyValue(vInstance, "dateFormat", 20);
+         setPropertyValue(vInstance, "dateFormat", 100);
+         setInvalidPropertyValue(vInstance, "dateFormat", 3);
+         setInvalidPropertyValue(vInstance, "dateFormat", 11);
+         setInvalidPropertyValue(vInstance, "dateFormat", 21);
+
+         setPropertyValue(vInstance, "useUTC", true);
+         setPropertyValue(vInstance, "twoDigityear", false);
+      }
+
+      function testDatePatterns()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "M/d");
+
+         DatePatternCheck(vInstance1, 1, "MMM/d");
+
+         DatePatternCheck(vInstance1, 2, "MMM/d");   // same as 1.
+
+
+         // US long month year format is yyyy MMMM (its order is different for short dates)
+         DatePatternCheck(vInstance1, 10, "MMM dd");
+
+         DatePatternCheck(vInstance1, 20, "MMMM dd");
+
+         DatePatternCheck(vInstance1, 100, "MM-dd");
+      }
+
+      function testDatePatternsFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "dd/MM");
+
+         DatePatternCheck(vInstance1, 1, "dd/MMM");
+
+         DatePatternCheck(vInstance1, 2, "dd/MMM");   // same as 1.
+
+         DatePatternCheck(vInstance1, 10, "d MMM");
+
+         DatePatternCheck(vInstance1, 20, "d MMMM");
+
+         DatePatternCheck(vInstance1, 100, "MM-dd");
+      }
+
+      function testDatePatternsHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "hi-IN"});
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "dd-MM");
+
+         DatePatternCheck(vInstance1, 1, "dd-MMM");
+
+         DatePatternCheck(vInstance1, 2, "dd-MMM");   // same as 1.
+
+         DatePatternCheck(vInstance1, 10, "dd MMM");
+
+         DatePatternCheck(vInstance1, 20, "dd MMMM");
+
+         DatePatternCheck(vInstance1, 100, "MM-dd");
+      }
+
+      function testDatePatternsChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "ii-CN"});
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "M/d");
+
+         DatePatternCheck(vInstance1, 1, "MMM/d");
+
+         DatePatternCheck(vInstance1, 2, "MMM/d");   // same as 1.
+
+         DatePatternCheck(vInstance1, 10, "M'ꆪ' d'ꑍ'");
+
+         DatePatternCheck(vInstance1, 20, "M'ꆪ' d'ꑍ'");
+
+         DatePatternCheck(vInstance1, 100, "MM-dd");
+      }
+
+      function testDatePatternsEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "quz-EC"});
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "dd/MM");
+
+         DatePatternCheck(vInstance1, 1, "dd/MMM");
+
+         DatePatternCheck(vInstance1, 2, "dd/MMM");   // same as 1.
+
+         // quz-EC does not have a pattern for day/month (dtfi.patterns.M is not defined) so it falls back to US format of MMMM d
+         DatePatternCheck(vInstance1, 10, "MMM dd");
+
+         DatePatternCheck(vInstance1, 20, "MMMM dd");
+      }
+
+      function testDatePatternsEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "am-ET"});
+         assertNotNull(vInstance1);
+         DatePatternCheck(vInstance1, 0, "d/M");
+
+         DatePatternCheck(vInstance1, 1, "d/MMM");
+
+         DatePatternCheck(vInstance1, 2, "d/MMM");   // same as 1.
+
+         DatePatternCheck(vInstance1, 10, "MMM d ቀን");
+
+         DatePatternCheck(vInstance1, 20, "MMMM d ቀን");
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateFrench();
+         testCreateSetAllProperties();
+         testDatePatterns();
+         testDatePatternsFrench();
+         testDatePatternsHindi();
+         testDatePatternsChinese();
+         testDatePatternsEcuador();
+         testDatePatternsEthiopia();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

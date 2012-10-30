@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <link href="../../jTAC%20Appearance/jquery.ui.datatypeeditor.css" rel="stylesheet"  type="text/css" />
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-ui-1.8.11.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/DateTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Duration.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PowerDateParser.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PowerTimeParser.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui%20widgets/datatypeeditor.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui%20widgets/datatypeeditor-unobtrusive.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   
+   </head>
+<body>
+Uses the PowerDateParser and PowerTimeParser<br />
+   <form action="" method="get" id="Form1" autocomplete="off"
+      data-val-options="{'onkeyup': false, 'debug': true }" >
+   Date only: <input type='text' id='date1' name='date1' 
+      data-jtac-datatype="Date"  
+      data-jtac-datatypeeditor="" 
+      data-val="true" 
+      data-val-datatypecheckcondition="" />
+      <span data-valmsg-for="date1" ></span><br />
+   Time of day only: <input type='text' id='timeofday1' name='timeofday1'  
+      data-jtac-datatype="TimeOfDay"  
+      data-jtac-datatypeeditor="" 
+      data-val="true" 
+      data-val-datatypecheckcondition="" />
+      <span data-valmsg-for="timeofday1" ></span><br />
+   Duration only: <input type='text' id='duration1' name='duration1'  
+      data-jtac-datatype="Duration"  
+      data-jtac-datatypeeditor="" 
+      data-val="true" 
+      data-val-datatypecheckcondition="" />
+      <span data-valmsg-for="duration1" ></span><br />
+   DateTime only: <input type='text' id='DateTime1' name='DateTime1' 
+      data-jtac-datatype="DateTime"  
+      data-jtac-datatypeeditor="" 
+      data-val="true" 
+      data-val-datatypecheckcondition="" />
+      <span data-valmsg-for="DateTime1" ></span><br />
+   <input type="submit" value="Submit" />
+
+   </form>
+
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseStrongPatternString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Url.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "https://www.domain.com", "https://www.domain.com");
+         ToValueMain(vInstance1, "http://www.domain.co.uk", "http://www.domain.co.uk");
+         ToValueMain(vInstance1, "http://www.domain.com/", "http://www.domain.com/");
+         ToValueMain(vInstance1, "http://www.domain123.com/", "http://www.domain123.com/");
+         ToValueMain(vInstance1, "http://abc.domain.com/", "http://abc.domain.com/");
+         ToValueMain(vInstance1, "http://www.domain.com/abc.htm", "http://www.domain.com/abc.htm");  // supportsPath = true
+         ToValueMain(vInstance1, "https://www.1domain.com", "https://www.1domain.com");
+         ToValueMain(vInstance1, "https://www.domain1.com", "https://www.domain1.com");
+         ToValueMain(vInstance1, "https://www.111.com", "https://www.111.com");
+         ToValueMain(vInstance1, "https://111.domain.com", "https://111.domain.com");
+
+         ToIllegalValueMain(vInstance1, 1);
+         ToIllegalValueMain(vInstance1, "1");
+         ToIllegalValueMain(vInstance1, "abc");
+         ToIllegalValueMain(vInstance1, " http://abc.domain.com/ "); // trimming is done by the caller
+         ToIllegalValueMain(vInstance1, "httpx://www.domain.com");
+//         ToIllegalValueMain(vInstance1, "http://.domain.com");  // this is found to be legal with the current regex.
+         ToIllegalValueMain(vInstance1, "http://www.dom ain.com");
+         ToIllegalValueMain(vInstance1, "http:// www.domain.com");
+         ToIllegalValueMain(vInstance1, "http: //www.domain.com");
+         ToIllegalValueMain(vInstance1, "http://www. domain.com");
+         ToIllegalValueMain(vInstance1, "http://www.domain .com");
+         ToIllegalValueMain(vInstance1, "http://www.do_main.com/");  //underscore in host name is illegal. Only letters and digits in any order
+         ToIllegalValueMain(vInstance1, "http://ww_.domain.com/");  // underscore in first part illegal
+         ToIllegalValueMain(vInstance1, "http://www.domain. com");
+         ToIllegalValueMain(vInstance1, "http://www.domain.123");
+         ToIllegalValueMain(vInstance1, "www.domain.com");  // requireUriScheme = true
+         ToIllegalValueMain(vInstance1, "http:/www.domain.com");
+         ToIllegalValueMain(vInstance1, "http//www.domain.com");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:80");  // supportsPort = false
+         ToIllegalValueMain(vInstance1, "http://123.123.123.123");  // supportsIP = false
+         ToIllegalValueMain(vInstance1, "http://123.123.123.123/");  // supportsIP = false
+
+
+
+      }
+
+      function testRequireUriScheme()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         // already tested with requireUriScheme = true. 
+         vInstance1.requireUriScheme = false;
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "www.domain.com", "www.domain.com");
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "https://www.domain.com", "https://www.domain.com");
+         ToValueMain(vInstance1, "www.domain.co.uk", "www.domain.co.uk");
+         ToValueMain(vInstance1, "http://www.domain.com/", "http://www.domain.com/");
+         ToValueMain(vInstance1, "www.domain.com/", "www.domain.com/");
+         ToValueMain(vInstance1, "111.domain.com", "111.domain.com");
+
+         ToIllegalValueMain(vInstance1, "httpx://www.domain.com");
+         ToIllegalValueMain(vInstance1, "http:/www.domain.com");
+         ToIllegalValueMain(vInstance1, "http//www.domain.com");
+         ToIllegalValueMain(vInstance1, ":/www.domain.com");
+         ToIllegalValueMain(vInstance1, "//www.domain.com");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:80");  // supportsPort = false
+         ToIllegalValueMain(vInstance1, "http://123.123.123.123");  // supportsIP = false
+         ToIllegalValueMain(vInstance1, "http://123.123.123.123/");  // supportsIP = false
+
+
+
+      }
+      function testUriScheme()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+         // already tested defaults
+         vInstance1.uriScheme = "ftp";
+         ToValueMain(vInstance1, "ftp://www.domain.com", "ftp://www.domain.com");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com");
+         ToIllegalValueMain(vInstance1, "https://www.domain.com");
+         ToValueMain(vInstance1, "", "");
+         vInstance1.uriScheme = "https";
+         ToValueMain(vInstance1, "https://www.domain.com", "https://www.domain.com");
+      }
+
+      function testSupportsPort()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         vInstance1.supportsPort = true;
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "http://www.domain.com:80", "http://www.domain.com:80");
+         ToValueMain(vInstance1, "", "");
+         ToValueMain(vInstance1, "https://www.domain.com:8080", "https://www.domain.com:8080");
+         ToValueMain(vInstance1, "http://www.domain.co.uk:0", "http://www.domain.co.uk:0");
+         ToValueMain(vInstance1, "http://www.domain.com:432/", "http://www.domain.com:432/");
+         ToValueMain(vInstance1, "http://www.domain.com:999/abc.htm", "http://www.domain.com:999/abc.htm");  // supportsPath = true
+         ToValueMain(vInstance1, "https://www.domain.com", "https://www.domain.com");
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:/");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:a");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com:a/");
+
+         vInstance1.supportsIP = true;
+         ToValueMain(vInstance1, "http://123.123.123.123:80", "http://123.123.123.123:80"); 
+         ToValueMain(vInstance1, "http://123.123.123.123:80/", "http://123.123.123.123:80/"); 
+
+
+
+      }
+
+
+      function testSupportsIP()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         vInstance1.supportsIP = true;
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "http://123.123.123.123", "http://123.123.123.123");
+         ToValueMain(vInstance1, "http://123.123.123.123/", "http://123.123.123.123/");
+         ToValueMain(vInstance1, "http://123.123.123.123/abc.htm", "http://123.123.123.123/abc.htm");  // supportsPath = true
+         ToValueMain(vInstance1, "https://123.123.123.123", "https://123.123.123.123");
+         ToValueMain(vInstance1, "http://1.0.0.0", "http://1.0.0.0");
+         ToValueMain(vInstance1, "http://000.000.000.000", "http://000.000.000.000");
+         ToValueMain(vInstance1, "http://255.255.255.255", "http://255.255.255.255");
+         ToValueMain(vInstance1, "http://1.2.3.4", "http://1.2.3.4");
+         ToValueMain(vInstance1, "http://10.20.30.40", "http://10.20.30.40");
+         ToValueMain(vInstance1, "http://01.02.03.04", "http://01.02.03.04");
+         ToValueMain(vInstance1, "http://010.020.030.040", "http://010.020.030.040");
+
+         ToIllegalValueMain(vInstance1, "http://aaa.123.123.123");
+         ToIllegalValueMain(vInstance1, "http://123.ccc.123.123");
+         ToIllegalValueMain(vInstance1, "http://123.123.ddd.123");
+         ToIllegalValueMain(vInstance1, "http://123.123.123.bbb");
+         ToIllegalValueMain(vInstance1, "http://256.123.123.123");
+         ToIllegalValueMain(vInstance1, "http://123.256.123.123");
+         ToIllegalValueMain(vInstance1, "http://123.123.256.123");
+         ToIllegalValueMain(vInstance1, "http://123.123.123.256");
+
+         vInstance1.requireUriScheme = false;
+         ToValueMain(vInstance1, "123.123.123.123", "123.123.123.123"); 
+         ToValueMain(vInstance1, "123.123.123.123/", "123.123.123.123/");
+
+
+
+      }
+
+      function testSupportsPath()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         ToValueMain(vInstance1, "http://www.domain.com/a.htm", "http://www.domain.com/a.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/a.html", "http://www.domain.com/a.html");
+         ToValueMain(vInstance1, "http://www.domain.com/a.h", "http://www.domain.com/a.h");
+         ToValueMain(vInstance1, "http://www.domain.com/a_b.htm", "http://www.domain.com/a_b.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/a1.htm", "http://www.domain.com/a1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/a.aspx", "http://www.domain.com/a.aspx");
+         ToValueMain(vInstance1, "http://www.domain.com/b/a.aspx", "http://www.domain.com/b/a.aspx");
+         ToValueMain(vInstance1, "http://www.domain.com/f/e/d/c/b/a.aspx", "http://www.domain.com/f/e/d/c/b/a.aspx");
+         ToValueMain(vInstance1, "http://www.domain.com/b1231254135315/a.aspx", "http://www.domain.com/b1231254135315/a.aspx");
+         ToValueMain(vInstance1, "http://www.domain.com/b12312_4135315/a.aspx", "http://www.domain.com/b12312_4135315/a.aspx");
+         ToValueMain(vInstance1, "http://www.domain.com/1.htm", "http://www.domain.com/1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/%1.htm", "http://www.domain.com/%1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/$1.htm", "http://www.domain.com/$1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/#1.htm", "http://www.domain.com/#1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/~1.htm", "http://www.domain.com/~1.htm");
+         ToValueMain(vInstance1, "http://www.domain.com/1/abc.htm", "http://www.domain.com/1/abc.htm");
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/a");
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/a.htm/");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/a.htm_");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/a.htm.");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/1.");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/.htm");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/abc .htm");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/ abc.htm");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/abc. htm");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/abc.ht m");
+
+         vInstance1.supportsPath = false; // cases where it was true were already tested
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "https://www.domain.com", "https://www.domain.com");
+         ToValueMain(vInstance1, "http://www.domain.co.uk", "http://www.domain.co.uk");
+         ToValueMain(vInstance1, "http://www.domain.com/", "http://www.domain.com/");
+         ToValueMain(vInstance1, "http://www.domain123.com/", "http://www.domain123.com/");
+         ToValueMain(vInstance1, "http://abc.domain.com/", "http://abc.domain.com/");
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/ba");
+         ToIllegalValueMain(vInstance1, "http://www.domain.com/x.htm");
+
+         vInstance1.supportsPath = true; // 
+         vInstance1.supportsIP = true;
+         ToValueMain(vInstance1, "http://1.2.3.4/a.htm", "http://1.2.3.4/a.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/a.html", "http://1.2.3.4/a.html");
+         ToValueMain(vInstance1, "http://1.2.3.4/a.h", "http://1.2.3.4/a.h");
+         ToValueMain(vInstance1, "http://1.2.3.4/a_b.htm", "http://1.2.3.4/a_b.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/a1.htm", "http://1.2.3.4/a1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/a.aspx", "http://1.2.3.4/a.aspx");
+         ToValueMain(vInstance1, "http://1.2.3.4/b/a.aspx", "http://1.2.3.4/b/a.aspx");
+         ToValueMain(vInstance1, "http://1.2.3.4/f/e/d/c/b/a.aspx", "http://1.2.3.4/f/e/d/c/b/a.aspx");
+         ToValueMain(vInstance1, "http://1.2.3.4/b1231254135315/a.aspx", "http://1.2.3.4/b1231254135315/a.aspx");
+         ToValueMain(vInstance1, "http://1.2.3.4/b12312_4135315/a.aspx", "http://1.2.3.4/b12312_4135315/a.aspx");
+         ToValueMain(vInstance1, "http://1.2.3.4/1.htm", "http://1.2.3.4/1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/%1.htm", "http://1.2.3.4/%1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/$1.htm", "http://1.2.3.4/$1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/#1.htm", "http://1.2.3.4/#1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/~1.htm", "http://1.2.3.4/~1.htm");
+         ToValueMain(vInstance1, "http://1.2.3.4/1/abc.htm", "http://1.2.3.4/1/abc.htm");
+
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/a");
+
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/a.htm/");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/a.htm_");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/a.htm.");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/1.");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/.htm");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/abc .htm");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/ abc.htm");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/abc. htm");
+         ToIllegalValueMain(vInstance1, "http://1.2.3.4/abc.ht m");
+
+      }
+
+      function testDomainExt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Url");
+         assertNotNull(vInstance1);
+
+         // defaults: "aero|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|travel|jobs|mobi|pro|co";
+         ToValueMain(vInstance1, "http://www.domain.aero", "http://www.domain.aero");
+         ToValueMain(vInstance1, "http://www.domain.biz", "http://www.domain.biz");
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+         ToValueMain(vInstance1, "http://www.domain.coop", "http://www.domain.coop");
+         ToValueMain(vInstance1, "http://www.domain.edu", "http://www.domain.edu");
+         ToValueMain(vInstance1, "http://www.domain.gov", "http://www.domain.gov");
+         ToValueMain(vInstance1, "http://www.domain.info", "http://www.domain.info");
+         ToValueMain(vInstance1, "http://www.domain.int", "http://www.domain.int");
+         ToValueMain(vInstance1, "http://www.domain.mil", "http://www.domain.mil");
+         ToValueMain(vInstance1, "http://www.domain.museum", "http://www.domain.museum");
+         ToValueMain(vInstance1, "http://www.domain.name", "http://www.domain.name");
+         ToValueMain(vInstance1, "http://www.domain.net", "http://www.domain.net");
+         ToValueMain(vInstance1, "http://www.domain.org", "http://www.domain.org");
+         ToValueMain(vInstance1, "http://www.domain.travel", "http://www.domain.travel");
+         ToValueMain(vInstance1, "http://www.domain.jobs", "http://www.domain.jobs");
+         ToValueMain(vInstance1, "http://www.domain.mobi", "http://www.domain.mobi");
+         ToValueMain(vInstance1, "http://www.domain.pro", "http://www.domain.pro");
+
+         ToValueMain(vInstance1, "http://www.domain.co", "http://www.domain.co");
+         ToValueMain(vInstance1, "http://www.domain.co.es", "http://www.domain.co.es");
+         ToValueMain(vInstance1, "http://www.domain.pro.es", "http://www.domain.pro.es");
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.cot");
+         ToIllegalValueMain(vInstance1, "http://www.domain.");
+         ToIllegalValueMain(vInstance1, "http://www.domain.2");
+
+         vInstance1.domainExt = "co|com";
+         ToValueMain(vInstance1, "http://www.domain.co", "http://www.domain.co");
+         ToValueMain(vInstance1, "http://www.domain.co.es", "http://www.domain.co.es");
+         ToValueMain(vInstance1, "http://www.domain.com", "http://www.domain.com");
+
+
+         ToIllegalValueMain(vInstance1, "http://www.domain.aero");
+         ToIllegalValueMain(vInstance1, "http://www.domain.biz");
+         ToIllegalValueMain(vInstance1, "http://www.domain.coop");
+         ToIllegalValueMain(vInstance1, "http://www.domain.edu");
+         ToIllegalValueMain(vInstance1, "http://www.domain.gov");
+         ToIllegalValueMain(vInstance1, "http://www.domain.info");
+         ToIllegalValueMain(vInstance1, "http://www.domain.int");
+         ToIllegalValueMain(vInstance1, "http://www.domain.mil");
+         ToIllegalValueMain(vInstance1, "http://www.domain.museum");
+         ToIllegalValueMain(vInstance1, "http://www.domain.name");
+         ToIllegalValueMain(vInstance1, "http://www.domain.net");
+         ToIllegalValueMain(vInstance1, "http://www.domain.org");
+         ToIllegalValueMain(vInstance1, "http://www.domain.travel");
+         ToIllegalValueMain(vInstance1, "http://www.domain.jobs");
+         ToIllegalValueMain(vInstance1, "http://www.domain.mobi");
+         ToIllegalValueMain(vInstance1, "http://www.domain.pro");
+         ToIllegalValueMain(vInstance1, "http://www.domain.pro.es");
+
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testRequireUriScheme();
+         testUriScheme();
+         testSupportsPort();
+         testSupportsIP();
+         testSupportsPath();
+         testDomainExt();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

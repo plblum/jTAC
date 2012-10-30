@@ -1,0 +1,1 @@
+jTAC._internal.temp._Conditions_CharacterCount={extend:"Conditions.BaseCounter",constructor:function(a){this.callParent([a])},_connCount:function(a){return a.textLength()}};jTAC.define("Conditions.CharacterCount",jTAC._internal.temp._Conditions_CharacterCount);jTAC.defineAlias("CharacterCount","Conditions.CharacterCount");

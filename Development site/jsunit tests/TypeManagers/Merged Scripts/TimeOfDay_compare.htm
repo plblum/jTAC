@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/typeManagers-date-time.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCompareAsDate()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 0, 0, 1);
+         var date3 = new Date(2012, 0, 1, 1, 0, 0);
+         var date4 = new Date(2012, 0, 1, 1, 0, 1);
+
+         CompareMain(vInstance1, date1, date1, 0);
+         CompareMain(vInstance1, date1, date2, -1);
+         CompareMain(vInstance1, date2, date1, 1);
+         CompareMain(vInstance1, date3, date4, -1);
+         CompareMain(vInstance1, date4, date3, 1);
+      }
+
+      function testCompareAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");
+         assertNotNull(vInstance1);
+         var date1 = 0;
+         var date2 = 1;
+         var date3 = 3600;
+         var date4 = 3601;
+
+         CompareMain(vInstance1, date1, date1, 0);
+         CompareMain(vInstance1, date1, date2, -1);
+         CompareMain(vInstance1, date2, date1, 1);
+         CompareMain(vInstance1, date3, date4, -1);
+         CompareMain(vInstance1, date4, date3, 1);
+      }
+
+      function testCompareString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");
+         assertNotNull(vInstance1);
+         CompareMain(vInstance1, "0:00:00", "12:00:00 AM", 0);
+         CompareMain(vInstance1, "0:00", "12:00:01 AM", -1); 
+         CompareMain(vInstance1, "2:00:00", new Date(2012, 0, 1, 1, 0, 0), 1);   // mixed string and int
+         CompareMain(vInstance1, new Date(2012, 0, 1, 1, 0, 0), "2:00:00", -1);
+      }
+
+      function testCompareIllegalData()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.TimeOfDay");
+         assertNotNull(vInstance1);
+
+         var vResult = null;
+         try
+         {
+            vResult = vInstance1.compare("01baddata", "1:00:00");
+         }
+         catch (e)
+         {
+         }
+         if (vResult != null)
+            fail("should not get here");
+
+         vResult = null;
+         try
+         {
+            vResult = vInstance1.compare("1:00:00", "01baddata");
+         }
+         catch (e)
+         {
+         }
+         if (vResult != null)
+            fail("should not get here");
+
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCompareAsDate();
+         testCompareAsNumber();
+         testCompareString();
+         testCompareIllegalData();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

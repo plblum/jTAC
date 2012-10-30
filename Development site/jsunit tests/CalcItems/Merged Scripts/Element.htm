@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/calculations.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var vInstance1 = jTAC.create("CalcItems.Element");
+         assertNotNull(vInstance1);
+         assertTrue(vInstance1.enabled);
+         assertEquals("+", vInstance1.operator);
+         assertNull(vInstance1.elementId);
+         assertNotNull(vInstance1.connection);
+         assertTrue(vInstance1.connection instanceof jTAC.Connections.FormElement);
+         assertNull(vInstance1.typeManager);
+         assertNull(vInstance1.datatype);
+         assertNotNull(vInstance1.valueWhenNull);
+         assertTrue(vInstance1.valueWhenNull instanceof jTAC.CalcItems.Null);
+         assertNotNull(vInstance1.valueWhenInvalid);
+         assertTrue(vInstance1.valueWhenInvalid instanceof jTAC.CalcItems.NaN);
+
+         assertFalse(vInstance1.canEvaluate()); // lacks a connection
+
+         vInstance1.elementId = "TextBox1";
+         assertEquals("TextBox1", vInstance1.elementId);
+         assertNotNull(vInstance1.connection);
+         assertNotNull(vInstance1.connection.getElement());
+         assertEquals("TextBox1", vInstance1.connection.getElement().id);
+
+         assertTrue(vInstance1.canEvaluate());
+         vInstance1.enabled = false;
+         assertFalse(vInstance1.enabled);
+         assertFalse(vInstance1.canEvaluate());
+         vInstance1.enabled = true; // restore
+         assertTrue(vInstance1.canEvaluate());
+
+         vInstance1.typeManager = jTAC.create("Integer");
+         assertNotNull(vInstance1.typeManager);
+         assertTrue(vInstance1.typeManager instanceof jTAC.TypeManagers.Integer);
+         assertEquals("integer", vInstance1.datatype);
+
+         vInstance1.datatype = "Float";
+         assertEquals("float", vInstance1.datatype);
+
+         vInstance1.valueWhenNull = jTAC.create("CalcItems.NaN");
+         assertTrue(vInstance1.valueWhenNull instanceof jTAC.CalcItems.NaN);
+         vInstance1.valueWhenInvalid = jTAC.create("CalcItems.Number");
+         assertTrue(vInstance1.valueWhenInvalid instanceof jTAC.CalcItems.Number);
+
+      }
+
+      function testBlankTextBox()
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         textbox1.value = "";
+         var vInstance = jTAC.create("CalcItems.Element", {elementId: 'TextBox1'});
+         assertTrue(vInstance.canEvaluate());
+
+         assertNull(vInstance.evaluate());
+
+         vInstance.valueWhenNull = jTAC.create("CalcItems.NaN");
+         assertNaN(vInstance.evaluate());
+      }
+
+      function testHasLegalValues()
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         textbox1.value = "";
+         var vInstance = jTAC.create("CalcItems.Element", {elementId: 'TextBox1'});
+         assertTrue(vInstance.canEvaluate());
+// NOTE: Since datatype and TypeManager are not defined, it uses TypeManagers.Float
+         textbox1.value = "1.5";
+         assertEquals(1.5, vInstance.evaluate());
+
+         textbox1.value = "-1.5";
+         assertEquals(-1.5, vInstance.evaluate());
+
+         textbox1.value = "1";
+         assertEquals(1, vInstance.evaluate());
+
+         textbox1.value = "-1";
+         assertEquals(-1, vInstance.evaluate());
+
+
+         var vInstance2 = jTAC.create("CalcItems.Element", {elementId: 'TextBox1'});
+         assertTrue(vInstance2.canEvaluate());
+         vInstance2.datatype = "Integer";
+
+         textbox1.value = "1";
+         assertEquals(1, vInstance2.evaluate());
+
+         textbox1.value = "-1";
+         assertEquals(-1, vInstance2.evaluate());
+
+         textbox1.value = "1.5";
+         assertNaN(vInstance2.evaluate());
+
+         textbox1.value = "-1.5";
+         assertNaN(vInstance2.evaluate());
+
+         vInstance2.valueWhenInvalid = jTAC.create("CalcItems.Number");
+         textbox1.value = "1.5";
+         assertEquals(0, vInstance2.evaluate());   // NaN becomes 0
+
+         textbox1.value = "-1.5";
+         assertEquals(0, vInstance2.evaluate());   // NaN becomes 0
+
+      }
+
+      function testHasIllegalValues()
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         textbox1.value = "";
+         var vInstance = jTAC.create("CalcItems.Element", {elementId: 'TextBox1'});
+         assertTrue(vInstance.canEvaluate());
+// NOTE: Since datatype and TypeManager are not defined, it uses TypeManagers.Float
+         textbox1.value = "1,000,000.50";
+         assertEquals(1000000.5, vInstance.evaluate()); // confirm valid case first
+
+         textbox1.value = "abc";
+         assertNaN(vInstance.evaluate());
+         vInstance.valueWhenInvalid = jTAC.create("CalcItems.Number");
+         assertEquals(0, vInstance.evaluate()); // NaN becomes 0
+
+         var vInstance2 = jTAC.create("CalcItems.Element", {elementId: 'TextBox1'});
+         assertTrue(vInstance2.canEvaluate());
+         vInstance2.datatype = "Integer";
+         textbox1.value = "1";
+         assertEquals(1, vInstance2.evaluate());
+
+         textbox1.value = "abc";
+         assertNaN(vInstance2.evaluate());
+
+         textbox1.value = "1.5"; // looking for an integer
+         assertNaN(vInstance2.evaluate());
+
+         vInstance2.valueWhenInvalid = jTAC.create("CalcItems.Number")
+         assertEquals(0, vInstance2.evaluate()); // NaN becomes 0
+
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testBlankTextBox();
+         testHasLegalValues();
+         testHasIllegalValues();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

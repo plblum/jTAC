@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/jTAC.js" type="text/javascript"></script>
+</head>
+<body>
+   <script type="text/javascript">
+      function testInstalled() {
+
+         assertNotNull(jTAC);
+         assertNotUndefined(jTAC.define);
+      }
+
+
+      function testTest1() {
+         jTAC.define( "n1.test1",
+         {
+            constructor: function(propertyVals)
+            {
+            },
+
+            config:
+            {
+               x: 0,
+               y: "",
+               z: null
+            },
+            configrules:
+            {
+            // valid values are null and boolean
+               z: function ( val )                { 
+                  if ( val == null ) 
+                     return val; 
+                  else 
+                     return jTAC.checkAsBool( val ); 
+               }
+            }
+         } );
+
+         var obj = jTAC.createByClassName("n1.test1");
+         assertNotNull(obj);
+         assertEquals("test1", obj.$className);
+         assertEquals("n1.test1", obj.$fullClassName);
+         assertNull(obj.$parentClass);
+         assertEquals("", obj.$parentName);
+
+         assertFunction(obj.getX);
+         assertFunction(obj.setX);
+         assertFunction(obj.getY);
+         assertFunction(obj.setY);
+         assertFunction(obj.getZ);
+         assertFunction(obj.setZ);
+         assertEquals(0, obj.x);
+         assertEquals("", obj.y);
+         assertNull(obj.z);
+
+         jTAC.define( "n1.test2",
+         {
+            extend: "n1.test1",
+            config:
+            {
+               a: 0,
+               b: "",
+               c: null
+            },
+            configrules:
+            {
+            // valid values are null and boolean
+               c: function ( val )                { 
+                  if ( val == null ) 
+                     return val; 
+                  else 
+                     return jTAC.checkAsBool( val ); 
+               }
+            }
+         } );
+
+
+         obj2 = jTAC.createByClassName("n1.test2");
+         assertNotNull(obj2);
+         assertEquals("test2", obj2.$className);
+         assertEquals("n1.test2", obj2.$fullClassName);
+         assertNotNull(obj2.$parentClass);
+         assertEquals("n1.test1", obj2.$parentName);
+
+         assertFunction(obj2.getX);
+         assertFunction(obj2.setX);
+         assertFunction(obj2.getY);
+         assertFunction(obj2.setY);
+         assertFunction(obj2.getZ);
+         assertFunction(obj2.setZ);
+
+         assertEquals(0, obj2.x);
+         assertEquals("", obj2.y);
+         assertNull(obj2.z);
+         obj2.x = 3;
+         assertEquals(3, obj2.x);
+         assertEquals(3, obj2.getX());
+         obj2.y = "abc";
+         assertEquals("abc", obj2.y);
+         assertEquals("abc", obj2.getY());
+         obj2.z = true;
+         assertTrue(obj2.z);
+         assertTrue(obj2.getZ());
+         obj2.z = null;
+         assertNull(obj2.z);
+         assertNull(obj2.getZ());
+
+
+         // validation has been setup for each config property due to their default values.
+         // x  must be a number
+         // y must be a string
+         var success = true;
+         try {
+            obj2.x = true;  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to x");
+         success = true;
+         try {
+            obj2.y = true;  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to y");
+
+         success = true;
+         try {
+            obj2.z = "abc";  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to z");
+
+         assertFunction(obj2.getA);
+         assertFunction(obj2.setA);
+         assertFunction(obj2.getB);
+         assertFunction(obj2.setB);
+         assertFunction(obj2.getC);
+         assertFunction(obj2.setC);
+
+         assertEquals(0, obj2.a);
+         assertEquals("", obj2.b);
+         assertNull(obj2.c);
+         obj2.a = 3;
+         assertEquals(3, obj2.a);
+         assertEquals(3, obj2.getA());
+         obj2.b = "abc";
+         assertEquals("abc", obj2.b);
+         assertEquals("abc", obj2.getB());
+         obj2.c = true;
+         assertTrue(obj2.c);
+         assertTrue(obj2.getC());
+         obj2.c = null;
+         assertNull(obj2.c);
+         assertNull(obj2.getC());
+
+         // validation has been setup for each config property due to their default values.
+         // a  must be a number
+         // b must be a string
+         var success = true;
+         try {
+            obj2.a = true;  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to a");
+         success = true;
+         try {
+            obj2.b = true;  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to b");
+
+         success = true;
+         try {
+            obj2.c = "abc";  // illegal
+            success = false;
+         }
+         catch ( e ) {
+         }
+         if (!success)
+            fail("Illegal value assigned to c");
+
+      }
+
+
+      function testTest3() {
+         jTAC.define("ns1.ns2.test3", {});
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInstalled();
+         testTest1();
+
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   
+   </script>
+</body>
+</html>

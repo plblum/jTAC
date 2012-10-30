@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Currency.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   <script src="../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+Tests how the error message is positioned.<br />
+All expect only digits. Enter something that is illegal in each
+and the textbox should appear to the right.<br />
+   <form action="" method="get" id="Form1" data-val-options="{ onkeyup: false, debug: true }" >
+   Uses span with data-valmsg-for="TextBox1".<br />
+      <label for="TextBox1">TextBox1:</label> 
+      <input type="text" id="TextBox1" name="TextBox1" autocomplete="off" 
+         data-jtac-datatype="Integer"
+         data-val="true"
+         data-val-datatypecheck="" />     
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span><br />
+      <br />
+      Lacks span. It will be inserted between the textbox and "AFTER".<br />
+      <label for="TextBox2">TextBox2:</label>  
+      <input type="text" id="TextBox2" name="TextBox2" autocomplete="off" 
+         data-jtac-datatype="Integer"
+         data-val="true"
+         data-val-datatypecheck="" />AFTER
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <form action="" method="get" id="Form2" data-val-options="{ onkeyup: false, debug: true, errorPlacement:'myErrorPlacement' }" >
+   Uses errorPlacement function to insert message into the span tag that follows the textbox.<br />
+      <label for="TextBox3">TextBox3:</label> 
+      <input type="text" id="TextBox3" name="TextBox3" autocomplete="off" 
+         data-jtac-datatype="Integer" 
+         data-val="true"
+         data-val-datatypecheck="" />     
+      <span id="TextBox3_Result" ></span><br />
+      <br />
+      <input type="submit" id="Button3" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+   function myErrorPlacement(error, inputElement) {
+      var el = $("#TextBox3_Result");
+      el.empty();
+      error.appendTo(el);
+   }
+
+   </script>
+</body>
+</html>

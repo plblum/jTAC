@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script> 
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/UserFunction.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form id="Form1" method="post" action="" >
+      <input type="text" id="Text1" name="Text1" />
+      <input type="text" id="Text2" name="Text2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testGetTextValue1()
+      {
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         vInstance1.fnc = function (sender, vals) { 
+            return "123";
+         };
+         assertEquals("123", vInstance1.getTextValue());
+      }
+
+      function testGetTextValue2()
+      {
+         document.getElementById("Text1").value = "first";
+         document.getElementById("Text2").value = "last";
+
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         vInstance1.fnc = function (sender, vals) { 
+            return (vals[0] ? vals[0] : "") + " " + (vals[1] ? vals[1] : "");
+         };
+         vInstance1.connections = ["Text1", {'jtacClass': 'Connections.FormElement', 'id': 'Text2'}];
+         assertEquals("first last", vInstance1.getTextValue());
+         assertFalse(vInstance1.isNullValue());
+         document.getElementById("Text1").value = "";
+         assertEquals(" last", vInstance1.getTextValue());
+         assertFalse(vInstance1.isNullValue());
+         vInstance1.required = [true, true];
+         assertEquals("", vInstance1.getTextValue());
+         assertTrue(vInstance1.isNullValue());
+      }
+
+
+      function testGetIntegerValue1()
+      {
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         vInstance1.fnc = function (sender, vals) { 
+            return 123;
+         };
+         vInstance1.datatype = "TypeManagers.Integer";
+         assertTrue(vInstance1.typeSupported("integer"));
+         assertFalse(vInstance1.typeSupported("string"));
+         assertEquals(123, vInstance1.getTypedValue("integer"));
+         assertEquals(123, vInstance1.getTypedValue());
+         assertFalse(vInstance1.isNullValue());
+      }
+
+      function testGetIntegerValue2()
+      {
+         document.getElementById("Text1").value = "3";
+         document.getElementById("Text2").value = "4";
+
+         var vInstance1 = jTAC.create("Connections.UserFunction");
+         assertNotNull(vInstance1);
+         vInstance1.fnc = function (sender, vals) { 
+            return (vals[0] != null ? vals[0] : 0) + (vals[1] != null ? vals[1] : 0);
+         };
+         vInstance1.connections = ["Text1", {'jtacClass': 'Connections.FormElement', 'id': 'Text2'}];
+
+         vInstance1.datatype = "TypeManagers.Integer";
+         assertTrue(vInstance1.typeSupported("integer"));
+         assertFalse(vInstance1.typeSupported("string"));
+         assertEquals(7, vInstance1.getTypedValue("integer"));
+         assertEquals(7, vInstance1.getTypedValue());
+         assertFalse(vInstance1.isNullValue());
+         document.getElementById("Text1").value = "";
+         assertEquals(4, vInstance1.getTypedValue("integer"));
+         assertFalse(vInstance1.isNullValue());
+         vInstance1.required = [true, true];
+         assertNull(vInstance1.getTypedValue("integer"));
+         assertTrue(vInstance1.isNullValue());
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testGetTextValue1();
+         testGetTextValue2();
+         testGetIntegerValue1();
+         testGetIntegerValue2();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

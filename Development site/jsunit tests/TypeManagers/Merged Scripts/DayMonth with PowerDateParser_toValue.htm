@@ -1,0 +1,463 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/typeManagers-date-time-all.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/PowerDateParser.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testShortPattern()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToValueForDates(vInstance1, "1/01", date1);
+         ToValueForDates(vInstance1, "01/1", date1);
+         ToValueForDates(vInstance1, "1/1", date1);
+         ToValueForDates(vInstance1, "1", date1);
+         ToValueForDates(vInstance1, " 01/01 ", date1);
+         ToValueForDates(vInstance1, "/01", date1); // will assign the month from vInstance.defaultMonth
+         ToValueForDates(vInstance1, "0101", date1);
+         ToValueForDates(vInstance1, "101", date1);
+         ToValueForDates(vInstance1, "Jan/1", date1);  // even though the format expects digits, it recognizes the month name and uses it
+         ToIllegalValueMain(vInstance1, "/");
+         ToIllegalValueMain(vInstance1, "//");
+         ToIllegalValueMain(vInstance1, "1/ 1");
+         ToIllegalValueMain(vInstance1, "1 /1");
+
+         // illegal date values (M/d/yyyy format)
+         ToIllegalValueMain(vInstance1, "13/1");
+         ToIllegalValueMain(vInstance1, "1/32");
+         ToIllegalValueMain(vInstance1, "2/30");
+         ToIllegalValueMain(vInstance1, "1/0");
+         ToIllegalValueMain(vInstance1, "0/1");
+         ToIllegalValueMain(vInstance1, "1301");
+         ToIllegalValueMain(vInstance1, "0132");
+      }
+
+      function testShortWithMonthName()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
+         vInstance1.setDateFormat(1);  // allow month name
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToValueForDates(vInstance1, "JAN/01", date1);
+         ToValueForDates(vInstance1, "J/01", date1);
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToValueForDates(vInstance1, "Jan/1", date1);
+         ToValueForDates(vInstance1, "Jan/1", date1);
+         ToValueForDates(vInstance1, "1/1", date1);
+         ToValueForDates(vInstance1, "1", date1);
+         ToValueForDates(vInstance1, "Jan", date1);
+         ToValueForDates(vInstance1, "Jan01", date1);
+         ToValueForDates(vInstance1, "Jan1", date1);
+         ToValueForDates(vInstance1, "January/01", date1);
+
+         ToIllegalValueMain(vInstance1, "01/Jan");
+         ToIllegalValueMain(vInstance1, "xyz/1");
+      }
+
+      function testAbbrevPattern()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2000, 1, 1);
+         vInstance1.parserOptions.defaultYear = 2000;   // overrides the current month and year
+         vInstance1.parserOptions.defaultMonth = 1;
+         vInstance1.setDateFormat(10);
+         ToValueForDates(vInstance1, "Feb 1", date1);
+         ToValueForDates(vInstance1, "feb 1", date1);
+         ToValueForDates(vInstance1, "FEB 1", date1);
+         ToValueForDates(vInstance1, "February 1", date1);
+
+         ToValueForDates(vInstance1, "Feb      1", date1);
+         ToValueForDates(vInstance1, "F 1", date1);
+         ToValueForDates(vInstance1, "Feb 01", date1);
+         ToValueForDates(vInstance1, "02", date1);
+         ToValueForDates(vInstance1, "2", date1);
+         ToValueForDates(vInstance1, "2 1", date1);
+
+         ToValueForDates(vInstance1, "2/1", date1);
+         ToValueForDates(vInstance1, "Feb/1", date1);
+         ToValueForDates(vInstance1, "Feb 1", date1);
+         ToValueForDates(vInstance1, "Feb01", date1);
+         ToValueForDates(vInstance1, "Fex 1", date1); // after it doesn't match to the full names, it uses the first 2 chars of the month name to match against the list again
+
+         ToIllegalValueMain(vInstance1, "Fx 1");
+         ToIllegalValueMain(vInstance1, "Feb 0");
+      }
+
+      function testLongPattern()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2000, 1, 1);
+         vInstance1.parserOptions.defaultYear = 2000;   // overrides the current month and year
+         vInstance1.parserOptions.defaultMonth = 1;
+         vInstance1.setDateFormat(20);
+         ToValueForDates(vInstance1, "February 1", date1);
+         ToValueForDates(vInstance1, "february 1", date1);
+         ToValueForDates(vInstance1, "FEBRUARY 1", date1);
+         ToValueForDates(vInstance1, "FebruAry 1", date1);
+
+         ToValueForDates(vInstance1, "February      1", date1);
+         ToValueForDates(vInstance1, "F 1", date1);
+         ToValueForDates(vInstance1, "February 01", date1);
+         ToValueForDates(vInstance1, "02", date1);
+         ToValueForDates(vInstance1, "2", date1);
+         ToValueForDates(vInstance1, "2 1", date1);
+
+         ToValueForDates(vInstance1, "2/1", date1);
+         ToValueForDates(vInstance1, "February/1", date1);
+         ToValueForDates(vInstance1, "February01", date1);
+         ToValueForDates(vInstance1, "Fexruary 1", date1); // after it doesn't match to the full names, it uses the first 2 chars of the month name to match against the list again
+
+         ToIllegalValueMain(vInstance1, "Fbruary 1");
+         ToIllegalValueMain(vInstance1, "February 0");
+
+      }
+
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "fr-FR"});   
+         assertNotNull(vInstance1);
+         severalDates(vInstance1, "dd/MM");
+
+         vInstance1.setDateFormat(1);
+         severalDates(vInstance1, "dd/MMM");
+
+         vInstance1.setDateFormat(2);
+         severalDates(vInstance1, "dd/MMM");   // same as 1.
+
+         vInstance1.setDateFormat(10);
+         severalDates(vInstance1, "d MMM");
+
+         vInstance1.setDateFormat(20);
+         severalDates(vInstance1, "d MMMM");
+      }
+
+      function testToValueHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "hi-IN"});   
+         assertNotNull(vInstance1);
+         severalDates(vInstance1, "dd-MM");
+
+         vInstance1.setDateFormat(1);
+         severalDates(vInstance1, "dd-MMM");
+
+         vInstance1.setDateFormat(2);
+         severalDates(vInstance1, "dd-MMM");   // same as 1.
+
+         vInstance1.setDateFormat(10);
+         severalDates(vInstance1, "dd MMM");
+
+         vInstance1.setDateFormat(20);
+         severalDates(vInstance1, "dd MMMM");
+      }
+
+      function testToValueChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "ii-CN"});  
+         assertNotNull(vInstance1);
+         severalDates(vInstance1, "M/d");
+
+         vInstance1.setDateFormat(1);
+         severalDates(vInstance1, "MMM/d");
+
+         vInstance1.setDateFormat(2);
+         severalDates(vInstance1, "MMM/d");   // same as 1.
+
+         // chinese uses the month number, not name
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth", {cultureName: "ii-CN"});   
+         vInstance2.setDateFormat(10);
+         severalDates(vInstance2, "M'ꆪ' d'ꑍ'");
+
+         vInstance2.setDateFormat(20);
+         severalDates(vInstance2, "M'ꆪ' d'ꑍ'");
+      }
+
+      function testToValueEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "quz-EC"});
+         assertNotNull(vInstance1);
+         severalDates(vInstance1, "dd/MM");
+
+         vInstance1.setDateFormat(1);
+         severalDates(vInstance1, "dd/MMM");
+
+         vInstance1.setDateFormat(2);
+         severalDates(vInstance1, "dd/MMM");   // same as 1.
+
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth", {cultureName: "quz-EC"});   
+         vInstance2.setDateFormat(10);
+         ToValueForDates(vInstance2, "Qul 01", new Date(2012, 0, 1));
+
+         vInstance2.setDateFormat(20);
+         ToValueForDates(vInstance2, "Qulla puquy 01", new Date(2012, 0, 1));
+
+      }
+
+      function testToValueEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "am-ET"});   
+         assertNotNull(vInstance1);
+         severalDates(vInstance1, "d/M");
+
+         vInstance1.setDateFormat(1);
+         severalDates(vInstance1, "d/MMM");
+
+         vInstance1.setDateFormat(2);
+         severalDates(vInstance1, "d/MMM");   // same as 1.
+
+/* A bug exists in the am-ET files with calendars.standard.patterns.M which provides these patterns.
+// The patterns have a literal that isn't enclosed in single quotes. "MMMM d ቀን" instead of "MMMM d 'ቀን'".
+// This bug prevents these tests from working. Filed as issue #130 on jquery-globalize github site.
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth", {cultureName: "am-ET"});   
+         vInstance2.setDateFormat(10);
+         severalDates(vInstance2, "MMM d 'ቀን'");
+
+         vInstance2.setDateFormat(20);
+         severalDates(vInstance2, "MMMM d 'ቀን'");
+*/
+      }
+
+
+      function severalDates(instance, pattern)
+      {
+         var dtfi = instance._culture().calendars.standard;
+         pattern = pattern.replace(/'/g, "");
+         var date1 = new Date(2012, 0, 1);   // jan
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date1), date1);
+         var date2 = new Date(2012, 11, 31); // dec
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date2), date2);
+         var date3 = new Date(2012, 7, 10); // aug
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date3), date3);
+         var date4 = new Date(2012, 4, 31); // may
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date4), date4);
+         var date5 = new Date(2012, 1, 9); // feb
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date5), date5);
+         var date6 = new Date(2012, 8, 29); // sep
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date6), date6);
+         var date7 = new Date(2012, 10, 5); // nov
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date7), date7);
+         var date8 = new Date(2012, 9, 25); // oct
+         ToValueForDates(instance, UpdatePatternWithDate(instance, pattern, date8), date8);
+      }
+
+      function testOptionMonthAllows()
+      {
+         // try parser
+         var vInstance1 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance1.parserOptions.monthAsTwoCharName = false;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToValueForDates(vInstance1, "Jan/01", date1);
+
+         vInstance1.parserOptions.monthAllows = 1; // only digits
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToIllegalValueMain(vInstance1, "Jan/01");
+
+         vInstance1.parserOptions.monthAllows = 2; // only month names
+         ToIllegalValueMain(vInstance1, "01/01");
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToValueForDates(vInstance1, "January/01", date1);
+
+         vInstance1.parserOptions.monthAllows = 3; // only month names, using abbreviated
+         ToIllegalValueMain(vInstance1, "01/01");
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToIllegalValueMain(vInstance1, "January/01");
+
+         var vInstance2 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance2.parserOptions.monthAsTwoCharName = false;
+         vInstance2.dateFormat = 10;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance2, "01 01", date1);
+         ToValueForDates(vInstance2, "Jan 01", date1);
+
+         vInstance2.parserOptions.monthAllows = 1; // only digits
+         ToValueForDates(vInstance2, "01 01", date1);
+         ToIllegalValueMain(vInstance2, "Jan 01");
+
+         vInstance2.parserOptions.monthAllows = 2; // only month names
+         ToIllegalValueMain(vInstance2, "01 01");
+         ToValueForDates(vInstance2, "Jan 01", date1);
+         ToValueForDates(vInstance2, "January 01", date1);
+
+         vInstance2.parserOptions.monthAllows = 3; // only abbrev month names
+         ToIllegalValueMain(vInstance2, "01 01");
+         ToValueForDates(vInstance2, "Jan 01", date1);
+         ToIllegalValueMain(vInstance2, "January 01");
+
+         var vInstance3 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance3.parserOptions.monthAsTwoCharName = false;
+         vInstance3.dateFormat = 20;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance3, "01 01", date1);
+         ToValueForDates(vInstance3, "January 01", date1);
+         ToValueForDates(vInstance3, "Jan 01", date1);
+
+         vInstance3.parserOptions.monthAllows = 1; // only digits
+         ToValueForDates(vInstance3, "01 01", date1);
+         ToIllegalValueMain(vInstance3, "January 01");
+         ToIllegalValueMain(vInstance3, "Jan 01");
+
+         vInstance3.parserOptions.monthAllows = 2; // only month names
+         ToIllegalValueMain(vInstance3, "01 01");
+         ToValueForDates(vInstance3, "January 01", date1);
+         ToValueForDates(vInstance3, "Jan 01", date1);
+
+         vInstance3.parserOptions.monthAllows = 3; // only abbrev month names
+         // due to a conflict between dateFormat = 20 and monthAllows = 3, it works like monthAllows = 2 when DateFormat=20
+         ToIllegalValueMain(vInstance3, "01 01");
+         ToValueForDates(vInstance3, "January 01", date1);
+         ToValueForDates(vInstance3, "Jan 01", date1);
+      }
+
+
+
+      function testOptionMonthAsTwoCharName()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToValueForDates(vInstance1, "Jaxyz/01", date1);
+
+         vInstance1.parserOptions.monthAsTwoCharName = false;
+         ToValueForDates(vInstance1, "Jan/01", date1);
+         ToIllegalValueMain(vInstance1, "Jaxyz/01");
+
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth");
+         vInstance2.dateFormat = 10;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance2, "Jan 01", date1);
+         ToValueForDates(vInstance2, "Jaxzy 01", date1);
+
+         vInstance2.parserOptions.monthAsTwoCharName = false;
+         ToValueForDates(vInstance2, "Jan 01", date1);
+         ToIllegalValueMain(vInstance2, "Jaxzy 01");
+
+         var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.dateFormat = 20;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance3, "January 01", date1);
+         ToValueForDates(vInstance3, "Jaxyz 01", date1);
+
+         vInstance3.parserOptions.monthAsTwoCharName = false;
+         ToValueForDates(vInstance3, "January 01", date1);
+         ToIllegalValueMain(vInstance3, "Jaxyz 01");
+
+      }
+
+
+      function testOptionInsertDateSeps()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToValueForDates(vInstance1, "0101", date1);
+
+         vInstance1.parserOptions.insertDateSeps = false;
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToIllegalValueMain(vInstance1, "0101", date1);
+
+         // has no impact on dateFormat = 10 or 20.
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth");
+         vInstance2.dateFormat = 10;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance2, "Jan 01", date1);
+
+         vInstance2.parserOptions.insertDateSeps = false;
+         ToValueForDates(vInstance2, "Jan 01", date1);
+
+         var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.dateFormat = 20;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance3, "January 01", date1);
+
+         vInstance3.parserOptions.insertDateSeps = false;
+         ToValueForDates(vInstance3, "January 01", date1);
+
+      }      
+
+
+
+      function testOptionMoreDateSeps()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToIllegalValueMain(vInstance1, "01,01");
+         ToIllegalValueMain(vInstance1, "01+01");
+
+         vInstance1.parserOptions.moreDateSeps = ",+";
+         ToValueForDates(vInstance1, "01/01", date1);
+         ToValueForDates(vInstance1, "01,01", date1);
+         ToValueForDates(vInstance1, "01+01", date1);
+
+         // has no impact on dateFormat = 10 or 20.
+         var vInstance2 = jTAC.create("TypeManagers.DayMonth");
+         vInstance2.dateFormat = 10;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance2, "Jan 01", date1);
+
+         vInstance2.parserOptions.moreDateSeps = ",+";
+         ToValueForDates(vInstance2, "Jan 01", date1);
+
+         var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.dateFormat = 20;
+         var date1 = new Date(2012, 0, 1);
+         ToValueForDates(vInstance3, "January 01", date1);
+
+         vInstance3.parserOptions.moreDateSeps = ",+";
+         ToValueForDates(vInstance3, "January 01", date1);
+
+      }      
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testShortPattern();
+         testShortWithMonthName();
+         testAbbrevPattern();
+         testLongPattern();
+         testToValueFrench();
+         testToValueHindi();
+         testToValueChinese();
+         testToValueEcuador();
+         testToValueEthiopia();
+         testOptionMonthAllows();
+         testOptionInsertDateSeps();
+         testOptionMonthAsTwoCharName();
+         testOptionMoreDateSeps();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

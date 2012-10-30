@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var vInstance1 = jTAC.create("CalcItems.Number");
+         assertNotNull(vInstance1);
+         assertTrue(vInstance1.enabled);
+         assertEquals("+", vInstance1.operator);
+         assertEquals(0, vInstance1.number);
+         assertFalse(vInstance1.stopProcessing);
+
+         assertTrue(vInstance1.canEvaluate());
+
+         vInstance1.stopProcessing = true;
+         assertTrue(vInstance1.stopProcessing);
+
+         vInstance1.number = 10;
+         assertEquals(10, vInstance1.number);
+         vInstance1.number = 10.5;
+         assertEquals(10.5, vInstance1.number);
+
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(10.5, vInstance1.evaluate());
+
+         var success = true;
+         try
+         {
+            vInstance1.number = "abc";  // throws exception
+         }
+         catch (e)
+         {
+            success = false;
+         }
+         if (success)
+            fail("Assigned an illegal value to 'number'.");
+
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

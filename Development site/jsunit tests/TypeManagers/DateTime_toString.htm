@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/TimeOfDay.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/DateTime.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(0);
+         ToStringMain(vInstance1, date1, "1/1/2012 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "12/31/2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "8/10/1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "5/31/1965 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "2/9/2100 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "9/29/2000 7:25:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(1);
+         ToStringMain(vInstance1, date1, "1/1/2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "12/31/2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "8/10/1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "5/31/1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "2/9/2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "9/29/2000 7:25 PM");
+
+         vInstance1.dateOptions.setDateFormat(0);
+         vInstance1.timeOptions.setTimeFormat(2);
+         ToStringMain(vInstance1, date1, "1/1/2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "12/31/2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "8/10/1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "5/31/1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "2/9/2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "9/29/2000 7:25:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         vInstance1.timeOptions.setTimeFormat(0);
+         ToStringMain(vInstance1, date1, "Jan/1/2012 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "Dec/31/2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "Aug/10/1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "May/31/1965 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "Feb/9/2100 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "Sep/29/2000 7:25:59 PM");
+
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "JAN/1/2012 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "DEC/31/2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "AUG/10/1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "MAY/31/1965 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "FEB/9/2100 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "SEP/29/2000 7:25:59 PM");
+
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "Jan 01, 2012 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "Dec 31, 2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "Aug 10, 1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "May 31, 1965 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "Feb 09, 2100 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "Sep 29, 2000 7:25:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "January 01, 2012 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "December 31, 2005 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "August 10, 1980 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "May 31, 1965 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "February 09, 2100 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "September 29, 2000 7:25:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 12:00:00 AM");
+         ToStringMain(vInstance1, date2, "2005-12-31 11:59:59 PM");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20 AM");
+         ToStringMain(vInstance1, date4, "1965-05-31 3:36:00 PM");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00 PM");
+         ToStringMain(vInstance1, date6, "2000-09-29 7:25:59 PM");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 00:00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36:00");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         vInstance1.timeOptions.setTimeFormat(101);
+         ToStringMain(vInstance1, date1, "2012-01-01 00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25");
+      }
+      function testToStringNoSeconds()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime");   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+
+         vInstance1.timeOptions.setTimeFormat(1);
+
+         vInstance1.dateOptions.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "1/1/2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "12/31/2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "8/10/1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "5/31/1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "2/9/2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "9/29/2000 7:25 PM");
+
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "Jan/1/2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "Dec/31/2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "Aug/10/1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "May/31/1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "Feb/9/2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "Sep/29/2000 7:25 PM");
+
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "JAN/1/2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "DEC/31/2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "AUG/10/1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "MAY/31/1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "FEB/9/2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "SEP/29/2000 7:25 PM");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "Jan 01, 2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "Dec 31, 2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "Aug 10, 1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "May 31, 1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "Feb 09, 2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "Sep 29, 2000 7:25 PM");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "January 01, 2012 12:00 AM");
+         ToStringMain(vInstance1, date2, "December 31, 2005 11:59 PM");
+         ToStringMain(vInstance1, date3, "August 10, 1980 10:40 AM");
+         ToStringMain(vInstance1, date4, "May 31, 1965 3:36 PM");
+         ToStringMain(vInstance1, date5, "February 09, 2100 12:00 PM");
+         ToStringMain(vInstance1, date6, "September 29, 2000 7:25 PM");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 12:00 AM");
+         ToStringMain(vInstance1, date2, "2005-12-31 11:59 PM");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40 AM");
+         ToStringMain(vInstance1, date4, "1965-05-31 3:36 PM");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00 PM");
+         ToStringMain(vInstance1, date6, "2000-09-29 7:25 PM");
+
+      }
+
+      function testToStringFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "fr-FR"});   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+
+         vInstance1.dateOptions.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "01/01/2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31/12/2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/08/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/05/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/02/2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/09/2000 19:25:59");
+
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "01/janv./2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31/déc./2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/août/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/mai/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/févr./2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/sept./2000 19:25:59");
+
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "01/JANV./2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31/DÉC./2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/AOÛT/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/MAI/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/FÉVR./2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/SEPT./2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "1 janv. 2012 00:00:00" );
+         ToStringMain(vInstance1, date2, "31 déc. 2005 23:59:59" );
+         ToStringMain(vInstance1, date3, "10 août 1980 10:40:20" );
+         ToStringMain(vInstance1, date4, "31 mai 1965 15:36:00"  );
+         ToStringMain(vInstance1, date5, "9 févr. 2100 12:00:00" );
+         ToStringMain(vInstance1, date6, "29 sept. 2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "1 janvier 2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31 décembre 2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10 août 1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31 mai 1965 15:36:00");
+         ToStringMain(vInstance1, date5, "9 février 2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29 septembre 2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 00:00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36:00");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25:59");
+      }
+
+      function testToStringHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "hi-IN"});   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+
+         vInstance1.dateOptions.setDateFormat(0);
+
+         ToStringMain(vInstance1, date1, "01-01-2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31-12-2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10-08-1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31-05-1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09-02-2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29-09-2000 19:25:59");
+
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1,  "01-जनवरी-2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31-दिसम्बर-2005 23:59:59");
+         ToStringMain(vInstance1, date3,  "10-अगस्त-1980 10:40:20");
+         ToStringMain(vInstance1, date4,     "31-मई-1965 15:36:00");
+         ToStringMain(vInstance1, date5,  "09-फरवरी-2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29-सितम्बर-2000 19:25:59");
+
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1,  "01-जनवरी-2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31-दिसम्बर-2005 23:59:59");
+         ToStringMain(vInstance1, date3,  "10-अगस्त-1980 10:40:20");
+         ToStringMain(vInstance1, date4,     "31-मई-1965 15:36:00");
+         ToStringMain(vInstance1, date5,  "09-फरवरी-2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29-सितम्बर-2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "01 जनवरी 2012 00:00:00" );
+         ToStringMain(vInstance1, date2, "31 दिसम्बर 2005 23:59:59" );
+         ToStringMain(vInstance1, date3, "10 अगस्त 1980 10:40:20" );
+         ToStringMain(vInstance1, date4, "31 मई 1965 15:36:00"  );
+         ToStringMain(vInstance1, date5, "09 फरवरी 2100 12:00:00" );
+         ToStringMain(vInstance1, date6, "29 सितम्बर 2000 19:25:59");
+
+         // Hindi does not include the day of the week so 20-22 are all the same
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1,  "01 जनवरी 2012 00:00:00");
+         ToStringMain(vInstance1, date2, "31 दिसम्बर 2005 23:59:59");
+         ToStringMain(vInstance1, date3,  "10 अगस्त 1980 10:40:20");
+         ToStringMain(vInstance1, date4,     "31 मई 1965 15:36:00");
+         ToStringMain(vInstance1, date5,  "09 फरवरी 2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29 सितम्बर 2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 00:00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36:00");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25:59");
+      }
+
+      function testToStringChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "ii-CN"});   
+         assertNotNull(vInstance1);
+
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+
+         vInstance1.dateOptions.setDateFormat(0);
+         ToStringMain(vInstance1, date1,   "2012/1/1 0:00:00");
+         ToStringMain(vInstance1, date2, "2005/12/31 23:59:59");
+         ToStringMain(vInstance1, date3,  "1980/8/10 10:40:20");
+         ToStringMain(vInstance1, date4,  "1965/5/31 15:36:00");
+         ToStringMain(vInstance1, date5,   "2100/2/9 12:00:00");
+         ToStringMain(vInstance1, date6,  "2000/9/29 19:25:59");
+
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1,   "2012/ꋍꆪ/1 0:00:00");
+         ToStringMain(vInstance1, date2, "2005/ꊰꑋꆪ/31 23:59:59");
+         ToStringMain(vInstance1, date3,  "1980/ꉆꆪ/10 10:40:20");
+         ToStringMain(vInstance1, date4,  "1965/ꉬꆪ/31 15:36:00");
+         ToStringMain(vInstance1, date5,   "2100/ꑍꆪ/9 12:00:00");
+         ToStringMain(vInstance1, date6,  "2000/ꈬꆪ/29 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1,   "2012/ꋍꆪ/1 0:00:00");
+         ToStringMain(vInstance1, date2, "2005/ꊰꑋꆪ/31 23:59:59");
+         ToStringMain(vInstance1, date3,  "1980/ꉆꆪ/10 10:40:20");
+         ToStringMain(vInstance1, date4,  "1965/ꉬꆪ/31 15:36:00");
+         ToStringMain(vInstance1, date5,   "2100/ꑍꆪ/9 12:00:00");
+         ToStringMain(vInstance1, date6,  "2000/ꈬꆪ/29 19:25:59");
+
+         // chinese uses the month number and does not use the day of the week. 10-22 are the same
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1,   "2012ꈎ 1ꆪ 1ꑍ 0:00:00");
+         ToStringMain(vInstance1, date2, "2005ꈎ 12ꆪ 31ꑍ 23:59:59");
+         ToStringMain(vInstance1, date3,  "1980ꈎ 8ꆪ 10ꑍ 10:40:20");
+         ToStringMain(vInstance1, date4,  "1965ꈎ 5ꆪ 31ꑍ 15:36:00");
+         ToStringMain(vInstance1, date5,   "2100ꈎ 2ꆪ 9ꑍ 12:00:00");
+         ToStringMain(vInstance1, date6,  "2000ꈎ 9ꆪ 29ꑍ 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1,   "2012ꈎ 1ꆪ 1ꑍ 0:00:00");
+         ToStringMain(vInstance1, date2, "2005ꈎ 12ꆪ 31ꑍ 23:59:59");
+         ToStringMain(vInstance1, date3,  "1980ꈎ 8ꆪ 10ꑍ 10:40:20");
+         ToStringMain(vInstance1, date4,  "1965ꈎ 5ꆪ 31ꑍ 15:36:00");
+         ToStringMain(vInstance1, date5,   "2100ꈎ 2ꆪ 9ꑍ 12:00:00");
+         ToStringMain(vInstance1, date6,  "2000ꈎ 9ꆪ 29ꑍ 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 0:00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36:00");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25:59");
+      }
+
+      function testToStringEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "quz-EC"});   
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+         vInstance1.dateOptions.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "01/01/2012 0:00:00");
+         ToStringMain(vInstance1, date2, "31/12/2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/08/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/05/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/02/2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/09/2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "01/Qul/2012 0:00:00");
+         ToStringMain(vInstance1, date2, "31/Kap/2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/Qha/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/Aym/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/Hat/2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/Uma/2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "01/QUL/2012 0:00:00");
+         ToStringMain(vInstance1, date2, "31/KAP/2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10/QHA/1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31/AYM/1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09/HAT/2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29/UMA/2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "01 de Qul de 2012 0:00:00");
+         ToStringMain(vInstance1, date2, "31 de Kap de 2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10 de Qha de 1980 10:40:20");
+         ToStringMain(vInstance1, date4, "31 de Aym de 1965 15:36:00");
+         ToStringMain(vInstance1, date5, "09 de Hat de 2100 12:00:00");
+         ToStringMain(vInstance1, date6, "29 de Uma de 2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1,  "01 de Qulla puquy de 2012 0:00:00");
+         ToStringMain(vInstance1, date2,  "31 de Kapaq Raymi de 2005 23:59:59");
+         ToStringMain(vInstance1, date3, "10 de Qhapaq Sitwa de 1980 10:40:20");
+         ToStringMain(vInstance1, date4,      "31 de Aymuray de 1965 15:36:00");
+         ToStringMain(vInstance1, date5,  "09 de Hatun puquy de 2100 12:00:00");
+         ToStringMain(vInstance1, date6,    "29 de Uma raymi de 2000 19:25:59");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 0:00:00");
+         ToStringMain(vInstance1, date2, "2005-12-31 23:59:59");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20");
+         ToStringMain(vInstance1, date4, "1965-05-31 15:36:00");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00");
+         ToStringMain(vInstance1, date6, "2000-09-29 19:25:59");
+      }
+
+      function testToStringEthiopia()
+      {
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2005, 11, 31, 23, 59, 59);
+         var date3 = new Date(1980, 7, 10, 10, 40, 20);
+         var date4 = new Date(1965, 4, 31, 15, 36, 0);
+         var date5 = new Date(2100, 1, 9, 12, 0, 0);
+         var date6 = new Date(2000, 8, 29, 19, 25, 59);
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "am-ET"});   
+         assertNotNull(vInstance1);
+         vInstance1.dateOptions.setDateFormat(0);
+         ToStringMain(vInstance1, date1,   "1/1/2012 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2, "31/12/2005 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3,  "10/8/1980 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4,  "31/5/1965 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5,   "9/2/2100 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6,  "29/9/2000 7:25:59 ከሰዓት");
+
+         vInstance1.dateOptions.setDateFormat(1);
+         ToStringMain(vInstance1, date1,   "1/ጃንዩ/2012 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2, "31/ዲሴም/2005 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3,  "10/ኦገስ/1980 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4,  "31/ሜይ/1965 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5,  "9/ፌብሩ/2100 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6, "29/ሴፕቴ/2000 7:25:59 ከሰዓት");
+
+         vInstance1.dateOptions.setDateFormat(2);
+         ToStringMain(vInstance1, date1,   "1/ጃንዩ/2012 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2, "31/ዲሴም/2005 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3,  "10/ኦገስ/1980 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4,  "31/ሜይ/1965 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5,  "9/ፌብሩ/2100 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6, "29/ሴፕቴ/2000 7:25:59 ከሰዓት");
+
+         vInstance1.dateOptions.setDateFormat(10);
+         ToStringMain(vInstance1, date1,   "ጃንዩ 1 ቀን 2012 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2, "ዲሴም 31 ቀን 2005 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3,  "ኦገስ 10 ቀን 1980 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4,  "ሜይ 31 ቀን 1965 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5,  "ፌብሩ 9 ቀን 2100 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6, "ሴፕቴ 29 ቀን 2000 7:25:59 ከሰዓት");
+
+         vInstance1.dateOptions.setDateFormat(20);
+         ToStringMain(vInstance1, date1,    "ጃንዩወሪ 1 ቀን 2012 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2,  "ዲሴምበር 31 ቀን 2005 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3,    "ኦገስት 10 ቀን 1980 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4,     "ሜይ 31 ቀን 1965 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5,   "ፌብሩወሪ 9 ቀን 2100 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6, "ሴፕቴምበር 29 ቀን 2000 7:25:59 ከሰዓት");
+
+         vInstance1.dateOptions.setDateFormat(100);
+         ToStringMain(vInstance1, date1, "2012-01-01 12:00:00 ጡዋት");
+         ToStringMain(vInstance1, date2, "2005-12-31 11:59:59 ከሰዓት");
+         ToStringMain(vInstance1, date3, "1980-08-10 10:40:20 ጡዋት");
+         ToStringMain(vInstance1, date4, "1965-05-31 3:36:00 ከሰዓት");
+         ToStringMain(vInstance1, date5, "2100-02-09 12:00:00 ከሰዓት");
+         ToStringMain(vInstance1, date6, "2000-09-29 7:25:59 ከሰዓት");
+      }
+
+
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.DateTime", {cultureName: "fr-FR"});   
+         assertNotNull(vInstance1);
+         assertEquals("2012-01-01 20:01:01", vInstance1.toStringNeutral(new Date(2012, 0, 1, 20, 1, 1)));
+         assertEquals("", vInstance1.toStringNeutral(null));
+
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringFrench();
+         testToStringHindi();
+         testToStringChinese();
+         testToStringEcuador();
+         testToStringEthiopia();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

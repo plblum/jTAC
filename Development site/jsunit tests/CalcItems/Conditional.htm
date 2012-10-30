@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Boolean.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareToValue.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseRegExp.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/RegExp.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Conditional.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+      <input type='text' id="TextBox3" name="TextBox3" />
+      <input type="checkbox" id="CheckBox1" name="CheckBox1" checked="checked" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var vInstance1 = jTAC.create("CalcItems.Conditional");
+         assertNotNull(vInstance1);
+         assertTrue(vInstance1.enabled);
+         assertEquals("+", vInstance1.operator);
+         assertNotNull(vInstance1.success);
+         assertTrue(vInstance1.success instanceof jTAC.CalcItems.Group);
+         assertNotNull(vInstance1.failed);
+         assertTrue(vInstance1.failed instanceof jTAC.CalcItems.Group);
+         assertEquals("error", vInstance1.cannotEvalMode);
+
+         assertNull(vInstance1.condition);
+         assertFalse(vInstance1.canEvaluate()); // lacks a condition
+
+         var cond = jTAC.create("CompareToValue");
+         cond.elementId = "TextBox1";
+         cond.valueToCompare = 1;
+         cond.datatype = "Integer";
+         vInstance1.condition = cond;
+         assertTrue(vInstance1.canEvaluate());
+         vInstance1.enabled = false;
+         assertFalse(vInstance1.enabled);
+         assertFalse(vInstance1.canEvaluate());
+         vInstance1.enabled = true; // restore
+         assertTrue(vInstance1.canEvaluate());
+
+         vInstance1.success = jTAC.create("CalcItems.Element", {elementId: "TextBox2"});
+         assertTrue(vInstance1.success instanceof jTAC.CalcItems.Element);
+         vInstance1.failed = jTAC.create("CalcItems.NaN")
+         assertTrue(vInstance1.failed instanceof jTAC.CalcItems.NaN);
+
+      }
+
+      function testCondition1()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+         var cond = jTAC.create("CompareToValue");
+         cond.elementId = "CheckBox1";
+         cond.valueToCompare = true;
+         cond.datatype = "Boolean";
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond});
+         assertTrue(vInstance.canEvaluate());
+         var success = vInstance.success; // a CalcItem.Group (default)
+         success.addItem(jTAC.create("CalcItems.Element", {elementId: "TextBox1"}));
+         success.addItem(jTAC.create("CalcItems.Number", {number: 5}));
+
+         vInstance.failed = ["TextBox2", 2]; // uses shorthand
+
+         assertEquals(105, vInstance.evaluate());
+         initInputs("100", "15", false);
+         assertEquals(17, vInstance.evaluate());
+      }
+
+      function initInputs(tb1val, tb2val, cb1val)
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         var textbox2 = document.getElementById("TextBox2");
+         var checkBox1 = document.getElementById("CheckBox1");
+
+         textbox1.value = tb1val.toString();
+         textbox2.value = tb2val.toString();
+         checkBox1.checked = !!cb1val;
+      }
+
+      // same calc as in testCondition1() but uses a shorthand and constructors to create the objects.
+      function testCondition2()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+         var cond = jTAC.create("CompareToValue", {datatype:'Boolean', elementId:'CheckBox1', operator:'=', valueToCompare: true}); //("boolean", "CheckBox1", "=", true);
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond, success: ["TextBox1", 5], failed:["TextBox2", 2]});
+         assertTrue(vInstance.canEvaluate());
+
+         assertEquals(105, vInstance.evaluate());
+         initInputs("100", "15", false);
+         assertEquals(17, vInstance.evaluate());
+      }
+
+
+      function testCannotEvaluateModeError()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+// TextBox3 is empty which is a cannot evaluate state
+         var cond = jTAC.create("Conditions.RegExp", { elementId: "TextBox3", expression: "^[a-z]*$"});
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond, success: ["TextBox1", 5], failed:["TextBox2", 2]});
+         assertTrue(vInstance.canEvaluate());
+
+         assertNaN(vInstance.evaluate());
+      }
+
+      function testCannotEvaluateModeZero()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+// TextBox3 is empty which is a cannot evaluate state
+         var cond = jTAC.create("Conditions.RegExp", { elementId: "TextBox3", expression: "^[a-z]*$"});
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond, success: ["TextBox1", 5], failed:["TextBox2", 2], cannotEvalMode: "zero"});
+         assertTrue(vInstance.canEvaluate());
+
+         assertEquals(0, vInstance.evaluate());
+      }
+
+      function testCannotEvaluateModeSuccess()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+// TextBox3 is empty which is a cannot evaluate state
+         var cond = jTAC.create("Conditions.RegExp", { elementId: "TextBox3", expression: "^[a-z]*$"});
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond, success: ["TextBox1", 5], failed:["TextBox2", 2], cannotEvalMode: "success"});
+         assertTrue(vInstance.canEvaluate());
+
+         assertEquals(105, vInstance.evaluate());
+      }
+
+      function testCannotEvaluateModeFailed()
+      {
+      // calculation: If checked, textbox1 + 5. If unchecked, textbox2 + 2.
+         initInputs("100", "15", true);
+
+// TextBox3 is empty which is a cannot evaluate state
+         var cond = jTAC.create("Conditions.RegExp", { elementId: "TextBox3", expression: "^[a-z]*$"});
+
+         var vInstance = jTAC.create("CalcItems.Conditional", {condition: cond, success: ["TextBox1", 5], failed:["TextBox2", 2], cannotEvalMode: "failed"});
+         assertTrue(vInstance.canEvaluate());
+
+         assertEquals(17, vInstance.evaluate());
+      }
+
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testCondition1();
+         testCondition2();
+         testCannotEvaluateModeError();
+         testCannotEvaluateModeZero();
+         testCannotEvaluateModeSuccess();
+         testCannotEvaluateModeFailed();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

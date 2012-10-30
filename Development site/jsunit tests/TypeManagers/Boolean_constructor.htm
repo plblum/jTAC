@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Boolean.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+         assertTrue(vInstance1.reFalse instanceof RegExp);
+         assertEquals("^(false)|(0)$", vInstance1.reFalse.source);
+         assertTrue(vInstance1.reTrue instanceof RegExp);
+         assertEquals("^(true)|(1)$", vInstance1.reTrue.source);
+         assertArrayEquals([0], vInstance1.numFalse);
+         assertArrayEquals([1], vInstance1.numTrue);
+         assertEquals("false", vInstance1.falseStr);
+         assertEquals("true", vInstance1.trueStr);
+         assertTrue(vInstance1.emptyStrFalse);
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+
+         vInstance1.reFalse = new RegExp("^false$", "i");
+         assertTrue(vInstance1.reFalse instanceof RegExp);
+         assertEquals("^false$", vInstance1.reFalse.source);
+         vInstance1.reFalse = "^false$";  // same as a string. It will convert to regexp
+         assertTrue(vInstance1.reFalse instanceof RegExp);
+         assertEquals("^false$", vInstance1.reFalse.source);
+
+         vInstance1.reTrue = new RegExp("^true$", "i");
+         assertTrue(vInstance1.reTrue instanceof RegExp);
+         assertEquals("^true$", vInstance1.reTrue.source);
+         vInstance1.reTrue = "^true$";  // same as a string. It will convert to regexp
+         assertTrue(vInstance1.reTrue instanceof RegExp);
+         assertEquals("^true$", vInstance1.reTrue.source);
+
+         vInstance1.numFalse = [0, -1];
+         assertArrayEquals([0, -1], vInstance1.numFalse);
+         vInstance1.numTrue = [1, 2, 3];
+         assertArrayEquals([1, 2, 3], vInstance1.numTrue);
+         vInstance1.numTrue = true;
+         assertTrue(vInstance1.numTrue);
+         vInstance1.falseStr = "zero";
+         assertEquals("zero", vInstance1.falseStr);
+         vInstance1.trueStr = "one";
+         assertEquals("one", vInstance1.trueStr);
+
+         vInstance1.emptyStrFalse = false;
+         assertFalse(vInstance1.emptyStrFalse);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateSetAllProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

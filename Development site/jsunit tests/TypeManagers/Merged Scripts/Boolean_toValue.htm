@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-all.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, true, true);
+         ToValueMain(vInstance1, false, false);
+
+         ToValueMain(vInstance1, 1, true);
+         ToValueMain(vInstance1, 0, false);
+         ToIllegalValueMain(vInstance1, 2);
+         ToIllegalValueMain(vInstance1, -1);
+
+         ToValueMain(vInstance1, "", false);
+         ToValueMain(vInstance1, "0", false);
+         ToValueMain(vInstance1, "false", false);
+         ToValueMain(vInstance1, "FALSE", false);
+         ToValueMain(vInstance1, "1", true);
+         ToValueMain(vInstance1, "true", true);
+         ToValueMain(vInstance1, "TRUE", true);
+         ToIllegalValueMain(vInstance1, "f");
+         ToIllegalValueMain(vInstance1, " 1 ");
+
+         vInstance1.emptyStrFalse = false;
+         assertNull(vInstance1.toValue(""));
+      }
+
+
+      function testNumProperties()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Boolean");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, 1, true);
+         ToValueMain(vInstance1, 0, false);
+         vInstance1.numFalse = -1;  // will convert to array internally
+         ToIllegalValueMain(vInstance1, 0);
+         ToValueMain(vInstance1, -1, false);
+         ToIllegalValueMain(vInstance1, 100);
+         vInstance1.numTrue = [1, 100];
+         ToValueMain(vInstance1, 100, true);
+
+         vInstance1.numFalse = 0;
+         vInstance1.numTrue = true;
+         ToValueMain(vInstance1, 1, true);
+         ToValueMain(vInstance1, 5, true);
+         ToValueMain(vInstance1, 99, true);
+         ToValueMain(vInstance1, 0, false);
+
+         vInstance1.numFalse = null;   // both null and [] indicate no support for numbers
+         vInstance1.numTrue = null;
+         ToIllegalValueMain(vInstance1, 0);
+         ToIllegalValueMain(vInstance1, 1);
+         vInstance1.numFalse = [];   // both null and [] indicate no support for numbers
+         vInstance1.numTrue = [];
+         ToIllegalValueMain(vInstance1, 0);
+         ToIllegalValueMain(vInstance1, 1);
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testNumProperties();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

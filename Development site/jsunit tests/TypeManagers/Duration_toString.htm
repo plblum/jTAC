@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseTime.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Duration.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration"); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "0:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(100);
+         ToStringMain(vInstance1, date1, "0000:00:00");
+         ToStringMain(vInstance1, date2, "0012:00:00");
+         ToStringMain(vInstance1, date3, "0011:59:59");
+         ToStringMain(vInstance1, date4, "0023:59:59");
+         vInstance1.setTimeFormat(101);
+         ToStringMain(vInstance1, date1, "0000:00");
+         ToStringMain(vInstance1, date2, "0012:00");
+         ToStringMain(vInstance1, date3, "0011:59");
+         ToStringMain(vInstance1, date4, "0023:59");
+
+      }
+
+      function testToStringFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "fr-FR"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "00:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "00:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "00:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+      }
+
+      function testToStringHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "hi-IN"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "00:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "00:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "00:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+      }
+
+      function testToStringChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "ii-CN"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "0:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+      }
+
+      function testToStringEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "quz-EC"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "0:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+      }
+
+      function testToStringEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "am-ET"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+         vInstance1.setTimeFormat(10);
+         ToStringMain(vInstance1, date1, "0:00:00");
+         ToStringMain(vInstance1, date2, "12:00:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59");
+         ToStringMain(vInstance1, date4, "23:59");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, date1, "0:00");
+         ToStringMain(vInstance1, date2, "12:00");
+         ToStringMain(vInstance1, date3, "11:59:59");
+         ToStringMain(vInstance1, date4, "23:59:59");
+      }
+
+      function testToStringAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 1}); 
+         assertNotNull(vInstance1);
+         ToStringMain(vInstance1, 2 * 3600 + 3 * 60 + 0, "2:03:00");
+         ToStringMain(vInstance1, 14 * 3600 + 3 * 60 + 30, "14:03:30");
+         ToStringMain(vInstance1, 0, "0:00:00");
+         ToStringMain(vInstance1, 12 * 3600, "12:00:00");
+
+         vInstance1.setTimeFormat(11);
+         ToStringMain(vInstance1, 2 * 3600 + 3 * 60 + 0, "2:03");
+         ToStringMain(vInstance1, 14 * 3600 + 3 * 60 + 30, "14:03");
+         ToStringMain(vInstance1, 0, "0:00");
+         ToStringMain(vInstance1, 12 * 3600, "12:00");
+
+         vInstance1.setTimeFormat(12);
+         ToStringMain(vInstance1, 2 * 3600 + 3 * 60 + 0, "2:03");
+         ToStringMain(vInstance1, 14 * 3600 + 3 * 60 + 30, "14:03:30");
+         ToStringMain(vInstance1, 0, "0:00");
+         ToStringMain(vInstance1, 12 * 3600, "12:00");
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 3600}); 
+         assertNotNull(vInstance2);
+         ToStringMain(vInstance2, 2, "2:00:00");
+         ToStringMain(vInstance2, 14, "14:00:00");
+         ToStringMain(vInstance2, 2.5, "2:30:00");
+         ToStringMain(vInstance2, 14.5, "14:30:00");
+
+         vInstance2.setTimeFormat(11);
+         ToStringMain(vInstance2, 2, "2:00");
+         ToStringMain(vInstance2, 14, "14:00");
+         ToStringMain(vInstance2, 2.5, "2:30");
+         ToStringMain(vInstance2, 14.5, "14:30");
+
+      }
+
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "fr-FR"}); 
+         assertNotNull(vInstance1);
+         assertEquals("0020:01:05", vInstance1.toStringNeutral(new Date(2012, 0, 1, 20, 1, 5)));
+         assertEquals("", vInstance1.toStringNeutral(null));
+
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {cultureName: "fr-FR", valueAsNumber: true}); 
+         assertNotNull(vInstance2);
+         assertEquals("0020:01:05", vInstance2.toStringNeutral(20 * 3600 + 60 + 5));
+         assertEquals("0999:01:05", vInstance2.toStringNeutral(999 * 3600 + 60 + 5));
+         assertEquals("0000:01:05", vInstance2.toStringNeutral(0 + 60 + 5));
+         assertEquals("", vInstance2.toStringNeutral(null));
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringFrench();
+         testToStringHindi();
+         testToStringChinese();
+         testToStringEcuador();
+         testToStringEthiopia();
+         testToStringAsNumber();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

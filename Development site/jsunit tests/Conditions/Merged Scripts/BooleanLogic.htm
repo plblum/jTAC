@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/conditions-all.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form method="get" action="">
+
+      <input type="text" id="TextBox1" />
+      <input type="text" id="TextBox2" />
+      <input type="text" id="TextBox3" />
+   </form>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var cond = jTAC.create("Conditions.BooleanLogic");
+         assertNotNull(cond);
+         assertTrue(cond.enabled);
+         assertTrue(cond.trim);
+         assertNull(cond.lastEvaluateResult);
+         assertFalse(cond.not);
+         assertEquals("OR", cond.operator);
+         assertArrayEquals([], cond.conditions);
+         assertFalse(cond.canEvaluate());
+
+         cond.conditions.push(jTAC.create("Conditions.Required"));
+         assertTrue(cond.canEvaluate());
+         assertEquals(1, cond.conditions.length);
+         cond.operator = "AND";
+         assertEquals("AND", cond.operator);
+
+         var success = 1;
+         try
+         {
+            cond.operator = "A"; //illegal value
+            success = 0;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("operator allowed illegal value");
+         try
+         {
+            cond.operator = "and"; //illegal value (lowercase)
+            success = 0;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("operator allowed illegal value");
+      }
+
+      function testTwoRequiredOR()
+      {
+      // TextBox1 is required OR TextBox2 is required
+         var textbox1 = document.getElementById("TextBox1");
+         var textbox2 = document.getElementById("TextBox2");
+         textbox1.value = "";
+         textbox2.value = "";
+
+         var cond = jTAC.create("Conditions.BooleanLogic");
+         var rcond1 = jTAC.create("Required");
+         rcond1.elementId = "TextBox1";
+         var rcond2 = jTAC.create("Conditions.Required");
+         rcond2.elementId = "TextBox2";
+         cond.conditions.push(rcond1);
+         cond.conditions.push(rcond2);
+         RunCond(cond, 0);
+
+         textbox1.value = "abc"; // rcond1 is assigned, rcond2 is blank
+         RunCond(cond, 1);
+         textbox1.value = ""; // rcond1 is blank, rcond2 is blank
+         RunCond(cond, 0);
+         textbox2.value = "abc"; // rcond1 is blank, rcond2 is assigned
+         RunCond(cond, 1);
+         textbox1.value = "abc"; // rcond1 is assigned, rcond2 is assigned
+         RunCond(cond, 1);
+
+      }
+
+      function testTwoRequiredAND()
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         var textbox2 = document.getElementById("TextBox2");
+         textbox1.value = "";
+         textbox2.value = "";
+
+      // TextBox1 is required AND TextBox2 is required
+         var cond = jTAC.create("Conditions.BooleanLogic");
+         var rcond1 = jTAC.create("Conditions.Required");
+         rcond1.elementId = "TextBox1";
+         var rcond2 = jTAC.create("Conditions.Required");
+         rcond2.elementId = "TextBox2";
+         cond.conditions.push(rcond1);
+         cond.conditions.push(rcond2);
+         cond.operator = "AND";
+         RunCond(cond, 0);
+
+         textbox1.value = "abc"; // rcond1 is assigned, rcond2 is blank
+         RunCond(cond, 0);
+         textbox1.value = ""; // rcond1 is blank, rcond2 is blank
+         RunCond(cond, 0);
+         textbox2.value = "abc"; // rcond1 is blank, rcond2 is assigned
+         RunCond(cond, 0);
+         textbox1.value = "abc"; // rcond1 is assigned, rcond2 is assigned
+         RunCond(cond, 1);
+
+      }
+
+      function testJSonConditions()
+      {
+         var textbox1 = document.getElementById("TextBox1");
+         var textbox2 = document.getElementById("TextBox2");
+         textbox1.value = "";
+         textbox2.value = "";
+
+      // TextBox1 is required OR TextBox2 is required
+         var cond = jTAC.create("Conditions.BooleanLogic");
+         cond.conditions.push({"jtacClass" : "Required", "elementId" : "TextBox1"});
+         cond.conditions.push({"jtacClass" : "Required", "elementId" : "TextBox2"});
+         RunCond(cond, 0);
+
+         textbox1.value = "abc";
+         RunCond(cond, 1);
+         textbox1.value = ""; // both blank
+         RunCond(cond, 0);
+         textbox2.value = "abc";
+         RunCond(cond, 1);
+         textbox2.value = "abc";
+         RunCond(cond, 1);
+
+      }
+
+      function testComplexExpression()
+      {
+      // TextBox1 is required AND (((TextBox2 holds integer) AND (TextBox2 is in range 1 to 10)) OR ((TextBox3 holds integer) AND (TextBox3 is in range 1 to 10)))
+
+         var json = {"jtacClass" : "BooleanLogic", "operator": "AND", 
+              "conditions": [
+                {"jtacClass": "Required", "elementId" : "TextBox1" },
+                {"jtacClass" : "BooleanLogic", "operator": "OR", 
+                 "conditions": [
+                  { "jtacClass" : "BooleanLogic", "operator": "AND", 
+                    "conditions": [
+                     {"jtacClass" : "Required", "elementId" : "TextBox2" },
+                     {"jtacClass" : "DataTypeCheck", "elementId" : "TextBox2" },
+                     {"jtacClass" : "Range", "elementId" : "TextBox2", "minimum" : 1, "maximum" : 10 }
+                    ] },
+                  {"jtacClass" : "BooleanLogic", "operator": "AND", 
+                    "conditions": [
+                     {"jtacClass" : "Required", "elementId" : "TextBox3" },
+                     {"jtacClass" : "DataTypeCheck", "elementId" : "TextBox3" },
+                     {"jtacClass" : "Range", "elementId" : "TextBox3", "minimum" : 1, "maximum" : 10 }
+                    ] }
+                  ] }
+             ] };
+         var cond = jTAC.create(null, json);
+
+         var textbox1 = document.getElementById("TextBox1");
+         var textbox2 = document.getElementById("TextBox2");
+         var textbox3 = document.getElementById("TextBox3");
+         textbox1.value = "";
+         textbox2.value = "";
+         textbox3.value = "";
+         RunCond(cond, 0);
+
+         textbox1.value = "abc";
+         textbox2.value = "";
+         textbox3.value = "";
+         RunCond(cond, 0);
+         textbox1.value = "abc";
+         textbox2.value = "abc";
+         textbox3.value = "";
+         RunCond(cond, 0);
+         textbox1.value = "abc";
+         textbox2.value = "100";
+         textbox3.value = "";
+         RunCond(cond, 0);
+         textbox1.value = "abc";
+         textbox2.value = "5";   // inside the range. This makes it valid.
+         textbox3.value = "";
+         RunCond(cond, 1);
+         textbox1.value = "abc";
+         textbox2.value = "";
+         textbox3.value = "100";
+         RunCond(cond, 0);
+         textbox1.value = "abc";
+         textbox2.value = "";  
+         textbox3.value = "5";
+         RunCond(cond, 1); // inside the range. This makes it valid.
+         textbox1.value = "abc";
+         textbox2.value = "abc";    // while this is invalid, the OR operator lets textbox3's valid value make this expression valid
+         textbox3.value = "5";
+         RunCond(cond, 1); // inside the range. This makes it valid.
+      }
+
+      // idarray is an array objects describing each connection: {id: elementid, value: "assign to element", unassigned: "assign to connection.unassigned" }
+      function RunCond(cond, expectedResult)
+      {
+         var evalResult = cond.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testTwoRequiredOR();
+         testTwoRequiredAND();
+         testJSonConditions();
+         testComplexExpression();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

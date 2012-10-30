@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Parser.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Null.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/NaN.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Number.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Element.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Group.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/BaseFunction.js" type="text/javascript"></script>
+   <script src="../../jTAC/CalcItems/Round.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testDefineParse()
+      {
+         var calcItem = jTAC.create("CalcItems.Round");
+         assertNotNull(calcItem);
+         assertNotNull(calcItem.parse);   // ensure the method was attached.
+      }
+      function testPatterns()
+      {
+         // try patterns to see that some work and some are rejected by the parse() method.
+         assertSuccessParse("Round(10)", 0, 3);
+         assertSuccessParse("Round(10.1, 0, 0)", 0, 0);
+         assertSuccessParse("Round(10.1, 0, 0)", 0, 0);
+         assertSuccessParse("Round(10.1, 1, 2)", 1, 2);
+         assertSuccessParse("Round(10.1, 2, 1)", 2, 1);
+         assertSuccessParse("Round(10.1, 3, 5)", 3, 5);
+         assertSuccessParse("Round(10.1, 4, 6)", 4, 6);
+         assertExceptionParse("Round(10.1, 5, 0)");   // roundmode is illegal
+         assertSuccessParse("  Round(10)", 0, 3);
+         assertFailedParse("round(10)");
+         assertExceptionParse("Round()");
+         assertExceptionParse("Round(xyz)");
+         assertSuccessParse("Round('xyz')", 0, 3); // ElementCalcItem
+         assertSuccessParse("Round(  'xyz'   )", 0, 3); // ElementCalcItem
+         assertSuccessParse("Round(null)", 0, 3);  // NullCalcItem
+         assertSuccessParse("Round('xzy' + 10)", 0, 3);  // GroupCalcItem
+         assertSuccessParse("Round(10+'abc')", 0, 3);  // GroupCalcItem
+         assertExceptionParse("Round(10,)");
+         assertSuccessParse("Round(10, null)", 0, 3);
+         assertSuccessParse("Round(10,null)", 0, 3);
+         assertSuccessParse("Round(10.1, 0)", 0, 3);
+         assertSuccessParse("Round(10.1, 1)", 1, 3);
+         assertSuccessParse("Round(10.1, 2)", 2, 3);
+         assertSuccessParse("Round(10.1, 3)", 3, 3);
+         assertSuccessParse("Round(10.1, 4)", 4, 3);
+         assertExceptionParse("Round(10, 2,)");
+         assertSuccessParse("Round(10, 2, null)", 2, 3);
+         assertSuccessParse("Round(10,2,null)", 2, 3);
+
+         assertFailedParse("");
+         assertFailedParse("  ");
+
+      }
+
+      function testNamedModes()
+      {
+         assertSuccessParse("Round(10.1, 'point5', 0)", 0, 0);
+         assertSuccessParse('Round(10.1, "point5", 0)', 0, 0);
+         assertSuccessParse("Round(10.1, 'round', 0)", 0, 0);
+         assertSuccessParse("Round(10.1, 'currency', 1)", 1, 1);
+         assertSuccessParse("Round(10.1, 'truncate', 2)", 2, 2);
+         assertSuccessParse("Round(10.1, 'floor', 2)", 2, 2);
+         assertSuccessParse("Round(10.1, 'ceiling', 5)", 3, 5);
+         assertSuccessParse("Round(10.1, 'ceil', 5)", 3, 5);
+         assertSuccessParse("Round(10.1, 'nextwhole', 6)", 4, 6);
+         assertSuccessParse("Round(10.1, 'currency')", 1, 3);
+         assertSuccessParse("Round(10.1, 'truncate')", 2, 3);
+         assertSuccessParse("Round(10.1, 'floor')", 2, 3);
+         assertSuccessParse("Round(10.1, 'ceiling')", 3, 3);
+         assertSuccessParse("Round(10.1, 'ceil')", 3, 3);
+         assertSuccessParse("Round(10.1, 'nextwhole')", 4, 3);
+         assertExceptionParse("Round(10.1, 'xyz', 1)");
+         assertExceptionParse("Round(10.1, 'point55', 0)");
+         assertExceptionParse("Round(10.1, ' point5', 0)");
+         assertExceptionParse("Round(10.1, 'point5 ', 0)");
+      }
+      function testMathFnc()
+      {
+         assertSuccessParse("Math.round(10.1)", 0, 0);
+         assertSuccessParse("Math.round( 10 )", 0, 0);
+         assertSuccessParse("Math.round('abc')", 0, 0);
+         assertExceptionParse("Math.round()");
+         assertExceptionParse("Math.round(abc)");
+         assertFailedParse("Math.Round(10.1)");
+         assertFailedParse("MATH.round(10.1)");
+         assertFailedParse("Math. round(10.1)");
+
+         assertSuccessParse("Math.floor(10.1)", 2, 0);
+         assertSuccessParse("Math.floor( 10 )", 2, 0);
+         assertSuccessParse("Math.floor('abc')", 2, 0);
+         assertExceptionParse("Math.floor()");
+         assertExceptionParse("Math.floor(abc)");
+         assertFailedParse("Math.Round(10.1)");
+         assertFailedParse("MATH.floor(10.1)");
+         assertFailedParse("Math. floor(10.1)");
+
+         assertSuccessParse("Math.ceil(10.1)", 3, 0);
+         assertSuccessParse("Math.ceil( 10 )", 3, 0);
+         assertSuccessParse("Math.ceil('abc')", 3, 0);
+         assertExceptionParse("Math.ceil()");
+         assertExceptionParse("Math.ceil(abc)");
+         assertFailedParse("Math.Round(10.1)");
+         assertFailedParse("MATH.ceil(10.1)");
+         assertFailedParse("Math. ceil(10.1)");
+
+      }
+
+      function testEvaluate()
+      {
+         Evaluate("Round(10.1, 'point5', 0)", 0, 10);
+         Evaluate("Round(10.1, 'currency', 0)", 0, 10);
+         Evaluate("Round(10.1, 'truncate', 2)", 0, 10.1);
+         Evaluate("Round(10.1, 'floor', 0)", 0, 10);
+         Evaluate("Round('TextBox1', 'point5', 0)", 10.1, 10);
+         Evaluate("Round('TextBox1', 'currency', 0)", 10.1, 10);
+         Evaluate("Round('TextBox1', 'truncate', 2)", 10.1, 10.1);
+         Evaluate("Round('TextBox1', 'floor', 0)", 10.1, 10);
+      }
+
+      function assertSuccessParse(text, roundmode, maxdec)
+      {
+         var calcItem = jTAC.create("CalcItems.Round");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Round);
+         assertEquals(roundmode, r.obj.roundMode);
+         assertEquals(maxdec, r.obj.maxDecimalPlaces);
+      }
+
+      function assertFailedParse(text)
+      {
+         var calcItem = jTAC.create("CalcItems.Round");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNull(r);
+      }
+
+      function assertExceptionParse(text)
+      {
+         var success = true;
+         try
+         {
+            var calcItem = jTAC.create("CalcItems.Round");
+            var r = calcItem.parse(text, jTAC.parser); // exception expected here
+            success = false;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("Exception was expected for: " + text);
+      }
+
+      function Evaluate(text, textboxvalue, result)
+      {
+         document.getElementById("TextBox1").value = textboxvalue.toString();
+         var calcItem = jTAC.create("CalcItems.Round");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Round);
+         assertEquals(result, r.obj.evaluate());
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testDefineParse();
+         testPatterns();
+         testNamedModes();
+         testMathFnc();
+         testEvaluate();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

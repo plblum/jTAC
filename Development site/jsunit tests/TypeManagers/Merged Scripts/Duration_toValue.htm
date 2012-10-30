@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/typeManagers-date-time-all.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function severalTimes(instance, pattern)
+      {
+         pattern = pattern.replace(/'/g, "");
+         var hasSecs = pattern.indexOf("s") > -1;
+
+         var date1 = new Date(2012, 0, 1, 0, 0, 0);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, pattern, date1), 0, 0, 0);
+         var date2 = new Date(2012, 0, 1, 12, 0, 0);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, pattern, date2), 12, 0, 0);
+         var date3 = new Date(2012, 0, 1, 11, 59, 59);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, pattern, date3), 11, 59, hasSecs ? 59 : 0);
+         var date4 = new Date(2012, 0, 1, 23, 59, 59);
+         ToValueForTimes(instance, UpdatePatternWithTime(instance, pattern, date4), 23, 59, hasSecs ? 59 : 0);
+
+      }
+
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration"); 
+         assertNotNull(vInstance1);
+
+         vInstance1.setTimeFormat(10);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "01:01", 1, 1, 0);
+         ToValueForTimes(vInstance1, "23:01", 23, 1, 0);
+
+         var saved = vInstance1.parseTimeRequires;
+         setPropertyValue(vInstance1, "parseTimeRequires", "s");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToIllegalValueMain(vInstance1, "13:01");
+         ToIllegalValueMain(vInstance1, "13");
+         setPropertyValue(vInstance1, "parseTimeRequires", "m");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToValueForTimes(vInstance1, "13:01", 13, 1, 0);
+         ToIllegalValueMain(vInstance1, "13");
+         setPropertyValue(vInstance1, "parseTimeRequires", "h");
+         ToValueForTimes(vInstance1, "13:01:02", 13, 1, 2);
+         ToValueForTimes(vInstance1, "13:01", 13, 1, 0);
+         ToValueForTimes(vInstance1, "13", 13, 0, 0);
+         ToValueForTimes(vInstance1, "1", 1, 0, 0);
+         vInstance1.parseTimeRequires = saved; // restore default
+
+         ToIllegalValueMain(vInstance1, "26:01:02");  // because it uses a Date object which limits the hours to 23
+         ToIllegalValueMain(vInstance1, "22:01:02 PM");
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         setPropertyValue(vInstance1, "parseTimeRequires", "s");
+         ToIllegalValueMain(vInstance1, "13:01");
+         ToIllegalValueMain(vInstance1, "1:00");
+         setPropertyValue(vInstance1, "parseTimeRequires", "h");
+         ToValueForTimes(vInstance1, "13", 13, 0, 0);
+         ToValueForTimes(vInstance1, "1", 1, 0, 0);
+         setPropertyValue(vInstance1, "parseTimeRequires", "m");  // restore to the default
+
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+         severalTimes(vInstance1, "HH:mm");
+         ToIllegalValueMain(vInstance1, "2:01 PM");
+         ToIllegalValueMain(vInstance1, "00:01:02");
+         ToIllegalValueMain(vInstance1, "00:60");
+         ToIllegalValueMain(vInstance1, ":03:01");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03", 14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+
+      }
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "fr-FR"}); 
+         assertNotNull(vInstance1);
+
+         vInstance1.setTimeFormat(10);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "01:01", 1, 1, 0);
+         ToValueForTimes(vInstance1, "23:01", 23, 1, 0);
+
+         ToIllegalValueMain(vInstance1, "22:01:02 PM");
+         ToIllegalValueMain(vInstance1, "26:01:02");  // because it uses a Date object which limits the hours to 23
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+         severalTimes(vInstance1, "HH:mm");
+         ToIllegalValueMain(vInstance1, "25:01");
+         ToIllegalValueMain(vInstance1, "2:01 PM");
+         ToIllegalValueMain(vInstance1, "00:01:02");
+         ToIllegalValueMain(vInstance1, "00:60");
+         ToIllegalValueMain(vInstance1, ":03:01");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03", 14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+      }
+
+      function testToValueHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "hi-IN"}); 
+         assertNotNull(vInstance1);
+
+         vInstance1.setTimeFormat(10);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "01:01", 1, 1, 0);
+         ToValueForTimes(vInstance1, "23:01", 23, 1, 0);
+
+         ToIllegalValueMain(vInstance1, "22:01:02 PM");
+         ToIllegalValueMain(vInstance1, "25:01:02");
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+         severalTimes(vInstance1, "HH:mm");
+         ToIllegalValueMain(vInstance1, "25:01");
+         ToIllegalValueMain(vInstance1, "2:01 PM");
+         ToIllegalValueMain(vInstance1, "00:01:02");
+         ToIllegalValueMain(vInstance1, "00:60");
+         ToIllegalValueMain(vInstance1, ":03:01");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03", 14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+      }
+
+      function testToValueEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "quz-EC"}); 
+
+         vInstance1.setTimeFormat(10);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "01:01", 1, 1, 0);
+         ToValueForTimes(vInstance1, "23:01", 23, 1, 0);
+
+         ToIllegalValueMain(vInstance1, "22:01:02 PM");
+         ToIllegalValueMain(vInstance1, "25:01:02");
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+         severalTimes(vInstance1, "HH:mm");
+         ToIllegalValueMain(vInstance1, "25:01");
+         ToIllegalValueMain(vInstance1, "2:01 PM");
+         ToIllegalValueMain(vInstance1, "00:01:02");
+         ToIllegalValueMain(vInstance1, "00:60");
+         ToIllegalValueMain(vInstance1, ":03:01");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03", 14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+      }
+
+      function testToValueEthiopia()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {cultureName: "am-ET"}); 
+         assertNotNull(vInstance1);
+
+         vInstance1.setTimeFormat(10);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "01:01", 1, 1, 0);
+         ToValueForTimes(vInstance1, "23:01", 23, 1, 0);
+
+         ToIllegalValueMain(vInstance1, "22:01:02 ከሰዓት");
+         ToIllegalValueMain(vInstance1, "25:01:02");
+         ToIllegalValueMain(vInstance1, "22:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+         severalTimes(vInstance1, "HH:mm");
+         ToIllegalValueMain(vInstance1, "25:01");
+         ToIllegalValueMain(vInstance1, "2:01 ከሰዓት");
+         ToIllegalValueMain(vInstance1, "00:01:02");
+         ToIllegalValueMain(vInstance1, "00:60");
+         ToIllegalValueMain(vInstance1, ":03:01");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03", 14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+      }
+
+      function testToValueAsNumber()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 1}); 
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "2:3:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "14:03:30", 14 * 3600 + 3 * 60 + 30);
+         ToValueMain(vInstance1, "0:00:00", 0);
+         ToValueMain(vInstance1, "0:0:0", 0);
+         ToValueMain(vInstance1, "01:02:03", 1 * 3600 + 2 * 60 + 3);
+         ToValueMain(vInstance1, "12:00:00", 12 * 3600);
+         ToValueMain(vInstance1, "11:59:59", (12 * 3600) - 1);
+         ToValueMain(vInstance1, "24:03:00", 24 * 3600 + 3 * 60 + 0);   // durations allow hours greater than 24
+         ToValueMain(vInstance1, "80:03:30", 80 * 3600 + 3 * 60 + 30);
+         ToValueMain(vInstance1, "9999:03:30", 9999 * 3600 + 3 * 60 + 30);
+         ToValueMain(vInstance1, "2:03", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "0:00", 0);
+
+         ToIllegalValueMain(vInstance1, "22:01:02 ከሰዓት");
+         ToIllegalValueMain(vInstance1, "25:60:02");
+         ToIllegalValueMain(vInstance1, "99999:01:60");
+         ToIllegalValueMain(vInstance1, "03:01:");
+
+         vInstance1.setTimeFormat(12);
+         ToValueMain(vInstance1, "2:03", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "14:03:30", 14 * 3600 + 3 * 60 + 30);
+         ToValueMain(vInstance1, "0:00", 0);
+         ToValueMain(vInstance1, "12:00", 12 * 3600);
+         ToValueMain(vInstance1, "11:59:59", (12 * 3600) - 1);
+         ToValueMain(vInstance1, "24:03", 24 * 3600 + 3 * 60 + 0);   // durations allow hours greater than 24
+         ToValueMain(vInstance1, "80:03:30", 80 * 3600 + 3 * 60 + 30);
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 3600}); 
+         assertNotNull(vInstance2);
+         ToValueMain(vInstance2, "2:00:00", 2);
+         ToValueMain(vInstance2, "14:00:00", 14);
+         ToValueMain(vInstance2, "2:30:00", 2.5);
+         ToValueMain(vInstance2, "14:30:00", 14.5);
+         ToValueMain(vInstance2, "24:30:00", 24.5);   // durations allow hours greater than 24
+         ToValueMain(vInstance2, "2:00", 2);
+         ToValueMain(vInstance2, "14:00", 14);
+         ToValueMain(vInstance2, "2:30", 2.5);
+         ToValueMain(vInstance2, "14:30", 14.5);
+         ToValueMain(vInstance2, "24:30", 24.5);   // durations allow hours greater than 24
+
+         vInstance2.setTimeFormat(11);
+         ToValueMain(vInstance2, "2:00", 2);
+         ToValueMain(vInstance2, "14:00", 14);
+         ToValueMain(vInstance2, "2:30", 2.5);
+         ToValueMain(vInstance2, "14:30", 14.5);
+         ToValueMain(vInstance2, "24:30", 24.5);   // durations allow hours greater than 24
+
+         ToIllegalValueMain(vInstance2, "2:01 ከሰዓት");
+         ToIllegalValueMain(vInstance2, "00:01:02");
+         ToIllegalValueMain(vInstance2, "00:60");
+         ToIllegalValueMain(vInstance2, "03:");
+
+      }
+
+      function testToValueMaxHours()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 1}); 
+         assertNotNull(vInstance1);
+         setPropertyValue(vInstance1, "maxHours", 19);
+         ToValueMain(vInstance1, "2:03:00", 2 * 3600 + 3 * 60 + 0);
+         ToValueMain(vInstance1, "19:59:59", (20 * 3600) - 1);
+         ToIllegalValueMain(vInstance1, "20:00:00"); 
+         ToIllegalValueMain(vInstance1, "80:03:30");
+
+
+         var vInstance2 = jTAC.create("TypeManagers.Duration", {valueAsNumber: true, timeOneEqualsSeconds: 3600}); 
+         assertNotNull(vInstance2);
+         setPropertyValue(vInstance2, "maxHours", 19);
+         ToValueMain(vInstance2, "2:00:00", 2);
+         ToValueMain(vInstance2, "19:30:00", 19.5);
+         ToIllegalValueMain(vInstance2, "20:00:00");
+
+         var vInstance3 = jTAC.create("TypeManagers.Duration"); 
+         assertNotNull(vInstance3);
+         setPropertyValue(vInstance3, "maxHours", 19);
+         ToValueForTimes(vInstance3, "2:03:00", 2, 3, 0);
+         ToValueForTimes(vInstance3, "19:59:59", 19, 59, 59);
+         ToIllegalValueMain(vInstance3, "20:03:00");
+
+      }
+
+      function testParseStrict()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Duration");   
+         assertNotNull(vInstance1);
+         setPropertyValue(vInstance1, "parseStrict", true);
+         severalTimes(vInstance1, "H:mm:ss");
+         severalTimes(vInstance1, "HH:mm:ss");
+         ToValueForTimes(vInstance1, "13:01", 13, 1, 0);
+         ToValueForTimes(vInstance1, "1:00", 1, 0, 0);
+
+         // always illegal
+         ToIllegalValueMain(vInstance1, "25:01:00");
+         ToIllegalValueMain(vInstance1, "1:60:00");
+         ToIllegalValueMain(vInstance1, "1:00:60");
+         ToIllegalValueMain(vInstance1, ":01:20");
+         ToIllegalValueMain(vInstance1, "1:");
+         ToIllegalValueMain(vInstance1, "1:01:");
+         ToIllegalValueMain(vInstance1, "1 :19");
+         ToIllegalValueMain(vInstance1, "1 AM");
+         ToIllegalValueMain(vInstance1, "1:00 AMp");
+         assertNull(vInstance1.toValue(""));
+
+         vInstance1.setTimeFormat(11);
+         severalTimes(vInstance1, "H:mm");
+
+      // always illegal
+         ToIllegalValueMain(vInstance1, "25:01");
+         ToIllegalValueMain(vInstance1, "4:01:03");
+         ToIllegalValueMain(vInstance1, "1:60");
+         ToIllegalValueMain(vInstance1, "1:00 AMp");
+
+         vInstance1.setTimeFormat(12);
+         ToValueForTimes(vInstance1, "2:03",  2, 3, 0);
+         ToValueForTimes(vInstance1, "2:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "14:03",  14, 3, 0);
+         ToValueForTimes(vInstance1, "14:03:01", 14, 3, 1);
+
+         vInstance1.setTimeFormat(100);
+         ToValueForTimes(vInstance1, "0002:03:00", 2, 3, 0);
+         ToValueForTimes(vInstance1, "0002:03:01", 2, 3, 1);
+         ToValueForTimes(vInstance1, "0014:03:00", 14, 3, 0);
+         ToValueForTimes(vInstance1, "0014:03:01", 14, 3, 1);
+
+         vInstance1.setTimeFormat(101);
+         ToValueForTimes(vInstance1, "0002:03", 2, 3, 0);
+         ToValueForTimes(vInstance1, "0014:03", 14, 3, 0);
+      }
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToValue();
+         testToValueFrench();
+         testToValueHindi();
+         testToValueEcuador();
+         testToValueEthiopia();
+         testToValueAsNumber();
+         testToValueMaxHours();
+         testParseStrict();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</body>
+</html>

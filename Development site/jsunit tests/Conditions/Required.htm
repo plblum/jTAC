@@ -1,0 +1,478 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+</head>
+<body>
+   <form method="get">
+   CheckboxList:
+   <input type="checkbox" id="CheckBox1" />
+   <input type="checkbox" id="CheckBox2" />
+   <input type="checkbox" id="CheckBox3" />
+   <input type="checkbox" id="CheckBox4" />
+   <input type="checkbox" id="CheckBox5" />
+   <input type="checkbox" id="CheckBox6" />
+   <input type="checkbox" id="CheckBox7" />
+   <input type="checkbox" id="CheckBox8" />
+   <input type="checkbox" id="CheckBox9" />
+   <br />
+   RadioList:<input type="radio" id="Radio1" name="RadioGroup" />
+   <input type="radio" id="Radio2" name="RadioGroup" />
+   <input type="radio" id="Radio3" name="RadioGroup" />
+   <input type="radio" id="Radio4" name="RadioGroup" />
+   <input type="radio" id="Radio5" name="RadioGroup" />
+   <input type="radio" id="Radio6" name="RadioGroup" />
+   <input type="radio" id="Radio7" name="RadioGroup" />
+   <input type="radio" id="Radio8" name="RadioGroup" />
+   <input type="radio" id="Radio9" name="RadioGroup" />
+   <br />
+   <select id="Select1">
+      <option value="one">1</option>
+      <option value="two">2</option>
+      <option value="three">3</option>
+      <option value="four">4</option>
+      <option value="five">5</option>
+      <option value="six">6</option>
+      <option value="seven">7</option>
+      <option value="eight">8</option>
+      <option value="nine">9</option>
+   </select>
+   <input type="text" id="TextBox1" />
+   <input type="text" id="TextBox2" />
+   <input type="text" id="TextBox3" />
+   <input type="text" id="TextBox4" />
+   <input type="text" id="TextBox5" />
+   <input type="text" id="DisabledTextBox1" disabled="disabled" />
+   <input type="text" id="DisabledTextBox2" disabled="disabled" />
+   <input type="text" id="DisabledTextBox3" disabled="disabled" />
+   <input type="text" id="DisabledTextBox4" disabled="disabled" />
+   <input type="text" id="DisabledTextBox5" disabled="disabled" />
+   </form>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var cond = jTAC.create("Conditions.Required");
+         assertNotNull(cond);
+         assertTrue(cond.enabled);
+         assertTrue(cond.trim);
+         assertNull(cond.lastEvaluateResult);
+         assertFalse(cond.not);
+         assertNull(cond.elementId);
+         assertNotNull(cond.connection);
+         assertTrue(cond.connection instanceof jTAC.Connections.FormElement);
+         assertArrayEquals([], cond.moreConnections);
+         assertEquals("OneOrMore", cond.mode);
+         assertEquals(0, cond.minimum);
+         assertEquals(999, cond.maximum);
+         assertTrue(cond.ignoreNotEditable);
+         assertTrue(cond.canEvaluate());
+
+         cond.moreConnections.push(jTAC.create("FormElement", {id: "TextBox1"}));
+         assertEquals(1, cond.moreConnections.length);
+         cond.moreConnections.push(jTAC.create("FormElement", {id: "TextBox2"}));
+         assertEquals(2, cond.moreConnections.length);
+         cond.mode = "All";
+         assertEquals("All", cond.mode);
+         cond.mode = "One";
+         cond.mode = "AllOrNone";
+         cond.mode = "Range";
+         var success = false;
+         try
+         {
+            cond.mode = "all"; // incorrect case
+         }
+         catch (e)
+         {
+            success = true;
+         }
+         if (!success)
+            fail("mode allowed illegal value");
+
+         cond.minimum = 2;
+         assertEquals(2, cond.minimum);
+         cond.maximum = 5;
+         assertEquals(5, cond.maximum);
+         cond.ignoreNotEditable = false;
+         assertFalse(cond.ignoreNotEditable);
+      }
+
+      function testOneTextBox()
+      {
+         var idarray = [{ id: "TextBox1", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "TextBox1", value: "", unassigned: "fill me"}]; // value ="" and value = "fill me" will both be considered unassigned
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "TextBox1", value: "   "}];   // will trim
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "TextBox1", value: "fill me", unassigned: "fill me"}];
+         RunRequiredCond(idarray, null, 0, null);
+
+         idarray = [{ id: "TextBox1", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);
+         idarray = [{ id: "TextBox1", value: "abc", unassigned: "fill me"}];
+         RunRequiredCond(idarray, null, 1, null);
+      }
+
+      function testOneSelect()
+      {
+         var idarray = [{ id: "Select1", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "Select1", value: "", unassigned: "one"}]; // value ="" and value = "fill me" will both be considered unassigned
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "Select1", value: "   "}];   // will trim
+         RunRequiredCond(idarray, null, 0, null);
+         idarray = [{ id: "Select1", value: "one", unassigned: "one"}];
+         RunRequiredCond(idarray, null, 0, null);
+
+         idarray = [{ id: "Select1", value: "two"}];
+         RunRequiredCond(idarray, null, 1, null);
+         idarray = [{ id: "Select1", value: "two", unassigned: "one"}];
+         RunRequiredCond(idarray, null, 1, null);
+      }
+
+      function testOneCheckBox()
+      {
+         var idarray = [{ id: "CheckBox1", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);
+
+         idarray = [{ id: "CheckBox1", value: "on"}];
+         RunRequiredCond(idarray, null, 1, null);
+      }
+
+      function testOneRadio()
+      {
+         var idarray = [{ id: "Radio1", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);
+
+         idarray = [{ id: "Radio1", value: "on"}];
+         RunRequiredCond(idarray, null, 1, null);
+      }
+
+      function testTextBoxesNoneAssigned()
+      {
+         // none selected
+         var idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 0, "maximum": 2 });
+
+         var idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 0, "maximum": 2 });
+      }
+
+      function testTextBoxesOneAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+      }
+      function testTextBoxesTwoAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "abc" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "TextBox4", value: "" }, { id: "TextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "TextBox4", value: "abc" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+      }
+      function testTextBoxesAllAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "abc" }, { id: "TextBox3", value: "abc" }, { id: "TextBox4", value: "abc" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "TextBox4", value: "abc" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "TextBox4", value: "abc" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "TextBox4", value: "abc" }, { id: "TextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+      }
+
+      function testDisabledTextBoxesNoneAssigned()
+      {
+         // none selected
+         var idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "" }, { id: "TextBox3", value: "" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 0, "maximum": 2 });
+
+         var idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 0, "maximum": 2 });
+      }
+
+      function testDisabledTextBoxesOneAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "" }, { id: "TextBox3", value: "" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 2, "maximum": 4 });
+
+      }
+      function testDisabledTextBoxesTwoAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "" }, { id: "TextBox3", value: "abc" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "fill me", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "" }, { id: "DisabledTextBox5", value: ""}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 0, null);
+         RunRequiredCond(idarray, "One", 1, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+         idarray = [{ id: "TextBox1", value: "" }, { id: "DisabledTextBox2", value: "", unassigned: "fill me" }, { id: "TextBox3", value: "fill me", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "abc" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 0, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 0, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 0, { "minimum": 3, "maximum": 4 });
+
+      }
+      function testDisabledTextBoxesAllAssigned()
+      {
+         var idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "abc" }, { id: "TextBox3", value: "abc" }, { id: "DisabledTextBox4", value: "abc" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "abc" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "abc" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "DisabledTextBox2", value: "abc", unassigned: "fill me" }, { id: "TextBox3", value: "abc", unassigned: "fill me" }, { id: "DisabledTextBox4", value: "abc" }, { id: "DisabledTextBox5", value: "abc"}];
+         RunRequiredCond(idarray, null, 1, null);  // default mode: OneOrMore
+         RunRequiredCond(idarray, "All", 1, null);
+         RunRequiredCond(idarray, "AllOrNone", 1, null);
+         RunRequiredCond(idarray, "One", 0, null);
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 1, "maximum": 2 });
+         RunRequiredCond(idarray, "Range", 1, { "minimum": 2, "maximum": 5 });
+      }
+      // idarray is an array objects describing each connection: {id: elementid, value: "assign to element", unassigned: "assign to connection.unassigned" }
+      function RunRequiredCond(idarray, mode, expectedResult, json)
+      {
+         var vInstance1 = jTAC.create("Required");
+         assertNotNull(vInstance1);
+         if (json != null) // done early because it needs to set the buttons property before calling setTypedValue
+            vInstance1.setProperties(json);
+         if (mode)
+            vInstance1.mode = mode;
+         for (var i = 0; i < idarray.length; i++)
+         {
+            var item = idarray[i];
+            if (i == 0)
+            {
+               vInstance1.elementId = item.id;
+               vInstance1.connection.setTextValue(item.value);
+               if (item.unassigned)
+                  vInstance1.connection.unassigned = item.unassigned;
+            }
+            else
+            {
+               var conn = jTAC.connectionResolver.create(item.id, jTAC.create("FormElement"));
+               conn.setTextValue(item.value);
+               if (item.unassigned)
+                  conn.unassigned = item.unassigned;
+               vInstance1.moreConnections.push(conn);
+            }
+         }  // for
+
+         //         assertTrue(vInstance1.canEvaluate());
+         var evalResult = vInstance1.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+         vInstance1.connection.setTextValue(""); // reset to nothing selected
+         for (var i = 0; i < vInstance1.moreConnections.length; i++)
+         {
+            vInstance1.moreConnections[i].setTextValue("");
+         }
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testOneTextBox();
+         testOneSelect();
+         testOneCheckBox();
+         testOneRadio();
+         testTextBoxesNoneAssigned();
+         testTextBoxesOneAssigned();
+         testTextBoxesTwoAssigned();
+         testTextBoxesAllAssigned();
+         testDisabledTextBoxesNoneAssigned();
+         testDisabledTextBoxesOneAssigned();
+         testDisabledTextBoxesTwoAssigned();
+         testDisabledTextBoxesAllAssigned();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

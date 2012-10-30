@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../Shared.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseCounter.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/WordCount.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Value.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   <script src="../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+Tests the Conditions.WordCount class using the rules shown below.<br />
+Uses jsunit as it loads. Once it passes those tests, you can interact with the UI to further test this page.<br />
+   <form action="" method="get" id="Form1" >
+      min 5:
+      <input type="text" id="TextBox1" name="TextBox1" autocomplete="off" />     
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span><br />
+      <label for="TextBox2">Max 10:</label>  
+      <input type="text" id="TextBox2" name="TextBox2" autocomplete="off" />     
+      <span id="TextBox2_Result" data-valmsg-for="TextBox2" ></span><br />
+      <label for="TextBox3">5 to 10:</label>  
+      <input type="text" id="TextBox3" name="TextBox3" autocomplete="off" />     
+      <span id="TextBox3_Result" data-valmsg-for="TextBox3" ></span><br />
+      <label for="TextBox4">Combined 10 to 20:</label>
+      <input type="text" id="TextBox4" name="TextBox4" autocomplete="off" /> (combines with the next textbox)  
+      <input type="text" id="TextBox5" name="TextBox5" autocomplete="off" /> 
+      <span id="TextBox4_Result" data-valmsg-for="TextBox4" ></span><br />
+
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+
+
+      function Init()
+      {
+         jTAC.translations.register("", {
+            "xxx": "Minimum of 5"
+            }); // replace the default
+
+         $("#Form1").validate({ onkeyup: false, debug: true});
+         $("#TextBox1").rules("add",
+         {
+
+            wordcount:
+            {
+               param: { minimum: 5, connection: { defaultLookupKey : "xxx"} }
+            }
+
+         });
+         $("#TextBox2").rules("add",
+         {
+
+            wordcount:
+            {
+               param: { maximum: 10}
+            }
+
+         });
+         $("#TextBox3").rules("add",
+         {
+
+            wordcount:
+            {
+               param: { minimum: 5, maximum: 10}
+            },
+            messages:
+            {
+               wordcount: "Between {MINIMUM} and {MAXIMUM} words. You entered {COUNT}. Difference of {DIFF} {DIFF:word:words}."
+            }
+
+         });
+
+         $("#TextBox4").rules("add",
+         {
+
+            wordcount:
+            {
+               param: { moreConnections: ["TextBox5"], 
+                  minimum: 10, maximum : 20
+               }
+            }
+
+         });
+
+         jTAC.jqueryValidate.attachMultiConnections("#Form1");
+
+      // ------------ jsunit tests -----------------------------
+         if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+         try
+         {
+            testInstalled();
+            testTextBox1();
+            testTextBox2();
+            testTextBox3();
+            testTextBox4();
+         }
+         catch (e)
+         {
+            window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+         }
+
+      }
+      $(document).ready(Init());
+//---- jsunit tests -------------------------------------------------
+      function testInstalled() 
+      {
+         assertNotNull(window.$);
+         assertNotNull(window.$.validator);
+         assertNotNull($.validator.methods);
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.jqueryValidate);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.jqueryValidate.createCondition);
+         assertFunction(jTAC.jqueryValidate.evaluate);
+
+         var form = $("#Form1");
+         var validator = $.data(form[0], "validator");
+         assertNotNull(validator);
+         var rules = validator.settings.rules;
+
+      }
+
+      function testTextBox1()
+      {
+         runJqueryValidate("TextBox1", "a b c", false, 
+            '<span class="message-label">Minimum of 5</span> must have between 5 and 9999999 words.');
+         runJqueryValidate("TextBox1", "1 2 3 4 5 6", true, '');
+      }
+      function testTextBox2()
+      {
+         runJqueryValidate("TextBox2", "1 2 3 4 5 6 7 8 9 0 1 2", false, 
+            '<span class="message-label">Max 10</span> must have between 0 and 10 words.');
+         runJqueryValidate("TextBox2", "a b c", true, '');
+      }
+      function testTextBox3()
+      {
+         runJqueryValidate("TextBox3", "1 2 3", false, 
+            'Between 5 and 10 words. You entered 3. Difference of 2 words.');
+         runJqueryValidate("TextBox3", "1 2 3 4", false, 
+            'Between 5 and 10 words. You entered 4. Difference of 1 word.');
+         runJqueryValidate("TextBox3", "1 2 3 4 5", true, '');
+      }
+      function testTextBox4()
+      {
+         runJqueryValidate("TextBox4", "a b c", false, 
+            '<span class="message-label">Combined 10 to 20</span> must have between 10 and 20 words.', 
+            "TextBox5", "");  // total of 3
+         runJqueryValidate("TextBox4", "1 2 3 4 5  6 7 8 9 0", true, '', "TextBox5", "");  // total of 10
+         runJqueryValidate("TextBox4", "", true, '', "TextBox5", "1 2 3 4 5  6 7 8 9 0");  // total of 10
+         runJqueryValidate("TextBox4", "1 2 3 4 5  6 7 8 9 0", true, '', "TextBox5", "1 2 3 4 5  6 7 8 9 0");  // total of 20
+      }
+
+   </script>
+</body>
+</html>

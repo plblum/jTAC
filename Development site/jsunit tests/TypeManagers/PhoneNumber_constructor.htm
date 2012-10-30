@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseRegionString.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/PhoneNumber.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testCreateDefault()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+         assertEquals("", vInstance1.region);
+         assertNotNull(vInstance1.getRegionsData());
+         assertObjectEquals(window.jTAC_PhoneNumberRegionsData, vInstance1.getRegionsData());
+
+         assertFalse(vInstance1.supportsExt);
+      }
+
+      function testCreateSetAllProperties()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.PhoneNumber");
+         assertNotNull(vInstance1);
+         var rds = vInstance1._selectRegionNodes(); // region = "". Uses defaultName which is "Any"
+         assertNotNull(rds);
+         assertEquals(1, rds.length);
+         assertEquals("Any", rds[0].name);
+
+         vInstance1.region = "NorthAmerica";
+         assertEquals("NorthAmerica", vInstance1.region);
+
+         rds = vInstance1._selectRegionNodes();
+         assertNotNull(rds);
+         assertEquals(1, rds.length);
+         assertEquals("NorthAmerica", rds[0].name);
+
+         vInstance1.region = "UnitedStates"; // will use an alias to get to NorthAmerica
+         assertEquals("UnitedStates", vInstance1.region);
+
+         rds = vInstance1._selectRegionNodes();
+         assertNotNull(rds);
+         assertEquals(1, rds.length);
+         assertEquals("NorthAmerica", rds[0].name);
+
+         vInstance1.region = "unknown"; // an name that does not exist
+         assertEquals("unknown", vInstance1.region);
+
+         var success = true;
+         try
+         {
+            rds = vInstance1._selectRegionNodes();
+         }
+         catch (e)
+         {
+            success = false;
+         }
+         if (success)
+            fail("getRegions should throw exception");
+
+         vInstance1.region = "Japan|France";
+         assertEquals("Japan|France", vInstance1.region);
+
+         rds = vInstance1._selectRegionNodes();
+         assertNotNull(rds);
+         assertEquals(2, rds.length);
+         assertEquals("Japan", rds[0].name);
+         assertEquals("France", rds[1].name);
+
+         vInstance1.supportsExt = true;
+         assertTrue(vInstance1.supportsExt);
+
+      }
+
+
+      function testApplyNumberMask()
+      {
+         var applyNumberMask = jTAC.TypeManagers.BaseRegionString.prototype.applyNumberMask;
+
+         var r = applyNumberMask("123", "###", true, " ");
+         assertEquals("123", r);
+         r = applyNumberMask("123", "###", false, " ");
+         assertEquals("123", r);
+
+         r = applyNumberMask("123", "####", true, " ");
+         assertEquals("123 ", r);
+
+         r = applyNumberMask("123", "####", false, " ");
+         assertEquals(" 123", r);
+
+         r = applyNumberMask("123", "##", true, " ");
+         assertEquals("123", r);
+
+         r = applyNumberMask("123", "##", false, " ");
+         assertEquals("123", r);
+
+         r = applyNumberMask("123", "#-##", true, " ");
+         assertEquals("1-23", r);
+
+         r = applyNumberMask("123", "#-##", false, " ");
+         assertEquals("1-23", r);
+
+          r = applyNumberMask("123", "#-#", true, " ");
+         assertEquals("1-23", r);
+
+         r = applyNumberMask("123", "#-#", false, " ");
+         assertEquals("12-3", r);
+
+         r = applyNumberMask("1+23", "###", true, " ");
+         assertEquals("123", r);
+
+         r = applyNumberMask("1+23", "###", false, " ");
+         assertEquals("123", r);
+
+         r = applyNumberMask("1+23", "##=#", true, " ");
+         assertEquals("12=3", r);
+
+         r = applyNumberMask("1+23", "##=#", false, " ");
+         assertEquals("12=3", r);
+
+         r = applyNumberMask("1+23", "#+#=#", true, " ");
+         assertEquals("1+2=3", r);
+
+         r = applyNumberMask("1+23", "#+#=#", false, " ");
+         assertEquals("1+2=3", r);
+
+         r = applyNumberMask("1+2345", "#+#=#", true, " ");
+         assertEquals("1+2=345", r);
+
+         r = applyNumberMask("1+2345", "#+#=#", false, " ");
+         assertEquals("123+4=5", r);
+
+         r = applyNumberMask("6171230987", "1(###) ###-####", false, "");
+         assertEquals("1(617) 123-0987", r);
+
+         r = applyNumberMask("16171230987", "#(###) ###-####", false, "");
+         assertEquals("1(617) 123-0987", r);
+
+         r = applyNumberMask("6171230987", "#(###) ###-####", false, "");
+         assertEquals("(617) 123-0987", r);
+
+         r = applyNumberMask("1230987", "#(###) ###-####", false, "");
+         assertEquals("() 123-0987", r);
+     }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testCreateDefault();
+         testCreateSetAllProperties();
+         testApplyNumberMask();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

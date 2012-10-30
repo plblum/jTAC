@@ -1,0 +1,566 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Command%20extensions.js" type="text/javascript"></script>
+
+
+</head>
+<body>
+   <form action="" method="get" id="Form1" >
+      <input type="text" id="TextBox1" name="TextBox1" />
+   </form>
+   <script type="text/javascript">
+
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testInvokeClear()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date"); 
+         assertNotNull(vInstance1);
+         assertNotNull(vInstance1._initCmd); // has this function
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var args = { commandName : "Clear", connection : conn};
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, args, ""); // it will still set args.changed = true
+
+         conn.setTextValue("01/02/2012");
+         InvokeCmd(vInstance1, args, "");
+
+         conn.setTextValue("abc");  // invalid value is ignored
+         InvokeCmd(vInstance1, args, "");
+
+      }
+
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testInvokeToday()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var args = { commandName : "Today", connection : conn};
+         vInstance1.invoke.call(vInstance1, args);
+         var today = new Date(); // creates today in local time
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getMonth() == args.value.getMonth());
+         assertTrue(today.getDate() == args.value.getDate());
+         assertTrue(args.changed);
+         assertFalse(args.error);
+
+         conn.setTextValue("abc");  // invalid value is ignored
+         args = { commandName : "Today", connection : conn};
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getMonth() == args.value.getMonth());
+         assertTrue(today.getDate() == args.value.getDate());
+         assertTrue(args.changed);
+         assertFalse(args.error);
+      }
+
+
+      function testInvokeAddDays()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextDay", connection : conn};
+         var prevargs = { commandName : "PrevDay", connection : conn};
+
+         conn.setTextValue("01/02/2012");
+         InvokeCmd(vInstance1, nextargs, "1/3/2012");  // text format is US: M/d/yyyy
+         InvokeCmd(vInstance1, nextargs, "1/4/2012"); 
+         InvokeCmd(vInstance1, prevargs, "1/3/2012"); 
+
+
+         conn.setTextValue("01/30/2012");
+         InvokeCmd(vInstance1, nextargs, "1/31/2012");
+         InvokeCmd(vInstance1, nextargs, "2/1/2012");
+         InvokeCmd(vInstance1, prevargs, "1/31/2012");
+
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, prevargs, "12/31/2011");
+         InvokeCmd(vInstance1, nextargs, "1/1/2012");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddDaysBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextDay", connection : conn};
+         var prevargs = { commandName : "PrevDay", connection : conn};
+         var today = new Date(); // creates today in local time
+
+      // BlankStartsAt default rule is used: will use Today without any Min/Maxvalue
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, nextargs);
+         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
+         assertTrue(today.getMonth() == nextargs.value.getMonth());
+         assertTrue(today.getDate() == nextargs.value.getDate());
+
+
+      // PrevDay should do the same: today
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, prevargs);
+         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
+         assertTrue(today.getMonth() == prevargs.value.getMonth());
+         assertTrue(today.getDate() == prevargs.value.getDate());
+
+         vInstance1.minValue = new Date(2012, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(2012, 11, 31);   // dec 31
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "1/1/2012");
+         InvokeCmd(vInstance1, nextargs, "1/2/2012");
+
+         conn.setTextValue("");
+
+      // PrevDay will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "12/31/2012");
+         InvokeCmd(vInstance1, prevargs, "12/30/2012");
+
+      // while min and max are still set, this forces using today.
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = "Now";
+
+         args = { commandName : "NextDay", connection : conn};
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getMonth() == args.value.getMonth());
+         assertTrue(today.getDate() == args.value.getDate());
+
+         conn.setTextValue("");
+         args = { commandName : "PrevDay", connection : conn}; // back one day
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getMonth() == args.value.getMonth());
+         assertTrue(today.getDate() == args.value.getDate());
+
+      // set any specific date
+         vInstance1.blankStartsAt = new Date(2012, 5, 1);
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "6/1/2012");
+         InvokeCmd(vInstance1, nextargs, "6/2/2012");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "6/1/2012");
+         InvokeCmd(vInstance1, prevargs, "5/31/2012");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddDaysMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextDay", connection : conn};
+         var prevargs = { commandName : "PrevDay", connection : conn};
+
+         vInstance1.minValue = new Date(2012, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(2012, 11, 31);   // dec 31
+
+         conn.setTextValue("12/30/2012");
+         InvokeCmd(vInstance1, nextargs, "12/31/2012");
+         InvokeCmd(vInstance1, nextargs, "12/31/2012", true);   // stuck at this date
+
+         conn.setTextValue("1/2/2012");
+         InvokeCmd(vInstance1, prevargs, "1/1/2012");
+         InvokeCmd(vInstance1, prevargs, "1/1/2012", true);   // stuck at this date
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddDaysInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var args = { commandName : "NextDay", connection : conn};
+         conn.setTextValue("abc");
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+         conn.setTextValue("12/34/2012"); // illegal date
+         args = { commandName : "PrevDay", connection : conn};
+         InvokeCmd(vInstance1, args, "12/34/2012", true, true);
+
+         conn.setTextValue("");  // reset
+      }
+
+      function testInvokeAddMonths()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextMonth", connection : conn};
+         var prevargs = { commandName : "PrevMonth", connection : conn};
+
+         conn.setTextValue("01/02/2012");
+         InvokeCmd(vInstance1, nextargs, "2/2/2012");
+         InvokeCmd(vInstance1, nextargs, "3/2/2012");
+         InvokeCmd(vInstance1, prevargs, "2/2/2012");
+
+         conn.setTextValue("01/30/2012");
+         InvokeCmd(vInstance1, nextargs, "2/29/2012");
+         InvokeCmd(vInstance1, nextargs, "3/29/2012");
+         InvokeCmd(vInstance1, prevargs, "2/29/2012");
+
+
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, prevargs, "12/1/2011");
+         InvokeCmd(vInstance1, nextargs, "1/1/2012");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddMonthsBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var today = new Date(); // creates today in local time
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextMonth", connection : conn};
+         var prevargs = { commandName : "PrevMonth", connection : conn};
+
+      // BlankStartsAt default rule is used: will use Today without any Min/Maxvalue
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, nextargs);
+         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
+         assertTrue(today.getMonth() == nextargs.value.getMonth());
+         assertTrue(today.getDate() == nextargs.value.getDate());
+
+
+      // PrevMonth should do the same: today
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, prevargs);
+         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
+         assertTrue(today.getMonth() == prevargs.value.getMonth());
+         assertTrue(today.getDate() == prevargs.value.getDate());
+
+         vInstance1.minValue = new Date(2012, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(2012, 11, 31);   // dec 31
+
+
+      // BlankStartsAt default rule is used: will use minvalue
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "1/1/2012");
+         InvokeCmd(vInstance1, nextargs, "2/1/2012");
+
+
+      // PrevMonth will use maxvalue
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "12/31/2012");
+         InvokeCmd(vInstance1, prevargs, "11/30/2012");
+
+      // while min and max are still set, this forces using today.
+         vInstance1.blankStartsAt = "Now";
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, nextargs);
+         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
+         assertTrue(today.getMonth() == nextargs.value.getMonth());
+         assertTrue(today.getDate() == nextargs.value.getDate());
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, prevargs);
+         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
+         assertTrue(today.getMonth() == prevargs.value.getMonth());
+         assertTrue(today.getDate() == prevargs.value.getDate());
+
+      // set any specific date
+         vInstance1.blankStartsAt = new Date(2012, 5, 1);
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "6/1/2012");
+         InvokeCmd(vInstance1, nextargs, "7/1/2012");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "6/1/2012");
+         InvokeCmd(vInstance1, prevargs, "5/1/2012");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddMonthsMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextMonth", connection : conn};
+         var prevargs = { commandName : "PrevMonth", connection : conn};
+
+
+         vInstance1.minValue = new Date(2012, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(2012, 11, 31);   // dec 31
+
+         conn.setTextValue("11/30/2012");
+         InvokeCmd(vInstance1, nextargs, "12/30/2012");
+         InvokeCmd(vInstance1, nextargs, "12/31/2012");
+         InvokeCmd(vInstance1, nextargs, "12/31/2012", true);  // stuck at this date
+
+         conn.setTextValue("2/2/2012");
+         InvokeCmd(vInstance1, prevargs, "1/2/2012");
+         InvokeCmd(vInstance1, prevargs, "1/1/2012");
+         InvokeCmd(vInstance1, prevargs, "1/1/2012", true);  // stuck at this date
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddMonthsInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var args = { commandName : "NextMonth", connection : conn};
+         conn.setTextValue("abc");
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+         conn.setTextValue("12/34/2012"); // illegal date
+         args = { commandName : "PrevMonth", connection : conn};
+         InvokeCmd(vInstance1, args, "12/34/2012", true, true);
+
+      }
+
+
+      function testInvokeAddYears()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextYear", connection : conn};
+         var prevargs = { commandName : "PrevYear", connection : conn};
+         conn.setTextValue("01/02/2012");
+         InvokeCmd(vInstance1, nextargs, "1/2/2013");  // text format is US: M/d/yyyy
+         InvokeCmd(vInstance1, nextargs, "1/2/2014");
+         InvokeCmd(vInstance1, prevargs, "1/2/2013");
+
+
+         conn.setTextValue("02/29/2012");
+         InvokeCmd(vInstance1, nextargs, "2/28/2013");  // cannot advance to Feb 29, so last date of that month
+         InvokeCmd(vInstance1, nextargs, "2/28/2014");
+         InvokeCmd(vInstance1, prevargs, "2/28/2013");
+
+
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, prevargs, "1/1/2011");
+         InvokeCmd(vInstance1, nextargs, "1/1/2012");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+
+      function testInvokeAddYearsBlankStartsAt()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextYear", connection : conn};
+         var prevargs = { commandName : "PrevYear", connection : conn};
+
+      // BlankStartsAt default rule is used: will use Today without any Min/Maxvalue
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, nextargs);
+         var today = new Date(); // creates today in local time
+         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
+         assertTrue(today.getYear() == nextargs.value.getYear());
+         assertTrue(today.getDate() == nextargs.value.getDate());
+
+         conn.setTextValue("");
+
+      // PrevYear should do the same: today
+         vInstance1.invoke.call(vInstance1, prevargs);
+         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
+         assertTrue(today.getYear() == prevargs.value.getYear());
+         assertTrue(today.getDate() == prevargs.value.getDate());
+
+         vInstance1.minValue = new Date(2010, 0, 1);  // jan 1, 2010
+         vInstance1.maxValue = new Date(2020, 11, 31);   // dec 31, 2020
+
+         conn.setTextValue("");
+
+      // BlankStartsAt default rule is used: will use minvalue
+         InvokeCmd(vInstance1, nextargs, "1/1/2010");
+         InvokeCmd(vInstance1, nextargs, "1/1/2011");
+
+         conn.setTextValue("");
+
+      // PrevYear will use maxvalue
+         InvokeCmd(vInstance1, prevargs, "12/31/2020");
+         InvokeCmd(vInstance1, prevargs, "12/31/2019");
+
+      // while min and max are still set, this forces using today.
+         vInstance1.blankStartsAt = "Now";
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getYear() == args.value.getYear());
+         assertTrue(today.getDate() == args.value.getDate());
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, args);
+         assertTrue(today.getFullYear() == args.value.getFullYear());
+         assertTrue(today.getYear() == args.value.getYear());
+         assertTrue(today.getDate() == args.value.getDate());
+
+      // set any specific date
+         vInstance1.blankStartsAt = new Date(2012, 5, 1);
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "6/1/2012");
+         InvokeCmd(vInstance1, nextargs, "6/1/2013");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "6/1/2012");
+         InvokeCmd(vInstance1, prevargs, "6/1/2011");
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddYearsMinMaxLimits()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+         var nextargs = { commandName : "NextYear", connection : conn};
+         var prevargs = { commandName : "PrevYear", connection : conn};
+
+         vInstance1.minValue = new Date(2010, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(2020, 11, 31);   // dec 31
+
+         conn.setTextValue("11/30/2019");
+         InvokeCmd(vInstance1, nextargs, "11/30/2020");
+         InvokeCmd(vInstance1, nextargs, "12/31/2020");
+         InvokeCmd(vInstance1, nextargs, "12/31/2020", true);   // stuck at this date
+
+         conn.setTextValue("2/2/2011");
+
+         InvokeCmd(vInstance1, prevargs, "2/2/2010");
+         InvokeCmd(vInstance1, prevargs, "1/1/2010");
+         InvokeCmd(vInstance1, prevargs, "1/1/2010", true);   // stuck at this date
+
+         conn.setTextValue("");  // reset
+
+      }
+
+      function testInvokeAddYearsInvalid()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+         var args = { commandName : "NextYear", connection : conn};
+         conn.setTextValue("abc");
+         InvokeCmd(vInstance1, args, "abc", true, true);
+
+
+         args = { commandName : "PrevYear", connection : conn};
+         conn.setTextValue("12/34/2012"); // illegal date
+         InvokeCmd(vInstance1, args, "12/34/2012", true, true);
+
+      }
+
+      function testPrePostCmdFunctions()
+      {
+         var errf = function (args) { args.error = true; return true; }
+         var newvalf = function (args) { args.value = new Date(2012, 9, 31); return true; }
+         var stopf = function (args) { return false; }
+         var precmdf = function (args) { window.console.log('precmd function'); return true; }
+         var postcmdf = function (args) { window.console.log('postcmd function'); return true; }
+
+         var vInstance1 = jTAC.create("TypeManagers.Date");   
+         assertNotNull(vInstance1);
+
+         var conn = jTAC.create("Connections.FormElement", {id: "TextBox1"});
+
+      // error detected before calling NextYear function. Stop and report error
+         var args = { commandName : "NextYear", connection : conn, precmd : errf, postcmd : postcmdf};  // should never invoke postcmd
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, args, "1/1/2012", true, true);
+
+      // error detected after calling NextYear function. Do not change the textbox to 1/1/2013
+         var args = { commandName : "NextYear", connection : conn, precmd : precmdf, postcmd : errf};  // should not change the value
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, args, "1/1/2012", false, true);
+
+      // prevent calling the NextYear function
+         var args = { commandName : "NextYear", connection : conn, precmd : stopf, postcmd : postcmdf};  // should never invoke postcmd
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, args, "1/1/2012", true, false);
+
+      // change the current date to 10/31/2012 before NextYear function
+         var args = { commandName : "NextYear", connection : conn, precmd : newvalf, postcmd : postcmdf}; 
+         conn.setTextValue("1/1/2012");
+         InvokeCmd(vInstance1, args, "10/31/2013");
+      }
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testInvokeClear();
+         testInvokeToday();
+         testInvokeAddDays();
+         testInvokeAddDaysBlankStartsAt();
+         testInvokeAddDaysMinMaxLimits();
+         testInvokeAddDaysInvalid();
+         testInvokeAddMonths();
+         testInvokeAddMonthsBlankStartsAt();
+         testInvokeAddMonthsMinMaxLimits();
+         testInvokeAddMonthsInvalid();
+
+         testInvokeAddYears();
+         testInvokeAddYearsBlankStartsAt();
+         testInvokeAddYearsMinMaxLimits();
+         testInvokeAddYearsInvalid();
+
+         testPrePostCmdFunctions();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../Shared.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseFloat.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Float.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Currency.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDatesAndTimes.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseDate.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Date.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/MockFormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DataTypeCheck.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareTwoElements.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Difference.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Condition%20Extensions.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/ReplaceTokens%20PlugIn.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-validate/Rules.js" type="text/javascript"></script>
+   <script src="../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+   <link href="../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+Tests the Conditions.DataTypeCheck, Conditions.CompareTwoElements, and Conditions.Difference classes using the rules shown below.<br />
+Uses jsunit as it loads. Once it passes those tests, you can interact with the UI to further test this page.<br />
+TextBoxes require integers.<br />
+   Conditions.CompareTwoElements is INVALID when TextBox 1 is greater than TextBox 2.<br />
+   Conditions.Difference is INVALID when the difference is less than 10.<br />
+   The label in error messages comes from the data-msglabel attribute on TextBox 1 and from the label preceding TextBox 2.<br />
+   <form action="" method="get" id="Form1" >
+      <label for="TextBox1">TextBox <em>1</em></label>
+      <input type="text" id="TextBox1" name="TextBox1" autocomplete="off"
+         data-jtac-datatype="Integer" data-msglabel="TextBox &lt;em&gt;ONE&lt;/em&gt;"  /><br />
+      <label for="TextBox2">TextBox <em>2</em> : </label>
+      <input type="text" id="TextBox2" name="TextBox2" autocomplete="off" 
+         data-jtac-datatype="Integer"/><br />
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span>
+      <span id="TextBox2_Result" data-valmsg-for="TextBox2" ></span><br />
+      <input type="submit" id="Submit1" />
+   </form>
+
+   <script type="text/javascript">
+
+
+      function Init()
+      {
+         $("#Form1").validate({ onkeyup: false, debug: true});
+         $("#TextBox1").rules("add",
+         {
+            datatypecheck : {},
+            comparetwoelements : 
+            {
+               param : {operator: "<",  elementId2 : "TextBox2"}
+            },
+            difference:
+            {
+               param : {operator: "<",  elementId2 : "TextBox2", differenceValue : 10}
+            }
+
+         });
+
+         $("#TextBox2").rules("add",
+         {
+            datatypecheck : {}
+         });
+         jTAC.jqueryValidate.attachMultiConnections("#Form1");
+
+
+      // ------------ jsunit tests -----------------------------
+         if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+         try
+         {
+            testInstalled();
+            testTextBox1();
+         }
+         catch (e)
+         {
+            window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+         }
+
+      }
+      $(document).ready(Init());
+//---- jsunit tests -------------------------------------------------
+      function testInstalled() 
+      {
+         assertNotNull(window.$);
+         assertNotNull(window.$.validator);
+         assertNotNull($.validator.methods);
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.jqueryValidate);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.jqueryValidate.createCondition);
+         assertFunction(jTAC.jqueryValidate.evaluate);
+
+         var form = $("#Form1");
+         var validator = $.data(form[0], "validator");
+         assertNotNull(validator);
+         var rules = validator.settings.rules;
+
+      }
+
+      function testTextBox1()
+      {
+         runJqueryValidate("TextBox1", "abc", false, '<span class="message-label">TextBox <em>ONE</em></span> must be a valid integer.');
+         runJqueryValidate("TextBox1", "10", false, 
+            '<span class="message-label">TextBox <em>ONE</em></span> must be less than <span class="message-label">TextBox 2</span>.',
+            "TextBox2", 0);
+         runJqueryValidate("TextBox1", "10", false, 
+            'Difference between <span class="message-label">TextBox <em>ONE</em></span> and <span class="message-label">TextBox 2</span> must be less than 10.',
+            "TextBox2", 100);
+         runJqueryValidate("TextBox1", "10", true, '', 'TextBox2', 15);
+      }
+
+   </script>
+</body>
+</html>

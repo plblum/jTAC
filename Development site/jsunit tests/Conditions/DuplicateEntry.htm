@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/DuplicateEntry.js" type="text/javascript"></script>
+</head>
+<body>
+   <form method="get">
+   <input type="text" id="TextBox1" />
+   <input type="text" id="TextBox2" />
+   <input type="text" id="TextBox3" />
+   <select id="Select1">
+      <option value="one">1</option>
+      <option value="two">2</option>
+      <option value="three">3</option>
+      <option value="four">4</option>
+      <option value="five">5</option>
+      <option value="six">6</option>
+      <option value="seven">7</option>
+      <option value="eight">8</option>
+      <option value="nine">9</option>
+   </select>
+   <select id="Select2">
+      <option value="one">1</option>
+      <option value="two">2</option>
+      <option value="three">3</option>
+      <option value="four">4</option>
+      <option value="five">5</option>
+      <option value="six">6</option>
+      <option value="seven">7</option>
+      <option value="eight">8</option>
+      <option value="nine">9</option>
+   </select>
+   <select id="Select3">
+      <option value="one">1</option>
+      <option value="two">2</option>
+      <option value="three">3</option>
+      <option value="four">4</option>
+      <option value="five">5</option>
+      <option value="six">6</option>
+      <option value="seven">7</option>
+      <option value="eight">8</option>
+      <option value="nine">9</option>
+   </select>
+   </form>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testAllProperties()
+      {
+         var cond = jTAC.create("Conditions.DuplicateEntry");
+         assertNotNull(cond);
+         assertTrue(cond.enabled);
+         assertTrue(cond.trim);
+         assertNull(cond.lastEvaluateResult);
+         assertFalse(cond.not);
+         assertNull(cond.elementId);
+         assertNotNull(cond.connection);
+         assertTrue(cond.connection instanceof jTAC.Connections.FormElement);
+         assertArrayEquals([], cond.moreConnections);
+         assertTrue(cond.caseIns);
+         assertTrue(cond.ignoreUnassigned);
+         assertTrue(cond.ignoreNotEditable);
+         assertTrue(cond.canEvaluate());
+
+         cond.moreConnections.push(jTAC.create("FormElement", {id: "TextBox1"}));
+         assertEquals(1, cond.moreConnections.length);
+         cond.moreConnections.push(jTAC.create("FormElement", {id: "TextBox2"}));
+         assertEquals(2, cond.moreConnections.length);
+
+         cond.ignoreNotEditable = false;
+         assertFalse(cond.ignoreNotEditable);
+
+         cond.caseIns = false;
+         assertFalse(cond.caseIns);
+         cond.ignoreUnassigned = false;
+         assertFalse(cond.ignoreUnassigned);
+      }
+
+
+      function testTextBoxes()
+      {
+         var idarray = [{ id: "TextBox1", value: "" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "" }];
+         RunDuplicateEntryCond(idarray, 1, null);  // allowUnassigned = true
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "def" }, { id: "TextBox3", value: "ghi" }];
+         RunDuplicateEntryCond(idarray, 1, null); 
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "abc" }, { id: "TextBox3", value: "ghi" }];
+         RunDuplicateEntryCond(idarray, 0, null);
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "ghi" }, { id: "TextBox3", value: "ghi" }];
+         RunDuplicateEntryCond(idarray, 0, null);
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "ghij" }, { id: "TextBox3", value: "ghi" }];
+         RunDuplicateEntryCond(idarray, 1, null);
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "ghi" }, { id: "TextBox3", value: "GHI" }];
+         RunDuplicateEntryCond(idarray, 0, null);  // caseIns = true
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "ghi" }, { id: "TextBox3", value: "GHI" }];
+         RunDuplicateEntryCond(idarray, 1, {caseIns: false});  
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "ghi" }];
+         RunDuplicateEntryCond(idarray, 1, {ignoreUnassigned: false});  
+         idarray = [{ id: "TextBox1", value: "abc" }, { id: "TextBox2", value: "" }, { id: "TextBox3", value: "" }];
+         RunDuplicateEntryCond(idarray, 0, {ignoreUnassigned: false});  
+         idarray = [{ id: "TextBox1", value: "ghi" }, { id: "TextBox2", value: "ghi" }, { id: "TextBox3", value: "GHI" }];
+         RunDuplicateEntryCond(idarray, 0, null);  // caseIns = true
+      }
+
+      function testSelects()
+      {
+         var idarray = [{ id: "Select1", value: "" }, { id: "Select2", value: "" }, { id: "Select3", value: "" }];
+         RunDuplicateEntryCond(idarray, 1, null);  // allowUnassigned = true
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "two" }, { id: "Select3", value: "three" }];
+         RunDuplicateEntryCond(idarray, 1, null); 
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "one" }, { id: "Select3", value: "three" }];
+         RunDuplicateEntryCond(idarray, 0, null);
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "three" }, { id: "Select3", value: "three" }];
+         RunDuplicateEntryCond(idarray, 0, null);
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "four" }, { id: "Select3", value: "three" }];
+         RunDuplicateEntryCond(idarray, 1, null);
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "" }, { id: "Select3", value: "three" }];
+         RunDuplicateEntryCond(idarray, 1, {ignoreUnassigned: false});  
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "" }, { id: "Select3", value: "" }];
+         RunDuplicateEntryCond(idarray, 0, {ignoreUnassigned: false});  
+         idarray = [{ id: "Select1", value: "one" }, { id: "Select2", value: "one" }, { id: "Select3", value: "one" }];
+         RunDuplicateEntryCond(idarray, 0, null);
+      }
+
+      // idarray is an array objects describing each connection: {id: elementid, value: "assign to element", unassigned: "assign to connection.unassigned" }
+      function RunDuplicateEntryCond(idarray, expectedResult, json)
+      {
+         var vInstance1 = jTAC.create("Conditions.DuplicateEntry");
+         assertNotNull(vInstance1);
+         if (json != null) // done early because it needs to set the buttons property before calling setTypedValue
+            vInstance1.setProperties(json);
+         for (var i = 0; i < idarray.length; i++)
+         {
+            var item = idarray[i];
+            if (i == 0)
+            {
+               vInstance1.elementId = item.id;
+               vInstance1.connection.setTextValue(item.value);
+               if (item.unassigned)
+                  vInstance1.connection.unassigned = item.unassigned;
+            }
+            else
+            {
+               var conn = jTAC.connectionResolver.create(item.id, jTAC.create("Connections.FormElement"));
+               conn.setTextValue(item.value);
+               if (item.unassigned)
+                  conn.unassigned = item.unassigned;
+               vInstance1.moreConnections.push(conn);
+            }
+         }  // for
+
+         //         assertTrue(vInstance1.canEvaluate());
+         var evalResult = vInstance1.evaluate();
+         assertEquals("Eval result incorrect. Expected: " + expectedResult + " Recieved: " + evalResult, expectedResult, evalResult);
+
+         vInstance1.connection.setTextValue(""); // reset to nothing selected
+         for (var i = 0; i < vInstance1.moreConnections.length; i++)
+         {
+            vInstance1.moreConnections[i].setTextValue("");
+         }
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testAllProperties();
+         testTextBoxes();
+         testSelects();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+</body>
+</html>

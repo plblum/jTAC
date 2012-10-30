@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../../jquery-validate/v1.10.0/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/jquery extensions/validation-typical.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+
+   <link href="../../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" /> 
+</head>
+<body>
+Tests the Conditions.RegExp class using unobtrusive validation.<br />
+Uses jsunit as it loads. Once it passes those tests, you can interact with the UI to further test this page.<br />
+   <form action="" method="get" id="Form1" 
+      data-val-options="{'onkeyup': false, 'debug': true}" >
+
+      <label for="TextBox1">only digits:</label> <input type="text" id="TextBox1" name="TextBox1" autocomplete="off"
+         data-val="true" data-val-regexp="" data-val-regexp-json="{'expression': '^\\d*$', 'patternLabel': 'Digits'}" />     
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span><br />
+
+      <label for="TextBox2">lowercase letters:</label>  <input type="text" id="TextBox2" name="TextBox2" autocomplete="off"    
+         data-val="true" data-val-regexp="" data-val-regexp-json="{'expression': '^[a-z]*$', 'caseIns':false, 'patternLabel': 'lowercase letters'}" />     
+
+      <span id="TextBox2_Result" data-valmsg-for="TextBox2" ></span><br />
+      <label for="TextBox3">letters:</label> <input type="text" id="TextBox3" name="TextBox3" autocomplete="off" 
+         data-val="true" data-val-regexp="" data-val-regexp-json="{'expression': '^[a-z]*$', 'caseIns':true, 'patternLabel': 'letters', patternLookupKey : 'someid'}" />     
+           
+      <span id="TextBox3_Result" data-valmsg-for="TextBox3" ></span><br />
+
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+
+      function Init()
+      {
+//         jTAC.jqueryValidate.installUnobtrusive(); // only needed to ensure it happens before the remaining code goes. Normally it runs automatically
+         jTAC.translations.register("", {
+            "regexpEM": "<span class='{ERRORLABEL}'>{LABEL}</span> must be valid {PATTERN}.",
+            "someid": "Only letters"
+            }); // replace the default
+
+      // ------------ jsunit tests -----------------------------
+         if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+         try
+         {
+            testInstalled();
+            testTextBox1();
+            testTextBox2();
+            testTextBox3();
+         }
+         catch (e)
+         {
+            window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+         }
+
+      }
+      jTAC.jqueryValidate.postInit.push(Init);
+
+//---- jsunit tests -------------------------------------------------
+
+      function testInstalled() 
+      {
+         assertNotNull(window.$);
+         assertNotNull(window.$.validator);
+         assertNotNull($.validator.methods);
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.jqueryValidate);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.jqueryValidate.createCondition);
+         assertFunction(jTAC.jqueryValidate.evaluate);
+
+         var form = $("#Form1");
+         var validator = $.data(form[0], "validator");
+         assertNotNull(validator);
+         var rules = validator.settings.rules;
+
+      }
+
+      function testTextBox1()
+      {
+         runJqueryValidate("TextBox1", "abc", false, '<span class="message-label">only digits</span> must be valid Digits.');
+         runJqueryValidate("TextBox1", "123", true, '');
+      }
+      function testTextBox2()
+      {
+         runJqueryValidate("TextBox2", "ABC", false, '<span class="message-label">lowercase letters</span> must be valid lowercase letters.');
+         runJqueryValidate("TextBox2", "abc", true, '');
+      }
+      function testTextBox3()
+      {
+         runJqueryValidate("TextBox3", "123", false, 'Only letters');
+         runJqueryValidate("TextBox3", "aBC", true, '');
+      }
+   </script>
+</body>
+</html>

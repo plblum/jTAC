@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/calculations.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='text' id="TextBox1" name="TextBox1" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testDefineParse()
+      {
+         var calcItem = jTAC.create("CalcItems.Element");
+         assertNotNull(calcItem);
+         assertNotNull(calcItem.parse);   // ensure the method was attached.
+      }
+      function testPatterns()
+      {
+         // try patterns to see that some work and some are rejected by the parse() method.
+         assertFailedParse("");
+         assertFailedParse("  ");
+         assertSuccessParse('"abc"');
+         assertSuccessParse("'abc'");
+         assertSuccessParse("'ab1'");
+         assertSuccessParse("'_ab'");
+         assertFailedParse("'1_c'");
+         assertSuccessParse('"z"');
+         assertSuccessParse("'_1'");
+         assertFailedParse("' abc'");
+         assertFailedParse("'a bc'");
+         assertSuccessParse('  "abc"');
+         assertSuccessParse("  'abc'");
+         assertSuccessParse("  'ab1'");
+         assertSuccessParse("  '_ab'");
+
+         assertSuccessParse('"abc"   ', "abc");
+         assertSuccessParse("'abc',", "abc");
+         assertSuccessParse("'abc'~!", "abc");
+         assertSuccessParse("'abc']", "abc");
+         assertFailedParse('"abc"a');
+         assertFailedParse("'abc'1");
+         assertFailedParse("'abc'_");
+
+
+      }
+
+      function testElementPatterns()
+      {
+         assertSuccessParse("Element('abc')", "abc");
+         assertSuccessParse('Element("abc")', "abc");
+         assertSuccessParse("Element(  'abc')", "abc");
+         assertSuccessParse('Element(  "abc")', "abc");
+         assertExceptionParse("Element()");
+         assertExceptionParse("Element(  )");
+         assertExceptionParse('Element(abc)');
+         assertExceptionParse('Element(1)');
+         assertExceptionParse('Element(null)');
+         assertExceptionParse('Element(,)');
+      }
+
+      function testEvaluate()
+      {
+         Evaluate("Element('TextBox1')", "40", 40);
+      }
+
+      function assertSuccessParse(text, compare)
+      {
+         var calcItem = jTAC.create("CalcItems.Element");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Element);
+         if (!compare)
+         {
+            compare = jTAC.trimStr(text);
+            compare = (compare + "").replace(/^["']|["']$/g, "");
+         }
+         assertEquals(compare, r.obj.elementId);
+      }
+
+
+      function assertFailedParse(text)
+      {
+         var calcItem = jTAC.create("CalcItems.Element");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNull(r);
+      }
+
+      function assertExceptionParse(text)
+      {
+         var success = true;
+         try
+         {
+            var calcItem = jTAC.create("CalcItems.Element");
+            var r = calcItem.parse(text, jTAC.parser); // exception expected here
+            success = false;
+         }
+         catch (e)
+         {
+         }
+         if (!success)
+            fail("Exception was expected for: " + text);
+      }
+
+      function Evaluate(text, textboxvalue, result)
+      {
+         document.getElementById("TextBox1").value = textboxvalue.toString();
+         var calcItem = jTAC.create("CalcItems.Element");
+         var r = calcItem.parse(text, jTAC.parser);
+         assertNotNull(r);
+         assertNotNull(r.obj);
+         assertTrue(r.obj instanceof jTAC.CalcItems.Element);
+         assertEquals(result, r.obj.evaluate());
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testDefineParse();
+         testPatterns();
+         testElementPatterns();
+         testEvaluate();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

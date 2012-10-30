@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../../jquery-validate/v1.10.0/jquery.validate.js" type="text/javascript"></script>
+   <script src="../../../jquery-validate/v1.10.0/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-all.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/jquery extensions/validation-typical.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Translations/Culture%20Neutral.js" type="text/javascript"></script>
+
+   <link href="../../../jTAC%20Appearance/jquery.validate.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+Tests the <b>depends</b> property on Conditions.DataTypeCheck and Conditions.Range objects using unobtrusive validation.<br />
+Uses jsunit as it loads. Once it passes those tests, you can interact with the UI to further test this page.<br />
+When using unobtrusive validation, depends must be a child property of the Condition object,
+defining its own Condition object or a string reflecting a jquery selector that when it returns 
+at least one element enables validation.<br />
+   The test rules: Values must be integers between 1 and 10.<br />
+   The checkbox must be checked to enable the validators. .<br />
+
+   <form action="" method="get" id="Form1" 
+      data-val-options="{'onkeyup': false, 'debug': true}" >
+      <input type="checkbox" id="CheckBox1" value="checked" name="CheckBox1" />
+      <input type="text" id="TextBox1" name="TextBox1"
+         data-val="true"
+         data-val-datatypecheck="Must be an integer"
+         data-val-datatypecheck-json="{'depends' : '#CheckBox1:checked'}"
+         data-val-advrange="Out of range"
+         data-val-advrange-json="{'minimum': 1, 'maximum': 10, 'depends': {'jtacClass': 'CompareToValue', 'elementId': 'CheckBox1', 'valueToCompare':true}}" /><br />
+      <span id="TextBox1_Result" data-valmsg-for="TextBox1" ></span><br />
+
+      <br />
+      <input type="submit" id="Button1" value="Submit" />
+   </form>
+
+   <script type="text/javascript">
+
+
+      function Init()
+      {
+
+
+      // ------------ jsunit tests -----------------------------
+         if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+         try
+         {
+            testInstalled();
+            testTextBox1();
+         }
+         catch (e)
+         {
+            window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+         }
+
+      }
+      jTAC.jqueryValidate.postInit.push(Init);
+//---- jsunit tests -------------------------------------------------
+      function testInstalled() 
+      {
+         assertNotNull(window.$);
+         assertNotNull(window.$.validator);
+         assertNotNull($.validator.methods);
+         assertNotNull(jTAC);
+         assertNotNull(jTAC.jqueryValidate);
+         assertNotNull(jTAC.Conditions.Base);
+         assertFunction(jTAC.jqueryValidate.createCondition);
+         assertFunction(jTAC.jqueryValidate.evaluate);
+
+         var form = $("#Form1");
+         var validator = $.data(form[0], "validator");
+         assertNotNull(validator);
+         var rules = validator.settings.rules;
+
+      }
+
+      function testTextBox1()
+      {
+      // the result of $validator.element() is 'true' when all rules are disabled ("dependency-mismatch") in unobtrusive
+      // This differs from non-unobtrusive validation which returns 'undefined'.
+      // This is due to the addition of the hidden __dummy__ rule by the unobtrusive parser. That runs
+      // last and always evaluates as true.
+         runJqueryValidate("TextBox1", "abc", true, '', "CheckBox1", "");  // unchecked is always valid
+         runJqueryValidate("TextBox1", "abc", false, 'Must be an integer', "CheckBox1", "1");
+         runJqueryValidate("TextBox1", "1", true, '', "CheckBox1", "1");
+         runJqueryValidate("TextBox1", "11", false, 'Out of range', "CheckBox1", "1");
+         runJqueryValidate("TextBox1", "11", true, '', "CheckBox1", "");  // unchecked is always valid
+      }
+
+   </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/conditions-typical.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/calculations.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <form action="" method="get" id="Form1">
+      <input type='hidden' id="hidden1" name="hidden1" />
+      <input type='hidden' id="hidden2" name="hidden2" />
+      <input type='hidden' id="hidden3" name="hidden3" />
+     
+      <span id="Result1" ></span>
+      <span id="Result2" ></span>
+
+      <input type='text' id="TextBox1" name="TextBox1" />
+      <input type='text' id="TextBox2" name="TextBox2" />
+   </form>
+
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testSimpleCalc()
+      {
+         document.getElementById("hidden2").value = "";
+         var vInstance1 = jTAC.create("Calculations.Widget");
+         assertNotNull(vInstance1);
+
+         var success = true;
+         try
+         {
+            vInstance1.evaluate();  // should fail with elementId unassigned
+            success = false;
+         }
+         catch (e)
+         {
+            if (e.message.indexOf("Must assign the elementId property.") == -1)
+               fail(e.message);
+         }
+         if (!success)
+            fail("evaluated when it shouldn't.");
+
+         vInstance1.elementId = "hidden2";
+         vInstance1.expression = "100";
+
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(100, vInstance1.evaluate());
+
+         assertEquals("100", document.getElementById("hidden2").value);
+      }
+
+      function testSimpleCalc2()
+      {
+         document.getElementById("hidden2").value = "";
+         var vInstance1 = jTAC.create("Calculations.Widget");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = "hidden2";
+         vInstance1.expression = "10 + 15";
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(25, vInstance1.evaluate());
+         assertEquals("25", document.getElementById("hidden2").value);
+      }
+
+      function testDisplayToFloatTextBox()
+      {
+         var hd1 = document.getElementById("hidden1");
+         hd1.value = "";
+         var tb1 = document.getElementById("TextBox1");
+         tb1.value = "";
+         var vInstance1 = jTAC.create("Calculations.Widget");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = "hidden1";
+         vInstance1.displayElementId = "TextBox1";
+         assertEquals("", vInstance1.displayConnection.getClass());
+
+      // Test null value
+         vInstance1.expression = "null";
+         assertTrue(vInstance1.canEvaluate());
+         assertNull(vInstance1.evaluate());
+         assertEquals("", hd1.value);
+         assertEquals("", vInstance1.displayConnection.getTextValue());
+         assertEquals("calcwidget-null", vInstance1.displayConnection.getClass());
+         vInstance1.displayNullText = "Blank";
+         assertNull(vInstance1.evaluate());  // recalc to update the displayvalue
+         assertEquals("", hd1.value);
+         assertEquals("Blank", vInstance1.displayConnection.getTextValue());
+         assertEquals("calcwidget-null", vInstance1.displayConnection.getClass());
+
+
+         // add to GroupCalcItem to show an actual value
+         vInstance1.expression = "(10 + 15)"; // uses () to ensure a CalcItems.Group is created
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(25, vInstance1.evaluate());
+         assertEquals("25", hd1.value);
+         var val = vInstance1.displayTypeManager.toValueFromConnection(vInstance1.displayConnection);
+         assertEquals(25.0, val);
+         assertEquals("", vInstance1.displayConnection.getClass());
+
+         // use Error case
+         vInstance1.expression = "NaN";
+         assertTrue(vInstance1.canEvaluate());
+         assertNaN(vInstance1.evaluate());
+         assertEquals("NaN", hd1.value);
+         assertEquals("calcwidget-error", vInstance1.displayConnection.getClass());
+      }
+
+      function testMissingHidden()
+      {
+         var vInstance1 = jTAC.create("Calculations.Widget");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = "MissingHidden";
+         vInstance1.expression = "10 + 15";
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(25, vInstance1.evaluate());
+         assertEquals("25", document.getElementById("MissingHidden").value);
+      }
+
+      function testPrePostCalcFunctions()
+      {
+         var widgetfield = document.getElementById("hidden1");
+         widgetfield.value = "";
+         var precalcfncdata = document.getElementById("hidden2");  // will contain the work of precalc
+         precalcfncdata.value = ""; 
+         var postcalcfncdata = document.getElementById("hidden3");  // will contain the work of postcalc
+         postcalcfncdata.value = ""; 
+         var vInstance1 = jTAC.create("Calculations.Widget");
+         assertNotNull(vInstance1);
+         vInstance1.elementId = "hidden1";
+         vInstance1.expression = "10 + 15";
+
+         var f1 = function () //assigned here to be reused in later detachEvent
+         {
+            precalcfncdata.value = this.elementId; // confirms 'this' is the widget
+         }
+         vInstance1.attachEvent("preCalc", f1);
+
+         var f2 = function (val)
+         {
+            postcalcfncdata.value = this.elementId + " " + val; // confirms 'this' is the widget
+         }
+         vInstance1.attachEvent("postCalc", f2);
+
+         assertTrue(vInstance1.canEvaluate());
+         assertEquals(25, vInstance1.evaluate());
+         assertEquals("25", widgetfield.value);
+
+         // check function results in hidden2/3
+         assertEquals("hidden1", precalcfncdata.value);
+         assertEquals("hidden1 25", postcalcfncdata.value);
+
+// do it again, but make preCalc return false so the rest of the calc is not run and evaluate returns null.
+         precalcfncdata.value = ""; 
+         postcalcfncdata.value = "";
+
+         vInstance1.detachEvent("preCalc", f1);
+
+         vInstance1.attachEvent("preCalc", function ()
+         {
+            precalcfncdata.value = this.elementId; 
+         });
+
+         vInstance1.attachEvent("preCalc", function ()
+         {
+            precalcfncdata.value = precalcfncdata.value + " second";
+            return false;  // will stop the third event from happening as well as the remaining calculation
+         });
+
+         vInstance1.attachEvent("preCalc", function ()
+         {
+            precalcfncdata.value = precalcfncdata.value + " third"; 
+         });
+
+         assertTrue(vInstance1.canEvaluate());
+         assertNull(vInstance1.evaluate());
+         assertEquals("25", widgetfield.value); // it has not overwritten the originally stored value
+
+         // check function results in hidden2/3
+         assertEquals("hidden1 second", precalcfncdata.value);
+         assertEquals("", postcalcfncdata.value);
+      
+      }
+
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testSimpleCalc();
+         testSimpleCalc2();
+         testDisplayToFloatTextBox();
+         testMissingHidden();
+         testPrePostCalcFunctions();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</body>
+</html>

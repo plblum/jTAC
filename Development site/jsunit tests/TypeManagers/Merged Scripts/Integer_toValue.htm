@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.de-DE.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/typemanagers-numbers.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+      function testToValue()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer");
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "1000", 1000);
+         ToValueMain(vInstance1, "-1000", -1000);
+         ToValueMain(vInstance1, "1000-", -1000);  // position of - does not matter unless strictSymbols is true
+         ToValueMain(vInstance1, "1,000,000", 1000000);
+         ToIllegalValueMain(vInstance1, "1000.2");
+         ToIllegalValueMain(vInstance1, "(1000)"); // () not in negpattern
+         ToIllegalValueMain(vInstance1, "10-00"); // () not in negpattern
+
+         vInstance1.allowGroupSep = false;
+         ToIllegalValueMain(vInstance1, "1,000,000");
+
+         vInstance1.strictSymbols = true;
+         ToValueMain(vInstance1, "1000", 1000);
+         ToValueMain(vInstance1, "-1000", -1000);
+         ToIllegalValueMain(vInstance1, "- 1000");
+         ToIllegalValueMain(vInstance1, "1000-");
+
+      }
+
+
+      function testToValueGerman()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer", {cultureName: "de-DE"});
+
+         assertNotNull(vInstance1);
+         ToValueMain(vInstance1, "1.000.000", 1000000);
+         ToIllegalValueMain(vInstance1, "1,000,000");
+         ToIllegalValueMain(vInstance1, "01baddata");
+      }
+
+      function testToValueFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.Integer", {cultureName: "fr-FR"});
+         assertNotNull(vInstance1);
+         var gSet = vInstance1.currencyFormat("GroupSep"); // not really a space %20, but %A0
+         var valStr = "1" + gSet + "000" + gSet + "000";
+
+         ToValueMain(vInstance1, valStr, 1000000);
+         ToIllegalValueMain(vInstance1, "1.000.000");
+         ToIllegalValueMain(vInstance1, "01baddata");
+      }
+
+      try
+      {
+         testToValue();
+         testToValueGerman();
+         testToValueFrench();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

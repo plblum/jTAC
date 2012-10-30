@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/Connections/Value.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+      function testValueConnection()
+      {
+         var vInstance1 = jTAC.create("Connections.Value");
+         assertNotNull(vInstance1);
+         assertNull(vInstance1.value);
+         assertNull(vInstance1.supportedTypeName);
+         assertNull(vInstance1.nullValue);
+
+         var vInstance2 = jTAC.create("Connections.Value", {value: "textvalue"});
+         assertNotNull(vInstance2);
+         assertEquals("textvalue", vInstance2.value);
+         assertNull(vInstance2.supportedTypeName);
+         assertFalse(vInstance2.isNullValue());
+         vInstance2.nullValue = "";
+         assertEquals("", vInstance2.nullValue);
+         assertFalse(vInstance2.isNullValue());
+
+         var vInstance3 = jTAC.create("Connections.Value", {value: 1});
+         assertNotNull(vInstance3);
+         assertEquals(1, vInstance3.value);
+         assertEquals("integer", vInstance3.supportedTypeName);
+
+         var vInstance4 = jTAC.create("Connections.Value", {value: 3.5, supportedTypeName: "float"});
+         assertNotNull(vInstance4);
+         assertEquals(3.5, vInstance4.value);
+         assertEquals("float", vInstance4.supportedTypeName);
+
+         var vInstance5 = jTAC.create("Connections.Value", {value: null, supportedTypeName: "date"});
+         assertNotNull(vInstance5);
+         assertNull(vInstance5.value);
+         assertEquals("date", vInstance5.supportedTypeName);
+
+         var date1 = new Date(2010, 5, 1);
+         var vInstance5 = jTAC.create("Connections.Value", {value: date1}); 
+         assertNotNull(vInstance5);
+         assertObjectEquals(date1, vInstance5.value);
+         assertEquals("date", vInstance5.supportedTypeName);
+
+         var vInstance6 = jTAC.create("Connections.Value", {value: true});
+         assertNotNull(vInstance6);
+         assertTrue(vInstance6.value);
+         assertEquals("boolean", vInstance6.supportedTypeName);
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testValueConnection();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../jsunit tests/Shared.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.fr-FR.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.en-US.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.hi-IN.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.ii-CN.js" type="text/javascript"></script>  
+   <script src="../../../jquery-globalize/cultures/globalize.culture.quz-EC.js" type="text/javascript"></script>
+   <script src="../../../jquery-globalize/cultures/globalize.culture.am-ET.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/core.js" type="text/javascript"></script>
+   <script src="../../../jTAC/Merged/typeManagers-date-time-all.js" type="text/javascript"></script>
+   <script src="../../../jTAC-min/TypeManagers/Culture%20engine%20using%20jquery-globalize.js" type="text/javascript"></script>
+   <script type="text/javascript">
+      // Scripts require jsUnit. All functions that start with "test" are considered test cases. These functions cannot have any parameters.
+
+
+      function testToString()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear"); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         ToStringMain(vInstance1, date1, "1/2012");
+         ToStringMain(vInstance1, date2, "12/2005");
+         ToStringMain(vInstance1, date3, "8/1980");
+         ToStringMain(vInstance1, date4, "5/1965");
+         ToStringMain(vInstance1, date5, "2/2100");
+         ToStringMain(vInstance1, date6, "9/2000");
+
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "Jan/2012");
+         ToStringMain(vInstance1, date2, "Dec/2005");
+         ToStringMain(vInstance1, date3, "Aug/1980");
+         ToStringMain(vInstance1, date4, "May/1965");
+         ToStringMain(vInstance1, date5, "Feb/2100");
+         ToStringMain(vInstance1, date6, "Sep/2000");
+
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "JAN/2012");
+         ToStringMain(vInstance1, date2, "DEC/2005");
+         ToStringMain(vInstance1, date3, "AUG/1980");
+         ToStringMain(vInstance1, date4, "MAY/1965");
+         ToStringMain(vInstance1, date5, "FEB/2100");
+         ToStringMain(vInstance1, date6, "SEP/2000");
+
+
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "2012 Jan");
+         ToStringMain(vInstance1, date2, "2005 Dec");
+         ToStringMain(vInstance1, date3, "1980 Aug");
+         ToStringMain(vInstance1, date4, "1965 May");
+         ToStringMain(vInstance1, date5, "2100 Feb");
+         ToStringMain(vInstance1, date6, "2000 Sep");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "2012 January");
+         ToStringMain(vInstance1, date2, "2005 December");
+         ToStringMain(vInstance1, date3, "1980 August");
+         ToStringMain(vInstance1, date4, "1965 May");
+         ToStringMain(vInstance1, date5, "2100 February");
+         ToStringMain(vInstance1, date6, "2000 September");
+
+      }
+
+      function testToStringFrench()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "fr-FR"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         ToStringMain(vInstance1, date1, "01/2012");
+         ToStringMain(vInstance1, date2, "12/2005");
+         ToStringMain(vInstance1, date3, "08/1980");
+         ToStringMain(vInstance1, date4, "05/1965");
+         ToStringMain(vInstance1, date5, "02/2100");
+         ToStringMain(vInstance1, date6, "09/2000");
+
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "janv./2012");
+         ToStringMain(vInstance1, date2, "déc./2005");
+         ToStringMain(vInstance1, date3, "août/1980");
+         ToStringMain(vInstance1, date4, "mai/1965");
+         ToStringMain(vInstance1, date5, "févr./2100");
+         ToStringMain(vInstance1, date6, "sept./2000");
+
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "JANV./2012");
+         ToStringMain(vInstance1, date2, "DÉC./2005");
+         ToStringMain(vInstance1, date3, "AOÛT/1980");
+         ToStringMain(vInstance1, date4, "MAI/1965");
+         ToStringMain(vInstance1, date5, "FÉVR./2100");
+         ToStringMain(vInstance1, date6, "SEPT./2000");
+
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "janv. 2012");
+         ToStringMain(vInstance1, date2, "déc. 2005");
+         ToStringMain(vInstance1, date3, "août 1980");
+         ToStringMain(vInstance1, date4, "mai 1965" );
+         ToStringMain(vInstance1, date5, "févr. 2100");
+         ToStringMain(vInstance1, date6, "sept. 2000");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "janvier 2012");
+         ToStringMain(vInstance1, date2, "décembre 2005");
+         ToStringMain(vInstance1, date3, "août 1980");
+         ToStringMain(vInstance1, date4, "mai 1965");
+         ToStringMain(vInstance1, date5, "février 2100");
+         ToStringMain(vInstance1, date6, "septembre 2000");
+      }
+
+      function testToStringHindi()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "hi-IN"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         ToStringMain(vInstance1, date1, "01-2012");
+         ToStringMain(vInstance1, date2, "12-2005");
+         ToStringMain(vInstance1, date3, "08-1980");
+         ToStringMain(vInstance1, date4, "05-1965");
+         ToStringMain(vInstance1, date5, "02-2100");
+         ToStringMain(vInstance1, date6, "09-2000");
+
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "जनवरी-2012");
+         ToStringMain(vInstance1, date2, "दिसम्बर-2005");
+         ToStringMain(vInstance1, date3, "अगस्त-1980");
+         ToStringMain(vInstance1, date4, "मई-1965");
+         ToStringMain(vInstance1, date5, "फरवरी-2100");
+         ToStringMain(vInstance1, date6, "सितम्बर-2000");
+
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "जनवरी-2012");
+         ToStringMain(vInstance1, date2, "दिसम्बर-2005");
+         ToStringMain(vInstance1, date3, "अगस्त-1980");
+         ToStringMain(vInstance1, date4, "मई-1965");
+         ToStringMain(vInstance1, date5, "फरवरी-2100");
+         ToStringMain(vInstance1, date6, "सितम्बर-2000");
+
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "2012 जनवरी" );
+         ToStringMain(vInstance1, date2, "2005 दिसम्बर" );
+         ToStringMain(vInstance1, date3, "1980 अगस्त" );
+         ToStringMain(vInstance1, date4, "1965 मई"  );
+         ToStringMain(vInstance1, date5, "2100 फरवरी" );
+         ToStringMain(vInstance1, date6, "2000 सितम्बर");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "2012 जनवरी");
+         ToStringMain(vInstance1, date2, "2005 दिसम्बर");
+         ToStringMain(vInstance1, date3, "1980 अगस्त");
+         ToStringMain(vInstance1, date4, "1965 मई");
+         ToStringMain(vInstance1, date5, "2100 फरवरी");
+         ToStringMain(vInstance1, date6, "2000 सितम्बर");
+      }
+
+      function testToStringChinese()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "ii-CN"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         vInstance1.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "2012/1");
+         ToStringMain(vInstance1, date2, "2005/12");
+         ToStringMain(vInstance1, date3, "1980/8");
+         ToStringMain(vInstance1, date4, "1965/5");
+         ToStringMain(vInstance1, date5, "2100/2");
+         ToStringMain(vInstance1, date6, "2000/9");
+
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "2012/ꋍꆪ");
+         ToStringMain(vInstance1, date2, "2005/ꊰꑋꆪ");
+         ToStringMain(vInstance1, date3, "1980/ꉆꆪ");
+         ToStringMain(vInstance1, date4, "1965/ꉬꆪ");
+         ToStringMain(vInstance1, date5, "2100/ꑍꆪ");
+         ToStringMain(vInstance1, date6, "2000/ꈬꆪ");
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "2012/ꋍꆪ");
+         ToStringMain(vInstance1, date2, "2005/ꊰꑋꆪ");
+         ToStringMain(vInstance1, date3, "1980/ꉆꆪ");
+         ToStringMain(vInstance1, date4, "1965/ꉬꆪ");
+         ToStringMain(vInstance1, date5, "2100/ꑍꆪ");
+         ToStringMain(vInstance1, date6, "2000/ꈬꆪ");
+
+         // chinese uses the month number and does not use the day of the week. 10-22 are the same
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "2012ꈎ 1ꆪ");
+         ToStringMain(vInstance1, date2, "2005ꈎ 12ꆪ");
+         ToStringMain(vInstance1, date3, "1980ꈎ 8ꆪ");
+         ToStringMain(vInstance1, date4, "1965ꈎ 5ꆪ");
+         ToStringMain(vInstance1, date5, "2100ꈎ 2ꆪ");
+         ToStringMain(vInstance1, date6, "2000ꈎ 9ꆪ");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "2012ꈎ 1ꆪ");
+         ToStringMain(vInstance1, date2, "2005ꈎ 12ꆪ");
+         ToStringMain(vInstance1, date3, "1980ꈎ 8ꆪ");
+         ToStringMain(vInstance1, date4, "1965ꈎ 5ꆪ");
+         ToStringMain(vInstance1, date5, "2100ꈎ 2ꆪ");
+         ToStringMain(vInstance1, date6, "2000ꈎ 9ꆪ");
+
+      }
+
+      function testToStringEcuador()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "quz-EC"}); 
+         assertNotNull(vInstance1);
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         vInstance1.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "01/2012");
+         ToStringMain(vInstance1, date2, "12/2005");
+         ToStringMain(vInstance1, date3, "08/1980");
+         ToStringMain(vInstance1, date4, "05/1965");
+         ToStringMain(vInstance1, date5, "02/2100");
+         ToStringMain(vInstance1, date6, "09/2000");
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "Qul/2012");
+         ToStringMain(vInstance1, date2, "Kap/2005");
+         ToStringMain(vInstance1, date3, "Qha/1980");
+         ToStringMain(vInstance1, date4, "Aym/1965");
+         ToStringMain(vInstance1, date5, "Hat/2100");
+         ToStringMain(vInstance1, date6, "Uma/2000");
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "QUL/2012");
+         ToStringMain(vInstance1, date2, "KAP/2005");
+         ToStringMain(vInstance1, date3, "QHA/1980");
+         ToStringMain(vInstance1, date4, "AYM/1965");
+         ToStringMain(vInstance1, date5, "HAT/2100");
+         ToStringMain(vInstance1, date6, "UMA/2000");
+
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "Qul de 2012");
+         ToStringMain(vInstance1, date2, "Kap de 2005");
+         ToStringMain(vInstance1, date3, "Qha de 1980");
+         ToStringMain(vInstance1, date4, "Aym de 1965");
+         ToStringMain(vInstance1, date5, "Hat de 2100");
+         ToStringMain(vInstance1, date6, "Uma de 2000");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "Qulla puquy de 2012");
+         ToStringMain(vInstance1, date2, "Kapaq Raymi de 2005");
+         ToStringMain(vInstance1, date3, "Qhapaq Sitwa de 1980");
+         ToStringMain(vInstance1, date4, "Aymuray de 1965");
+         ToStringMain(vInstance1, date5, "Hatun puquy de 2100");
+         ToStringMain(vInstance1, date6, "Uma raymi de 2000");
+
+      }
+
+      function testToStringEthiopia()
+      {
+         var date1 = new Date(2012, 0, 1);
+         var date2 = new Date(2005, 11, 31);
+         var date3 = new Date(1980, 7, 10);
+         var date4 = new Date(1965, 4, 31);
+         var date5 = new Date(2100, 1, 9);
+         var date6 = new Date(2000, 8, 29);
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "am-ET"}); 
+         assertNotNull(vInstance1);
+         vInstance1.setDateFormat(0);
+         ToStringMain(vInstance1, date1, "1/2012");
+         ToStringMain(vInstance1, date2, "12/2005");
+         ToStringMain(vInstance1, date3, "8/1980");
+         ToStringMain(vInstance1, date4, "5/1965");
+         ToStringMain(vInstance1, date5, "2/2100");
+         ToStringMain(vInstance1, date6, "9/2000");
+
+         vInstance1.setDateFormat(1);
+         ToStringMain(vInstance1, date1, "ጃንዩ/2012");
+         ToStringMain(vInstance1, date2, "ዲሴም/2005");
+         ToStringMain(vInstance1, date3, "ኦገስ/1980");
+         ToStringMain(vInstance1, date4, "ሜይ/1965");
+         ToStringMain(vInstance1, date5, "ፌብሩ/2100");
+         ToStringMain(vInstance1, date6, "ሴፕቴ/2000");
+
+         vInstance1.setDateFormat(2);
+         ToStringMain(vInstance1, date1, "ጃንዩ/2012");
+         ToStringMain(vInstance1, date2, "ዲሴም/2005");
+         ToStringMain(vInstance1, date3, "ኦገስ/1980");
+         ToStringMain(vInstance1, date4, "ሜይ/1965");
+         ToStringMain(vInstance1, date5, "ፌብሩ/2100");
+         ToStringMain(vInstance1, date6, "ሴፕቴ/2000");
+
+         vInstance1.setDateFormat(10);
+         ToStringMain(vInstance1, date1, "ጃንዩ 2012");
+         ToStringMain(vInstance1, date2, "ዲሴም 2005");
+         ToStringMain(vInstance1, date3, "ኦገስ 1980");
+         ToStringMain(vInstance1, date4, "ሜይ 1965");
+         ToStringMain(vInstance1, date5, "ፌብሩ 2100");
+         ToStringMain(vInstance1, date6, "ሴፕቴ 2000");
+
+         vInstance1.setDateFormat(20);
+         ToStringMain(vInstance1, date1, "ጃንዩወሪ 2012");
+         ToStringMain(vInstance1, date2, "ዲሴምበር 2005");
+         ToStringMain(vInstance1, date3, "ኦገስት 1980");
+         ToStringMain(vInstance1, date4, "ሜይ 1965");
+         ToStringMain(vInstance1, date5, "ፌብሩወሪ 2100");
+         ToStringMain(vInstance1, date6, "ሴፕቴምበር 2000");
+      }
+
+      function testToStringNeutral()
+      {
+         var vInstance1 = jTAC.create("TypeManagers.MonthYear", {cultureName: "fr-FR"}); 
+         assertNotNull(vInstance1);
+         assertEquals("2012-01", vInstance1.toStringNeutral(new Date(2012, 0, 5, 20, 1, 1)));
+         assertEquals("", vInstance1.toStringNeutral(null));
+
+      }
+
+
+      if (!document.referrer) // for running within a debugger, but not within the jsunit TestRunner.
+      try
+      {
+         testToString();
+         testToStringFrench();
+         testToStringHindi();
+         testToStringChinese();
+         testToStringEcuador();
+         testToStringEthiopia();
+         testToStringNeutral();
+      }
+      catch (e)
+      {
+         window.alert(e instanceof JsUnit.Failure ? e.comment + "  " + e.jsUnitMessage : e.message);
+      }
+   </script>
+
+</head>
+<body>
+
+</body>
+</html>
