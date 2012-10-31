@@ -35,7 +35,7 @@
 
 <h3><a name="gettingStarted">Getting started</a></h3>
 <ul>
-<li>Download jTAC using the button on the jTAC main page.</li>
+<li>Download jTAC using the <a href="https://github.com/plblum/jTAC/downloads" target="_blank">Downloads</a> button on the jTAC home page.</li>
 <li>Add the contents of the <strong>Add contents to your site</strong> folder, perhaps in its own script folder.</li>
 <li>Open the <strong>Users Guide.pdf</strong> and dig in. Read the overviews for TypeManagers, Conditions, and Connections
 because you will be using them to setup your validation rules.</li>
