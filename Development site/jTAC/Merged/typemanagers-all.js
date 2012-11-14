@@ -773,7 +773,7 @@ Supports integer as the native type.
 See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
-   FillLeadZeros (int) - Provides additional formatting when converting an integer to text
+   fillLeadZeros (int) - Provides additional formatting when converting an integer to text
       by adding lead zeros. When > 0, it adds enough lead zeroes to match
       the value of this property. When 0 or null, it is not used.
 
@@ -1436,7 +1436,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 Properties introduced by this class:
 
    useUTC (boolean) -
-      When true, the Date object is in UTC format. When false, it is in local format.
+      When true, the Date object is a UTC value. When false, it is a local value.
       It defaults to false.
 
 Requires: 
@@ -1883,7 +1883,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
    dateFormat (int) - Determines how to format a string containing a date. 
-      The parser will can also use it.
+      The parser will also use it.
       When using the built-in parser, it ignores this. However,
       the formatter does not. So only set it to something other than 0
       when using the formatter exclusively (such as creating text for a <span> tag).

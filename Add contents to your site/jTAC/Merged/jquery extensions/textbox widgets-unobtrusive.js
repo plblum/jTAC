@@ -1969,7 +1969,9 @@ Additional properties:
       "Now" - If it supports dates is used, today's date.
       If it supports time is used, the current time.
       Date object - This value is used directly.
+      Culture neutral format string of a date - Converts to a Date object with this date.
       integer - Only if it supports time and the value is a number.
+      String containing an integer - Converts to an integer. Supports time and the value is a number.
 
 --------------------------------------------------------------------------*/
 
@@ -2462,6 +2464,31 @@ jTAC_Temp =
             return date;
          }
       return this.config.maxValue;
+   },
+
+/*
+   When a string, see if can be converted to a date (culture neutral format)
+   or positive integer (only digits).
+   If the string is "Now", preserve it.
+*/
+   setBlankStartsAt: function(val) {
+      if ((typeof val == "string") && (val != "Now") && (val != ""))
+      {
+         if (/^\d*$/.test(val)) {
+            val = parseInt(val, 10);
+         }
+         else {
+            var m = /^(\d+)\-(\d+)\-(\d+)( (\d+)\:(\d+)\:(\d+))?$/.exec(val);
+            if (!m)
+               this._error("Illegal value in BlankStartsAt");
+            val = new Date(m[1], parseInt(m[2], 10) - 1, m[3]);
+            if (m[4] != null)
+               val.setHours(m[5], m[6], m[7]);
+            if (!val)
+               this._error("Illegal date in BlankStartsAt");
+         }
+      }
+      this.config.blankStartsAt = val;
    }
 
 } 

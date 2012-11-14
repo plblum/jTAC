@@ -773,7 +773,7 @@ Supports integer as the native type.
 See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
-   FillLeadZeros (int) - Provides additional formatting when converting an integer to text
+   fillLeadZeros (int) - Provides additional formatting when converting an integer to text
       by adding lead zeros. When > 0, it adds enough lead zeroes to match
       the value of this property. When 0 or null, it is not used.
 

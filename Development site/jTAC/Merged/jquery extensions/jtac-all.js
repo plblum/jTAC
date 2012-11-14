@@ -4559,7 +4559,7 @@ jTAC._internal.temp._TypeManagers_base = {
       value (float) - the value to round.
       rm (int) - one of these rounding modes:
          0 = Point5: round to the next number if .5 or higher; round down otherwise
-         1 = Currency: round to the nearest even number.
+         1 = Currency: Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
          2 = Truncate: drop any decimals after mdp; largest integer less than or equal to a number.
          3 = Ceiling: round to the nearest even number.
          4 = NextWhole: Like ceiling, but negative numbers are rounded lower instead of higher
@@ -4598,13 +4598,11 @@ jTAC._internal.temp._TypeManagers_base = {
 
             return sv / sf; // return the digits to their decimal places
 
-         case 1:  // round to the nearest even number.
+         case 1:  // Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
             var nv = Math.floor(sv); // Math.round(sv);
-            if ((sv != nv) && (nv % 2 == 1))  // it changed. So did it go to an odd number? If so, it should have rounded down, so subtract 2.
-            {  // redo the rounding after adjusting it up so that 3.4 is still 3 and 3.5 is 4.
-               nv = Math.round(sv);
+            var f = sv - nv;
+            var nv = (f == 0.5) ? ((nv % 2 == 0) ? nv : nv + 1) : Math.round(sv);
 
-            }
             return nv / sf; // return the digits to their decimal places
 
          case 2:  // Truncate - largest integer less than or equal to a number.
@@ -4779,6 +4777,17 @@ Same as jTAC.checkAsTypeManager but allows assigning null to the result.
 */
 jTAC.checkAsTypeManagerOrNull = function ( val ) {
    return jTAC.checkAsTypeManager(val, null);
+}
+
+/* STATIC METHOD - EXTENDS jTAC
+   When you want to use data-jtac-datatype and data-jtac-typemanager attributes
+   on an HTML element but are not using HTML 5, use this method.
+*/
+jTAC.addDataTypeAttributes = function(elementId, datatype, json)
+{
+   var conn = jTAC.connectionResolver.create(elementId);
+   conn.setData("jtac-datatype", datatype);
+   conn.setData("jtac-typemanager", json);
 }
 
 /* --- jTAC.plugInParser --------------------------------------------
@@ -6308,7 +6317,7 @@ Supports integer as the native type.
 See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
-   FillLeadZeros (int) - Provides additional formatting when converting an integer to text
+   fillLeadZeros (int) - Provides additional formatting when converting an integer to text
       by adding lead zeros. When > 0, it adds enough lead zeroes to match
       the value of this property. When 0 or null, it is not used.
 
@@ -6971,7 +6980,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 Properties introduced by this class:
 
    useUTC (boolean) -
-      When true, the Date object is in UTC format. When false, it is in local format.
+      When true, the Date object is a UTC value. When false, it is a local value.
       It defaults to false.
 
 Requires: 
@@ -7418,7 +7427,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
    dateFormat (int) - Determines how to format a string containing a date. 
-      The parser will can also use it.
+      The parser will also use it.
       When using the built-in parser, it ignores this. However,
       the formatter does not. So only set it to something other than 0
       when using the formatter exclusively (such as creating text for a <span> tag).
@@ -14055,7 +14064,7 @@ Properties introduced by this class:
    roundMode (int) - 
       Determines the way to round. 
          0 = Point5: round to the next number if .5 or higher; round down otherwise
-         1 = Currency: round to the nearest even number.
+         1 = Currency: Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
          2 = Truncate: drop any decimals after mdp; largest integer less than or equal to a number.
          3 = Ceiling: round to the nearest even number.
          4 = NextWhole: Like ceiling, but negative numbers are rounded lower instead of higher
@@ -14073,7 +14082,7 @@ Parsing calculation expressions:
    - calculation expression
    - roundmode (optional) defines how to round with these values:
          0 = Point5: round to the next number if .5 or higher; round down otherwise
-         1 = Currency: round to the nearest even number.
+         1 = Currency: Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
          2 = Truncate: drop any decimals after mdp; largest integer less than or equal to a number.
          3 = Ceiling: round to the nearest even number.
          4 = NextWhole: Like ceiling, but negative numbers are rounded lower instead of higher
@@ -18065,7 +18074,9 @@ Additional properties:
       "Now" - If it supports dates is used, today's date.
       If it supports time is used, the current time.
       Date object - This value is used directly.
+      Culture neutral format string of a date - Converts to a Date object with this date.
       integer - Only if it supports time and the value is a number.
+      String containing an integer - Converts to an integer. Supports time and the value is a number.
 
 --------------------------------------------------------------------------*/
 
@@ -18558,6 +18569,31 @@ jTAC_Temp =
             return date;
          }
       return this.config.maxValue;
+   },
+
+/*
+   When a string, see if can be converted to a date (culture neutral format)
+   or positive integer (only digits).
+   If the string is "Now", preserve it.
+*/
+   setBlankStartsAt: function(val) {
+      if ((typeof val == "string") && (val != "Now") && (val != ""))
+      {
+         if (/^\d*$/.test(val)) {
+            val = parseInt(val, 10);
+         }
+         else {
+            var m = /^(\d+)\-(\d+)\-(\d+)( (\d+)\:(\d+)\:(\d+))?$/.exec(val);
+            if (!m)
+               this._error("Illegal value in BlankStartsAt");
+            val = new Date(m[1], parseInt(m[2], 10) - 1, m[3]);
+            if (m[4] != null)
+               val.setHours(m[5], m[6], m[7]);
+            if (!val)
+               this._error("Illegal date in BlankStartsAt");
+         }
+      }
+      this.config.blankStartsAt = val;
    }
 
 } 

@@ -304,6 +304,12 @@
          InvokeCmd(vInstance1, prevargs, "5/1/2012");
 
          conn.setTextValue("");  // reset
+         vInstance1.blankStartsAt = "2012-06-01";
+
+         InvokeCmd(vInstance1, nextargs, "6/1/2012");
+         InvokeCmd(vInstance1, nextargs, "7/1/2012");
+
+         conn.setTextValue("");  // reset
 
       }
 
@@ -501,8 +507,8 @@
          var errf = function (args) { args.error = true; return true; }
          var newvalf = function (args) { args.value = new Date(2012, 9, 31); return true; }
          var stopf = function (args) { return false; }
-         var precmdf = function (args) { window.console.log('precmd function'); return true; }
-         var postcmdf = function (args) { window.console.log('postcmd function'); return true; }
+         var precmdf = function (args) { if (window.console) window.console.log('precmd function'); return true; }
+         var postcmdf = function (args) { if (window.console) window.console.log('postcmd function'); return true; }
 
          var vInstance1 = jTAC.create("TypeManagers.Date");   
          assertNotNull(vInstance1);

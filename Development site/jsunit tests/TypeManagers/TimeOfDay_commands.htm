@@ -182,6 +182,16 @@
          InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
          InvokeCmd(vInstance1, prevargs, "5:29:59 AM");
 
+      // set any specific time
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = "2012-01-01 5:30:0";  // 5:30 AM
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:30:01 AM");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, prevargs, "5:29:59 AM");
+
          conn.setTextValue("");  // reset
 
       }
@@ -244,6 +254,12 @@
          conn.setTextValue("");
          InvokeCmd(vInstance1, prevargs, "5:30:00 AM");
          InvokeCmd(vInstance1, prevargs, "5:29:59 AM");
+
+         conn.setTextValue("");
+         vInstance1.blankStartsAt = 5 * 3600 + 30 * 60 + "";  // converted to a string
+
+         InvokeCmd(vInstance1, nextargs, "5:30:00 AM");
+         InvokeCmd(vInstance1, nextargs, "5:30:01 AM");
 
          conn.setTextValue("");  // reset
 

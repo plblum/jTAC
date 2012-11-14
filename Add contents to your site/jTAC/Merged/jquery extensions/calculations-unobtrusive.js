@@ -2831,7 +2831,7 @@ Properties introduced by this class:
    roundMode (int) - 
       Determines the way to round. 
          0 = Point5: round to the next number if .5 or higher; round down otherwise
-         1 = Currency: round to the nearest even number.
+         1 = Currency: Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
          2 = Truncate: drop any decimals after mdp; largest integer less than or equal to a number.
          3 = Ceiling: round to the nearest even number.
          4 = NextWhole: Like ceiling, but negative numbers are rounded lower instead of higher
@@ -2849,7 +2849,7 @@ Parsing calculation expressions:
    - calculation expression
    - roundmode (optional) defines how to round with these values:
          0 = Point5: round to the next number if .5 or higher; round down otherwise
-         1 = Currency: round to the nearest even number.
+         1 = Currency: Banker's rounding. Like Point5 except when the last digit is 5, round up when the prior digit is odd and round down when even.
          2 = Truncate: drop any decimals after mdp; largest integer less than or equal to a number.
          3 = Ceiling: round to the nearest even number.
          4 = NextWhole: Like ceiling, but negative numbers are rounded lower instead of higher

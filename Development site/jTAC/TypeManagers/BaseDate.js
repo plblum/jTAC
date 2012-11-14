@@ -27,7 +27,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 
 Properties introduced by this class:
    dateFormat (int) - Determines how to format a string containing a date. 
-      The parser will can also use it.
+      The parser will also use it.
       When using the built-in parser, it ignores this. However,
       the formatter does not. So only set it to something other than 0
       when using the formatter exclusively (such as creating text for a <span> tag).

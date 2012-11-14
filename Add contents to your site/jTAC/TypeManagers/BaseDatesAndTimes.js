@@ -48,7 +48,7 @@ See \jTAC\TypeManagers\Base.js for an overview of TypeManagers.
 Properties introduced by this class:
 
    useUTC (boolean) -
-      When true, the Date object is in UTC format. When false, it is in local format.
+      When true, the Date object is a UTC value. When false, it is a local value.
       It defaults to false.
 
 Requires: 
