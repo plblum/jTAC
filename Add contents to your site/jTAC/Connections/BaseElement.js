@@ -434,12 +434,19 @@ jTAC._internal.temp._Connections_BaseElement = {
 
    /* 
    Locates a string that can be displayed as the label for the element.
-   The element can host this label in its data-msglabel attribute or
-   there is another with a for= attribute specifying this element whose
-   HTML is the label. If both are present, data-label overrides
-   the for= attribute. 
+   There are several sources for a label:
+   * The element can host this label in its data-msglabel attribute.
+     If you are using localization, a lookupID can be in the data-msglabel-lookupid attribute.
+     If present, this overrides the remaining options.
+   * The element can specify the id of another HTML element whose innerHTML
+     is the label with the data-msglabel-from attribute.
+     The text retrieved will be cleaned up (no HTML tags, trimmed non-alphanumeric characters)
+     via _cleanLabel().
+   * A <label for=> HTML element where for= specifies the ID of this element.
+     Its innerHTML is used, after cleaning up.
+      NOTE: This function requires jquery to locate the label for= node. If
+      jquery is not present, that feature is not used.
    Returns the label string or the value passed into the missing parameter if not found.
-   The string will not contain HTML tags found in the source.
    NOTE: The value "data-msglabel" was chosen over "data-label" to avoid
    conflicts with other systems.
    If element is null, it returns missing.
@@ -454,17 +461,21 @@ jTAC._internal.temp._Connections_BaseElement = {
 
    /* Low level function used by getLabel().
    Locates a string that can be displayed as the label for the element.
-   The element can host this label in its data-msglabel attribute or
-   there is another with a for= attribute specifying this element whose
-   HTML is the label. If both are present, data-msglabel overrides
-   the for= attribute. 
-   If you want to support localization, define a new key in your \jTAC\Translations\
-   script files with the localized names. Then add the data-msglabel-lookupid
-   attribute to the element hosting that new key.
+   There are several sources for a label:
+   * The element can host this label in its data-msglabel attribute.
+     If you are using localization, a lookupID can be in the data-msglabel-lookupid attribute.
+     Define the lookupid in your \jTAC\Translations\ script files with the localized names. 
+     If present, this overrides the remaining options.
+   * The element can specify the id of another HTML element whose innerHTML
+     is the label with the data-msglabel-from attribute.
+     The text retrieved will be cleaned up (no HTML tags, trimmed non-alphanumeric characters)
+     via _cleanLabel().
+   * A <label for=> HTML element where for= specifies the ID of this element.
+     Its innerHTML is used, after cleaning up.
+      NOTE: This function requires jquery to locate the label for= node. If
+      jquery is not present, that feature is not used.
    NOTE: The value "data-msglabel" was chosen over "data-label" to avoid
    conflicts with other systems.
-   NOTE: This function requires jquery to locate the label for= node. If
-   jquery is not present, that feature is not used.
       element (DOM Element) - Accepts null.
    Returns the label string or null if not located.
    The result will not contain HTML tags found in the source.
@@ -473,10 +484,22 @@ jTAC._internal.temp._Connections_BaseElement = {
    {
       if (!element)
          return null;
+      var update = false;  // when true, use cleanlabel and update data-msglabel.
       var t = element.getAttribute("data-msglabel");
       var lu = element.getAttribute("data-msglabel-lookupid");
       if (lu) {
          t = jTAC.translations.lookup(lu, t);
+         update = true;
+      }
+      if (t == null) {
+         var id = element.getAttribute("data-msglabel-from");
+         if (id) {
+            var lbl = document.getElementById(id);
+            if (lbl) {
+               t = lbl.innerHTML;
+               update = true;
+            }
+         }
       }
       if ((t == null) && window.jQuery) { // this code only works with jQuery present
          var lbl = $("label[for='" + element.id + "'][generated!='true']");  // jquery-validate creates a label to host the error message. 
@@ -484,13 +507,15 @@ jTAC._internal.temp._Connections_BaseElement = {
          // We need to avoid it.
          if (lbl) {
             t = lbl.html();
-            if (t) {
-               t = this._cleanLabel(t);
-               // update data-label to avoid searching each time
-               element.setAttribute("data-msglabel", t);
-            }
+            update = true;
          }
       }
+      if (t && update) {
+         t = this._cleanLabel(t);
+         // update data-label to avoid searching each time
+         element.setAttribute("data-msglabel", t);
+      }
+
       return t;   // may be null
    },
 

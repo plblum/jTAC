@@ -67,7 +67,7 @@ Establishing this ui widget:
 5a. If working in code, use this to attach the datatypeeditor jquery-ui object to
     the input field.
    
-   $("selector for the textbox").datatypeeditor(options);
+   $("selector for the textbox").dataTypeEditor(options);
 
     The options reflect the properties shown below.
 
@@ -192,6 +192,8 @@ Options
    * null - Continue processing the command.
    * commandName (string) - Use this command name to invoke the command.
    * "" (the empty string) - Stop processing this keystroke
+   This can be either a function itself or a string that identifies a globally 
+   defined function.
 
 * keyResult (function) -
    A function hook that is called after each keystroke is processed.
@@ -210,6 +212,8 @@ Options
       * result (string) - "valid", "invalid", "command"
       * options - the options object with user options.
    Returns nothing.
+   This can be either a function itself or a string that identifies a globally 
+   defined function.
 
 *  keyErrorClass (string) -
    The style sheet class added to the textbox when jTAC_DefaultKeyResult needs
@@ -546,9 +550,14 @@ Does nothing if the user has already assigned a value to the element.
             jTAC._internal.pushContext("datatypeeditor._invokeCommand()");
 
             var cmdName = null;
-            if ( this.options.getCommandName ) {
-               cmdName = this.options.getCommandName.call( this,
-                  evt, this._cmdKeys, this._tm );
+            var fnc = this.options.getCommandName;
+            if ( fnc ) {
+               if (typeof fnc == "string") { // find the function defined in the window object
+                  if (window[fnc] == undefined)
+                     jTAC.warn( "Could not find the function [" + fnc + "] globally defined." );
+                  fnc = this.options.getCommandName =  window[fnc];
+               }
+               cmdName = fnc.call( this, evt, this._cmdKeys, this._tm );
             }
             if ( cmdName == "" )   // means don't invoke this command
                return false;
@@ -787,6 +796,8 @@ Returns one of these values:
 * null - Continue processing the command.
 * commandName (string) - Use this command name to invoke the command.
 * "" (the empty string) - Stop processing this keystroke
+This can be either a function itself or a string that identifies a globally 
+defined function.
 
 */
    getCommandName : null,
@@ -808,6 +819,8 @@ The function takes these parameters:
    * result (string) - "valid", "invalid", "command"
    * options - the options object with user options.
 Returns nothing.
+This can be either a function itself or a string that identifies a globally 
+defined function.
 */
    keyResult : jTAC_DefaultKeyResult,
 
@@ -1031,7 +1044,7 @@ Establishing this ui widget
 5a. If working in code, use this to attach the datetextbox jquery-ui widget to
    the input field.
 
-   $("selector for the hidden field").datetextbox(options);
+   $("selector for the hidden field").dateTextBox(options);
 
    The options reflect the properties shown below.
    This code usually runs as the page loads, such as in $(document).ready.

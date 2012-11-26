@@ -84,7 +84,7 @@ Establishing this ui widget
 5a. If working in code, use this to attach the datetextbox jquery-ui widget to
    the input field.
 
-   $("selector for the hidden field").datetextbox(options);
+   $("selector for the hidden field").dateTextBox(options);
 
    The options reflect the properties shown below.
    This code usually runs as the page loads, such as in $(document).ready.

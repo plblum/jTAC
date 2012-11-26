@@ -2905,12 +2905,19 @@ jTAC._internal.temp._Connections_BaseElement = {
 
    /* 
    Locates a string that can be displayed as the label for the element.
-   The element can host this label in its data-msglabel attribute or
-   there is another with a for= attribute specifying this element whose
-   HTML is the label. If both are present, data-label overrides
-   the for= attribute. 
+   There are several sources for a label:
+   * The element can host this label in its data-msglabel attribute.
+     If you are using localization, a lookupID can be in the data-msglabel-lookupid attribute.
+     If present, this overrides the remaining options.
+   * The element can specify the id of another HTML element whose innerHTML
+     is the label with the data-msglabel-from attribute.
+     The text retrieved will be cleaned up (no HTML tags, trimmed non-alphanumeric characters)
+     via _cleanLabel().
+   * A <label for=> HTML element where for= specifies the ID of this element.
+     Its innerHTML is used, after cleaning up.
+      NOTE: This function requires jquery to locate the label for= node. If
+      jquery is not present, that feature is not used.
    Returns the label string or the value passed into the missing parameter if not found.
-   The string will not contain HTML tags found in the source.
    NOTE: The value "data-msglabel" was chosen over "data-label" to avoid
    conflicts with other systems.
    If element is null, it returns missing.
@@ -2925,17 +2932,21 @@ jTAC._internal.temp._Connections_BaseElement = {
 
    /* Low level function used by getLabel().
    Locates a string that can be displayed as the label for the element.
-   The element can host this label in its data-msglabel attribute or
-   there is another with a for= attribute specifying this element whose
-   HTML is the label. If both are present, data-msglabel overrides
-   the for= attribute. 
-   If you want to support localization, define a new key in your \jTAC\Translations\
-   script files with the localized names. Then add the data-msglabel-lookupid
-   attribute to the element hosting that new key.
+   There are several sources for a label:
+   * The element can host this label in its data-msglabel attribute.
+     If you are using localization, a lookupID can be in the data-msglabel-lookupid attribute.
+     Define the lookupid in your \jTAC\Translations\ script files with the localized names. 
+     If present, this overrides the remaining options.
+   * The element can specify the id of another HTML element whose innerHTML
+     is the label with the data-msglabel-from attribute.
+     The text retrieved will be cleaned up (no HTML tags, trimmed non-alphanumeric characters)
+     via _cleanLabel().
+   * A <label for=> HTML element where for= specifies the ID of this element.
+     Its innerHTML is used, after cleaning up.
+      NOTE: This function requires jquery to locate the label for= node. If
+      jquery is not present, that feature is not used.
    NOTE: The value "data-msglabel" was chosen over "data-label" to avoid
    conflicts with other systems.
-   NOTE: This function requires jquery to locate the label for= node. If
-   jquery is not present, that feature is not used.
       element (DOM Element) - Accepts null.
    Returns the label string or null if not located.
    The result will not contain HTML tags found in the source.
@@ -2944,10 +2955,22 @@ jTAC._internal.temp._Connections_BaseElement = {
    {
       if (!element)
          return null;
+      var update = false;  // when true, use cleanlabel and update data-msglabel.
       var t = element.getAttribute("data-msglabel");
       var lu = element.getAttribute("data-msglabel-lookupid");
       if (lu) {
          t = jTAC.translations.lookup(lu, t);
+         update = true;
+      }
+      if (t == null) {
+         var id = element.getAttribute("data-msglabel-from");
+         if (id) {
+            var lbl = document.getElementById(id);
+            if (lbl) {
+               t = lbl.innerHTML;
+               update = true;
+            }
+         }
       }
       if ((t == null) && window.jQuery) { // this code only works with jQuery present
          var lbl = $("label[for='" + element.id + "'][generated!='true']");  // jquery-validate creates a label to host the error message. 
@@ -2955,13 +2978,15 @@ jTAC._internal.temp._Connections_BaseElement = {
          // We need to avoid it.
          if (lbl) {
             t = lbl.html();
-            if (t) {
-               t = this._cleanLabel(t);
-               // update data-label to avoid searching each time
-               element.setAttribute("data-msglabel", t);
-            }
+            update = true;
          }
       }
+      if (t && update) {
+         t = this._cleanLabel(t);
+         // update data-label to avoid searching each time
+         element.setAttribute("data-msglabel", t);
+      }
+
       return t;   // may be null
    },
 
@@ -16172,7 +16197,7 @@ Establishing this ui widget:
 5a. If working in code, use this to attach the datatypeeditor jquery-ui object to
     the input field.
    
-   $("selector for the textbox").datatypeeditor(options);
+   $("selector for the textbox").dataTypeEditor(options);
 
     The options reflect the properties shown below.
 
@@ -16297,6 +16322,8 @@ Options
    * null - Continue processing the command.
    * commandName (string) - Use this command name to invoke the command.
    * "" (the empty string) - Stop processing this keystroke
+   This can be either a function itself or a string that identifies a globally 
+   defined function.
 
 * keyResult (function) -
    A function hook that is called after each keystroke is processed.
@@ -16315,6 +16342,8 @@ Options
       * result (string) - "valid", "invalid", "command"
       * options - the options object with user options.
    Returns nothing.
+   This can be either a function itself or a string that identifies a globally 
+   defined function.
 
 *  keyErrorClass (string) -
    The style sheet class added to the textbox when jTAC_DefaultKeyResult needs
@@ -16651,9 +16680,14 @@ Does nothing if the user has already assigned a value to the element.
             jTAC._internal.pushContext("datatypeeditor._invokeCommand()");
 
             var cmdName = null;
-            if ( this.options.getCommandName ) {
-               cmdName = this.options.getCommandName.call( this,
-                  evt, this._cmdKeys, this._tm );
+            var fnc = this.options.getCommandName;
+            if ( fnc ) {
+               if (typeof fnc == "string") { // find the function defined in the window object
+                  if (window[fnc] == undefined)
+                     jTAC.warn( "Could not find the function [" + fnc + "] globally defined." );
+                  fnc = this.options.getCommandName =  window[fnc];
+               }
+               cmdName = fnc.call( this, evt, this._cmdKeys, this._tm );
             }
             if ( cmdName == "" )   // means don't invoke this command
                return false;
@@ -16892,6 +16926,8 @@ Returns one of these values:
 * null - Continue processing the command.
 * commandName (string) - Use this command name to invoke the command.
 * "" (the empty string) - Stop processing this keystroke
+This can be either a function itself or a string that identifies a globally 
+defined function.
 
 */
    getCommandName : null,
@@ -16913,6 +16949,8 @@ The function takes these parameters:
    * result (string) - "valid", "invalid", "command"
    * options - the options object with user options.
 Returns nothing.
+This can be either a function itself or a string that identifies a globally 
+defined function.
 */
    keyResult : jTAC_DefaultKeyResult,
 
@@ -17136,7 +17174,7 @@ Establishing this ui widget
 5a. If working in code, use this to attach the datetextbox jquery-ui widget to
    the input field.
 
-   $("selector for the hidden field").datetextbox(options);
+   $("selector for the hidden field").dateTextBox(options);
 
    The options reflect the properties shown below.
    This code usually runs as the page loads, such as in $(document).ready.
