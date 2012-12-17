@@ -65,29 +65,24 @@ jquery-ui widgets/calculator.js
 
 
 (function ($){
-   function applyOne(idx, element)
-   {
+   function applyOne(idx, element) {
       element = $(element);
       var options = element.data("jtac-calculator");
-      if (options)
-      {
+      if (options) {
          element.data("calculator", null);
-         try
-         {
-            options = window.eval("(" + options +");");
+         try {
+            if (typeof options == "string")
+               options = window.eval("(" + options +");");
             element.calculator(options);
          }
-         catch (e)
-         {
+         catch (e) {
             jTAC.error("Could not parse the data-jtac-calculator attribute of id [" + element.get()[0].id + "] Error info:" + e.toString());
          }
       }
    }
 
-   function apply()
-   {
-      try
-      {
+   function apply() {
+      try {
          jTAC._internal.pushContext("calculator-unobtrusive.apply()");
 
          var elements = $("input[type=hidden]");

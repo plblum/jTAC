@@ -254,7 +254,7 @@ Subclasses should consider calling _formatDate() and/or _formatTime() to do most
    so they use the culture neutral date and/or time patterns.
 */
    _setNeutralFormat: function( sourceTM ) {
-      this.AM();
+      this.setUseUTC(sourceTM.getUseUTC());
    },
 
 
@@ -453,7 +453,27 @@ This returns updated text, replacing the tokens with the text of the literals.
          for (var i = 0; i < lit.length; i++)
             text = text.replace("{" + i + "}", lit[i]);
       return text;
+   },
+
+/*
+   Supports classes that have a Year to determine if that year is 1.
+   Use it in _isNull functions to return true when the year is 1.
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+*/
+   _isNullYear : function (val) {
+      if (val instanceof Date) {
+         return val.getUTCFullYear() == 1;
+      }
+      var intnl = this._internal;
+      var nullPat = intnl.nullPat;
+      if (nullPat == null) {
+         nullPat = intnl.nullPat = this._format({y: 1, M: 1, d: 1, h: 0, m: 0, s: 0});
+      }
+
+      return val === nullPat;
    }
+
 
    /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------
    These members are GETTER and SETTER methods associated with properties

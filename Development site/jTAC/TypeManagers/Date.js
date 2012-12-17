@@ -44,6 +44,18 @@ jTAC._internal.temp._TypeManagers_Date = {
    },
    dataTypeName : function () {
       return "date";
+   },
+
+/*
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+   If it does not use the year, it only checks for null and the empty string.
+*/
+   _isNull : function (val) {
+      var r = this.callParent([val]);
+      if (r) 
+         return true;
+      return this._isNullYear(val);
    }
 
 

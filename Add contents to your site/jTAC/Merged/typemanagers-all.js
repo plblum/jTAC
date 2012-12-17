@@ -1642,7 +1642,7 @@ Subclasses should consider calling _formatDate() and/or _formatTime() to do most
    so they use the culture neutral date and/or time patterns.
 */
    _setNeutralFormat: function( sourceTM ) {
-      this.AM();
+      this.setUseUTC(sourceTM.getUseUTC());
    },
 
 
@@ -1841,7 +1841,27 @@ This returns updated text, replacing the tokens with the text of the literals.
          for (var i = 0; i < lit.length; i++)
             text = text.replace("{" + i + "}", lit[i]);
       return text;
+   },
+
+/*
+   Supports classes that have a Year to determine if that year is 1.
+   Use it in _isNull functions to return true when the year is 1.
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+*/
+   _isNullYear : function (val) {
+      if (val instanceof Date) {
+         return val.getUTCFullYear() == 1;
+      }
+      var intnl = this._internal;
+      var nullPat = intnl.nullPat;
+      if (nullPat == null) {
+         nullPat = intnl.nullPat = this._format({y: 1, M: 1, d: 1, h: 0, m: 0, s: 0});
+      }
+
+      return val === nullPat;
    }
+
 
    /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------
    These members are GETTER and SETTER methods associated with properties
@@ -2039,6 +2059,7 @@ jTAC._internal.temp._TypeManagers_BaseDate = {
    Neutral format is yyyy-MM-dd.
 */
    _setNeutralFormat: function(sourceTM) {
+      this.callParent([sourceTM]);
       this.setDateFormat(100);
       this.setTwoDigitYear(false);
    },
@@ -2208,8 +2229,12 @@ will not appear here.
       r = lit.pat;
       r = jTAC.replaceAll(r, "/", this.dateTimeFormat("ShortDateSep"), true);
       r = this._replacePart("d", neutral.d, r);
+      r = this._replacePart("yyyy", neutral.y, r);
+      r = this._replacePart("yy", neutral.y, r);
+/*
       r = r.replace("yyyy", neutral.y.toString());
       r = r.replace("yy", String(neutral.y % 100));
+*/
       if (r.indexOf("MMMM") > -1) {
          var name = this.dateTimeFormat("Months")[neutral.M - 1];
          r = r.replace("MMMM", name);
@@ -2312,6 +2337,18 @@ jTAC._internal.temp._TypeManagers_Date = {
    },
    dataTypeName : function () {
       return "date";
+   },
+
+/*
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+   If it does not use the year, it only checks for null and the empty string.
+*/
+   _isNull : function (val) {
+      var r = this.callParent([val]);
+      if (r) 
+         return true;
+      return this._isNullYear(val);
    }
 
 
@@ -2583,6 +2620,7 @@ Returns the resulting formatted string.
    Neutral format is H:mm:ss (always 24 hour style).
 */
    _setNeutralFormat: function( sourceTM ) {
+      this.callParent([sourceTM]);
       this.setTimeFormat(100);
       this.setValueAsNumber(sourceTM.getValueAsNumber());
       this.setTimeOneEqualsSeconds(sourceTM.getTimeOneEqualsSeconds());
@@ -3236,9 +3274,23 @@ each containing a string or null if not used.
    Neutral format is yyyy-MM-dd H:mm:ss (24 hour format)
 */
    _setNeutralFormat: function(sourceTM) {
+      this.callParent([sourceTM]);
       this.getDateOptions()._setNeutralFormat(sourceTM.getDateOptions());
       this.getTimeOptions()._setNeutralFormat(sourceTM.getTimeOptions());
    },
+
+/*
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+   If it does not use the year, it only checks for null and the empty string.
+*/
+   _isNull : function (val) {
+      var r = this.callParent([val]);
+      if (r) 
+         return true;
+      return this._isNullYear(val);
+   },
+
 
 
 /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------
@@ -3514,6 +3566,19 @@ jTAC._internal.temp._TypeManagers_MonthYear = {
    dataTypeName : function () {
       return "monthyear";
    },
+
+/*
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+   If it does not use the year, it only checks for null and the empty string.
+*/
+   _isNull : function (val) {
+      var r = this.callParent([val]);
+      if (r) 
+         return true;
+      return this._isNullYear(val);
+   },
+
 
 
 /*
@@ -5458,14 +5523,14 @@ Properties introduced by this class:
       Must match valid strings representing "false".
       Can pass either a RegExp object or a string that is a valid
       regular expression pattern. 
-      Defaults to ^(false)|(0)$
+      Defaults to ^((false)|(0))$
 
    reTrue (string or regex) - 
       Regular expression used to convert a string into true.
       Must match valid strings representing "true".
       Can pass either a RegExp object or a string that is a valid
       regular expression pattern. 
-      Defaults to ^(true)|(1)$
+      Defaults to ^((true)|(1))$
 
    numFalse (array of integers) -
       Array of numbers representing false.
@@ -5502,8 +5567,8 @@ jTAC._internal.temp._TypeManagers_Boolean = {
    },
 
    config: {
-      reFalse: /^(false)|(0)$/i, // the last () represents the empty string
-      reTrue: /^(true)|(1)$/i,
+      reFalse: /^((false)|(0))$/i, // the last () represents the empty string
+      reTrue: /^((true)|(1))$/i,
       numFalse: [0],   // array of numbers that match to false
       numTrue: [1], // array of numbers that match to true. Also valid: true to match all numbers not in numFalse.
 
@@ -5644,10 +5709,10 @@ jTAC._internal.temp._TypeManagers_Boolean = {
    },
 
    /*
-   Always returns false
+   Always returns true
    */
    isValidChar : function (chr) {
-      return false;
+      return true;
    },
 
    /*

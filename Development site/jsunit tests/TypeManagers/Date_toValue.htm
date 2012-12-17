@@ -63,6 +63,19 @@
          ToValueForDates(vInstance1, "9/29/00", date6);
          vInstance1.twoDigitYear = false;
          ToIllegalValueMain(vInstance1, "9/29/00");
+
+         // check that 1/1/0001 means null
+         var vResult = null;
+         try
+         {
+            vResult = vInstance1.toValue("1/1/0001");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "1/1/0001");
+         }
+         assertNull(vResult);
+
       }
 
       function testToNeutralValue()
@@ -88,6 +101,18 @@
          assertNotNull(vInstance1);
          severalDatesNeutral(vInstance1);
          ToValueNeutralForDates(vInstance1, "2012-1-1", new Date(2012, 0, 1));
+         // check that 0001-01-01 means null
+         var vResult = null;
+         try
+         {
+            vResult = vInstance1.toValueNeutral("0001-01-01");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "0001-01-01");
+         }
+         assertNull(vResult);
+
          ToIllegalValueNeutralMain(vInstance1, "2012/01/01");
          ToIllegalValueNeutralMain(vInstance1, "2012-001-001");
          ToIllegalValueNeutralMain(vInstance1, "2012-13-01");

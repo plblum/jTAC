@@ -33,14 +33,14 @@ Properties introduced by this class:
       Must match valid strings representing "false".
       Can pass either a RegExp object or a string that is a valid
       regular expression pattern. 
-      Defaults to ^(false)|(0)$
+      Defaults to ^((false)|(0))$
 
    reTrue (string or regex) - 
       Regular expression used to convert a string into true.
       Must match valid strings representing "true".
       Can pass either a RegExp object or a string that is a valid
       regular expression pattern. 
-      Defaults to ^(true)|(1)$
+      Defaults to ^((true)|(1))$
 
    numFalse (array of integers) -
       Array of numbers representing false.
@@ -77,8 +77,8 @@ jTAC._internal.temp._TypeManagers_Boolean = {
    },
 
    config: {
-      reFalse: /^(false)|(0)$/i, // the last () represents the empty string
-      reTrue: /^(true)|(1)$/i,
+      reFalse: /^((false)|(0))$/i, // the last () represents the empty string
+      reTrue: /^((true)|(1))$/i,
       numFalse: [0],   // array of numbers that match to false
       numTrue: [1], // array of numbers that match to true. Also valid: true to match all numbers not in numFalse.
 
@@ -219,10 +219,10 @@ jTAC._internal.temp._TypeManagers_Boolean = {
    },
 
    /*
-   Always returns false
+   Always returns true
    */
    isValidChar : function (chr) {
-      return false;
+      return true;
    },
 
    /*

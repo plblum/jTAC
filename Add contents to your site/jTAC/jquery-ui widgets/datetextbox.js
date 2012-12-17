@@ -143,6 +143,14 @@ NOTE: Most are the same as those for the datatypeeditor.
   toValue then toString methods. Nothing happens if there is a formatting error.
   It defaults to true.
 
+* initFromNeutral (boolean) -
+  When true and using the culture neutral hidden field, always
+  assign the textbox value by applying formatting from the TypeManager.
+  When false and the textbox's value is "", it will also 
+  assign the textbox value.
+  This option lets external code assign the initial formatted value.
+  It defaults to true.
+
 * filterkeys (boolean) -
   When true, keystrokes are evaluated for valid characters.
   Invalid characters are filtered out. 

@@ -93,6 +93,20 @@
          ToIllegalValueMain(vInstance1, "Jank/1/1900 1:00:00 AM");
          ToIllegalValueMain(vInstance1, "Jan/41/1900 1:00:00 AM");
          ToIllegalValueMain(vInstance1, "Feb/1/19000 1:00:00 AM");
+
+         // check that 1/1/0001 12:00:00 AM means null. (code only checks if the year is 0001 to determine null)
+         var vResult = null;
+         try
+         {
+            vResult = vInstance1.toValue("1/1/0001 12:00:00 AM");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "1/1/0001 12:00:00 AM");
+         }
+         assertNull(vResult);
+
+
 /* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
          vInstance1.dateOptions.setDateFormat(1);
          vInstance1.timeOptions.setTimeFormat(0);
@@ -169,6 +183,19 @@
          vInstance1.dateOptions.setDateFormat(100);
          vInstance1.timeOptions.setTimeFormat(101);
          severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+
+         // check that 0001-01-01 0:00:00 means null. (code only checks if the year is 0001 to determine null)
+         vResult = null;
+         try
+         {
+            vResult = vInstance1.toValueNeutral("0001-01-01 00:00:00");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "0001-01-01 00:00:00");
+         }
+         assertNull(vResult);
+
       }
 
       function testToValueFrench()
@@ -219,6 +246,7 @@
          vInstance1.dateOptions.setDateFormat(100);
          vInstance1.timeOptions.setTimeFormat(101);
          severalDates(vInstance1, "yyyy-MM-dd HH:mm");
+
       }
 
       function testToValueHindi()

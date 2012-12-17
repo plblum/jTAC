@@ -206,9 +206,23 @@ each containing a string or null if not used.
    Neutral format is yyyy-MM-dd H:mm:ss (24 hour format)
 */
    _setNeutralFormat: function(sourceTM) {
+      this.callParent([sourceTM]);
       this.getDateOptions()._setNeutralFormat(sourceTM.getDateOptions());
       this.getTimeOptions()._setNeutralFormat(sourceTM.getTimeOptions());
    },
+
+/*
+   If it is a Date object with the year = 1, return true.
+   If it is a string with a year of 1, return true.
+   If it does not use the year, it only checks for null and the empty string.
+*/
+   _isNull : function (val) {
+      var r = this.callParent([val]);
+      if (r) 
+         return true;
+      return this._isNullYear(val);
+   },
+
 
 
 /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------

@@ -60,6 +60,29 @@
          ToIllegalValueMain(vInstance1, "1/ 1900");
          ToIllegalValueMain(vInstance1, "Jan/1900");
          assertNull(vInstance1.toValue(""));
+
+         // check that 1/0001 means null
+         var vResult = null;
+         try
+         {
+            vResult = vInstance1.toValue("1/0001");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "1/0001");
+         }
+         assertNull(vResult);
+
+         try
+         {
+            vResult = vInstance1.toValueNeutral("0001-01");
+         }
+         catch (e)
+         {
+            fail(e.message + " Original text: " + "0001-01");
+         }
+         assertNull(vResult);
+
 /* CANNOT PARSE THESE WITH THE DEFAULT PARSER. REQUIRES ANOTHER PARSER
 
          vInstance1.setDateFormat(1);

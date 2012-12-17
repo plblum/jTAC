@@ -275,8 +275,8 @@ jTAC_Temp = {
       curDecimalSep: ".",  //string: string that separates a number from the fractional portion, as in 1.99 in a currency
       curGroupSizes: [3],  //array: array of numbers indicating the size of each number group in a currency
       curNegSymbol: "-", // string: symbol used for negative numbers in a currency
-      pctNegPattern: "-%n",  //string: negative pattern for percentage, including symbol represented by %
-      pctPosPattern: "%n",  //string: positive pattern for percentage, including symbol represented by %
+      pctNegPattern: "-n%",  //string: negative pattern for percentage, including symbol represented by %
+      pctPosPattern: "n%",  //string: positive pattern for percentage, including symbol represented by %
       pctSymbol: "%",      // string: symbol used to represent a percentage
       pctDecimals: 2, // integer: number of decimal places normally shown in a percentage
       pctGroupSep: ",", // string: string that separates number groups in a percentage, as in 1,000,000
@@ -300,8 +300,8 @@ jTAC_Temp = {
       dtLongDatePattern : "MMMM dd, yyyy",  //string: long date pattern. "MMMM" for month name. Does not include week day
       dtShortTimePattern: "h:mm tt",  //string: time pattern without seconds: "H", "m", "tt"
       dtLongTimePattern : "h:mm:ss tt",  //string: time pattern with seconds: "H", "m", "s", "tt"
-      dtShortDurationPattern: "h:mm",  // duration pattern without seconds: "H", "m"
-      dtLongDurationPattern: "h:mm:ss",  // duration pattern with seconds: "H", "m", "s"
+      dtShortDurationPattern: "H:mm",  // duration pattern without seconds: "H", "m"
+      dtLongDurationPattern : "H:mm:ss",  // duration pattern with seconds: "H", "m", "s"
       dtShortDateShortTimePattern: "M/d/yyyy h:mm tt",  //string: short date pattern + short time pattern
       dtShortDateLongTimePattern: "M/d/yyyy h:mm:ss tt",  //string: short date pattern + long time pattern
       dtAbbrDateShortTimePattern: "MMM dd, yyyy h:mm tt",  //string: abbr date pattern + short time pattern
@@ -312,8 +312,8 @@ jTAC_Temp = {
       dtShortMonthDayPatternMN: "MMM/dd",   // string: month day pattern based on ShortMonthDayPattern
       dtAbbrMonthDayPattern : "MMM dd",  //string: month day pattern with abbreviated month names
       dtLongMonthDayPattern: "MMMM dd",  //string: month day pattern with long month name
-      dtShortMonthDayPattern: "M/yyyy", // string: month year pattern with only digits
-      dtShortMonthDayPattern: "MMM/yyyy", // string: month year pattern based on ShortMonthYearPattern
+      dtShortMonthYearPattern: "M/yyyy", // string: month year pattern with only digits
+      dtShortMonthYearPatternMN: "MMM/yyyy", // string: month year pattern based on ShortMonthYearPattern
       dtAbbrMonthYearPattern: "MMM yyyy",  //string: month year pattern with abbreviated month names
       dtLongMonthYearPattern: "MMMM yyyy"  //string: month year pattern with long month name
    },

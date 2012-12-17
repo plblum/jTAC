@@ -126,6 +126,14 @@ Options
   toValue then toString methods. Nothing happens if there is a formatting error.
   It defaults to true.
 
+* initFromNeutral (boolean) -
+  When true and using the culture neutral hidden field, always
+  assign the textbox value by applying formatting from the TypeManager.
+  When false and the textbox's value is "", it will also 
+  assign the textbox value.
+  This option lets external code assign the initial formatted value.
+  It defaults to true.
+
 * filterkeys (boolean) -
   When true, keystrokes are evaluated for valid characters.
   Invalid characters are filtered out. 
@@ -430,12 +438,16 @@ the neutral element's value with the culture neutral format.
 /*
 Called during Init to transfer the value of the neutral hidden html tag
 to the visible textbox value, after reformatting it.
-Does nothing if the user has already assigned a value to the element.
+Does nothing if the user has already assigned a value to the element, unless
+that value is identical to the culture neutral value in the hidden field.
 */
       _initValue: function ( tm, neutralElement, visibleElement ) {
-         if ( visibleElement.val() == "" ) {
+         var visVal = visibleElement.val();
+         var neuVal = neutralElement.val();
+         var initFromNeutral = this.options.initFromNeutral;
+         if ( (visVal == "") || initFromNeutral || (initFromNeutral === undefined)) {
             try {
-               var n = tm.toValueNeutral( neutralElement.val() );
+               var n = tm.toValueNeutral( neuVal );
                if ( n != null ) {
                   visibleElement.val( tm.toString( n ) );
                }
@@ -724,6 +736,16 @@ toValue then toString methods. Nothing happens if there is a formatting error.
    reformat : true,
 
 /*
+  When true and using the culture neutral hidden field, always
+  assign the textbox value by applying formatting from the TypeManager.
+  When false and the textbox's value is "", it will also 
+  assign the textbox value.
+  This option lets external code assign the initial formatted value.
+  It defaults to true.
+*/
+   initFromNeutral : true,
+
+/*
 When true, keystrokes are evaluated for valid characters.
 Invalid characters are filtered out. 
 This uses the TypeManager.IsValidChar() method.
@@ -888,7 +910,7 @@ if (jTAC.isDefined("TypeManagers.BaseDate")) {
          return jTAC_StdDateCmds([], true);
       }
    } 
-   jTAC.addMembers("TypeManagers.Base", jTAC_Temp);
+   jTAC.addMembers("TypeManagers.BaseDate", jTAC_Temp);
 }
 
 if ( jTAC.isDefined( "TypeManagers.TimeOfDay" ) ) {
@@ -1101,6 +1123,14 @@ NOTE: Most are the same as those for the datatypeeditor.
   When true, the onchange event will reformat the contents to match
   the most desirable format. Effectively, it uses the TypeManager's
   toValue then toString methods. Nothing happens if there is a formatting error.
+  It defaults to true.
+
+* initFromNeutral (boolean) -
+  When true and using the culture neutral hidden field, always
+  assign the textbox value by applying formatting from the TypeManager.
+  When false and the textbox's value is "", it will also 
+  assign the textbox value.
+  This option lets external code assign the initial formatted value.
   It defaults to true.
 
 * filterkeys (boolean) -

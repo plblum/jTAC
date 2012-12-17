@@ -251,6 +251,7 @@ Returns the resulting formatted string.
    Neutral format is H:mm:ss (always 24 hour style).
 */
    _setNeutralFormat: function( sourceTM ) {
+      this.callParent([sourceTM]);
       this.setTimeFormat(100);
       this.setValueAsNumber(sourceTM.getValueAsNumber());
       this.setTimeOneEqualsSeconds(sourceTM.getTimeOneEqualsSeconds());

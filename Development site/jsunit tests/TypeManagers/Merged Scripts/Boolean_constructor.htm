@@ -14,9 +14,9 @@
          var vInstance1 = jTAC.create("TypeManagers.Boolean");
          assertNotNull(vInstance1);
          assertTrue(vInstance1.reFalse instanceof RegExp);
-         assertEquals("^(false)|(0)$", vInstance1.reFalse.source);
+         assertEquals("^((false)|(0))$", vInstance1.reFalse.source);
          assertTrue(vInstance1.reTrue instanceof RegExp);
-         assertEquals("^(true)|(1)$", vInstance1.reTrue.source);
+         assertEquals("^((true)|(1))$", vInstance1.reTrue.source);
          assertArrayEquals([0], vInstance1.numFalse);
          assertArrayEquals([1], vInstance1.numTrue);
          assertEquals("false", vInstance1.falseStr);

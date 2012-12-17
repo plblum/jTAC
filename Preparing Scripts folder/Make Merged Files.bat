@@ -89,6 +89,6 @@ COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%M
 
 
 REM jtac-all: all with jquery
-COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%Merged%\typemanagers-all.js" /B + "%Merged%\validation-all.js" /B  + "%jquery%\calculations-unobtrusive.js" /B + "%jquery%\textbox widgets-unobtrusive.js" /B "%jquery%\jtac-all.js"
+COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%Merged%\typemanagers-all.js" /B + "%jquery%\validation-all.js" /B  + "%jquery%\calculations-unobtrusive.js" /B + "%jquery%\textbox widgets-unobtrusive.js" /B "%jquery%\jtac-all.js"
 
 pause

@@ -183,6 +183,7 @@ jTAC._internal.temp._TypeManagers_BaseDate = {
    Neutral format is yyyy-MM-dd.
 */
    _setNeutralFormat: function(sourceTM) {
+      this.callParent([sourceTM]);
       this.setDateFormat(100);
       this.setTwoDigitYear(false);
    },
@@ -352,8 +353,12 @@ will not appear here.
       r = lit.pat;
       r = jTAC.replaceAll(r, "/", this.dateTimeFormat("ShortDateSep"), true);
       r = this._replacePart("d", neutral.d, r);
+      r = this._replacePart("yyyy", neutral.y, r);
+      r = this._replacePart("yy", neutral.y, r);
+/*
       r = r.replace("yyyy", neutral.y.toString());
       r = r.replace("yy", String(neutral.y % 100));
+*/
       if (r.indexOf("MMMM") > -1) {
          var name = this.dateTimeFormat("Months")[neutral.M - 1];
          r = r.replace("MMMM", name);

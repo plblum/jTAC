@@ -106,7 +106,8 @@ jquery-ui widgets\datetextbox.js
          element.data("datetextbox", null);
          try {
             if (options) {
-               options = window.eval("(" + options + ");");
+               if (typeof options == "string")
+                  options = window.eval("(" + options + ");");
                element.dateTextBox(options);
             }
             else {

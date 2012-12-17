@@ -4871,7 +4871,8 @@ the original value.
                var newOptions = form.data("val-options");
                if (newOptions) {
                   try {
-                     newOptions = window.eval("(" + newOptions +");");
+                     if (typeof newOptions == "string")
+                        newOptions = window.eval("(" + newOptions + ");");
                      mergeOptions(form, newOptions);
                   }
                   catch (e) {
@@ -5074,105 +5075,55 @@ for these reasons:
 2. Enhance them 
 --------------------------------------------------------- */
 
-/*
-Unobtrusive validation simplifies setting the placing the error message
-by setting options.errorPlacement to onError, which locates
-a container element with the [data-valmsg-for] attribute specifying
-the name of the input element.
-Users typically do this:
-<input type='text' id="textBox1" name="textBox1" 
+   /*
+   Unobtrusive validation simplifies setting the placing the error message
+   by setting options.errorPlacement to onError, which locates
+   a container element with the [data-valmsg-for] attribute specifying
+   the name of the input element.
+   Users typically do this:
+   <input type='text' id="textBox1" name="textBox1" 
    data-val="true" data-val-rulename="" />
-<span data-valmsg-for="textBox1" ></span>
-This feature is now available to non-unobtrusive validation
-and uses options properties to identify the style sheet:
-options.messageErrorClass
-options.messageErrorClass
-Users can override these on individual error message containers
-with the data-jtac-errorclass attribute.
-<span data-valmsg-for="textBox1" data-jtac-errorclass="myclass" ></span>
+   <span data-valmsg-for="textBox1" ></span>
+   This feature is now available to non-unobtrusive validation
+   and uses options properties to identify the style sheet:
+   options.messageErrorClass
+   options.messageValidClass
+   Users can override these on individual error message containers
+   with the data-jtac-errorclass attribute.
+   <span data-valmsg-for="textBox1" data-jtac-errorclass="myclass" ></span>
 
-If there is no container element with data-valmsg-for, it falls back using
-either options.errorPlacementFallback (a function that is the same
-as options.errorPlacement) or inserting the label after the inputElement.
-*/
-function onError(error, inputElement) {  // 'this' is the form element
-   var validator = $.data(this, "validator");
-   var options = validator.settings;
-   var name = inputElement[0].name || inputElement[0].id;
-   var container = $(this).find("[data-valmsg-for='" + name + "']");
-   if (!container || !container.length) {
-      error.removeClass(options.messageValidClass).addClass(options.messageErrorClass); // jquery-validate uses options.errorClass. We use that for the input only.
+   If there is no container element with data-valmsg-for, it falls back using
+   either options.errorPlacementFallback (a function that is the same
+   as options.errorPlacement) or inserting the label after the inputElement.
+   */
+   function onError(error, inputElement) {  // 'this' is the form element
+      var validator = $.data(this, "validator");
+      var options = validator.settings;
+      var name = inputElement[0].name || inputElement[0].id;
+      var container = $(this).find("[data-valmsg-for='" + name + "']");
+      if (!container || !container.length) {
+         error.removeClass(options.messageValidClass).addClass(options.messageErrorClass); // jquery-validate uses options.errorClass. We use that for the input only.
 
-      if (options.errorPlacementFallback) {
-         options.errorPlacementFallback.call(validator, error, inputElement);
-      }
-      else {
-         error.insertAfter(inputElement);   // default rule
-      }
-      return;
-   }
-
-   var replace = $.parseJSON(container.attr("data-valmsg-replace")) !== false;
-  
-   var ec = $(container).data("jtac-errorclass");
-   if (ec == null) { // ec == "" is used
-      ec = options.messageErrorClass;
-   }
-   var vc = $(container).data("jtac-validclass");
-   if (vc == null) { // vc == "" is used
-      vc = options.messageValidClass;
-   }
-
-   container.removeClass(vc).addClass(ec);
-   error.data("unobtrusiveContainer", container);
-
-   if (replace) {
-      container.empty();
-      ec = $(error).data("jtac-errorclass") || options.inputErrorClass;
-      error.removeClass(ec).appendTo(container);
-   }
-   else {
-      error.hide();
-   }
-}
-
-/*
-The reverse of onError. Based on the same-named method in jquery-validate-unobtrusive,
-this is called when the error is removed. It cleans up the error message label
-(which has already had its innerHTML set to "") by cleaning up the class on the label.
-This feature is now available to non-unobtrusive validation
-and uses options properties to identify the style sheet:
-options.messageErrorClass
-options.messageValidClass
-Users can override these on individual error message containers
-with the data-jtac-validclass attribute.
-<span data-valmsg-for="textBox1" data-jtac-validclass="myclass" ></span>
-
-If there is no container element with data-valmsg-for, it falls back using
-either options.successFallback (a property that is the same
-as options.success). It can be either a class name (string) or a function.
-*/
-function onSuccess(error) {  // 'this' is the form element
-   var validator = $.data(this, "validator");
-   var options = validator.settings;
-
-   var container = error.data("unobtrusiveContainer");
-   if (!container || !container.length) {
-      error.removeClass(options.messageErrorClass).addClass(options.messageValidClass);
-
-      var fb = options.successFallback;
-      if (fb != null) {
-         if (typeof fb == "string") {
-            label.addClass( fb )
+         if (options.errorPlacementFallback) {
+            options.errorPlacementFallback.call(validator, error, inputElement);
          }
          else {
-            fb.call(validator, error);
+            error.insertAfter(inputElement);   // default rule
          }
+         return;
       }
-      return;
-   }
 
-   if (container) {
+      // Adapted from jquery-validate.unobtrusive's onError function
+
+      // Continue to use the error element as what is shown and hidden
+      // The container is always present and has fixed style sheet class names as used here. 
+      // Normally these class names do not have any styles and are used to 
+      // prevent other styles that apply to SPAN tags from impacting the container.
+      // However, these class names can be populated with styles with good reason.
+      container.removeClass("field-validation-valid").addClass("field-validation-error");
+
+      error.data("unobtrusiveContainer", container);
+
       var ec = $(container).data("jtac-errorclass");
       if (ec == null) { // ec == "" is used
          ec = options.messageErrorClass;
@@ -5182,16 +5133,75 @@ function onSuccess(error) {  // 'this' is the form element
          vc = options.messageValidClass;
       }
 
-      container.addClass(vc).removeClass(ec);
+      error.removeClass(vc).addClass(ec);
 
-      error.removeData("unobtrusiveContainer");
-
-      var replace = $.parseJSON(container.attr("data-valmsg-replace"));
+      var replace = $.parseJSON(container.attr("data-valmsg-replace")) !== false;
       if (replace) {
-            container.empty();
+         container.empty();
+         error.appendTo(container);
+      }
+      else {
+         error.hide();
       }
    }
-}
+
+   /*
+   The reverse of onError. Based on the same-named method in jquery-validate-unobtrusive,
+   this is called when the error is removed. It cleans up the error message label
+   (which has already had its innerHTML set to "") by cleaning up the class on the label.
+   This feature is now available to non-unobtrusive validation
+   and uses options properties to identify the style sheet:
+   options.messageErrorClass
+   options.messageValidClass
+   Users can override these on individual error message containers
+   with the data-jtac-validclass attribute.
+   <span data-valmsg-for="textBox1" data-jtac-validclass="myclass" ></span>
+
+   If there is no container element with data-valmsg-for, it falls back using
+   either options.successFallback (a property that is the same
+   as options.success). It can be either a class name (string) or a function.
+   */
+   function onSuccess(error) {  // 'this' is the form element
+      var validator = $.data(this, "validator");
+      var options = validator.settings;
+
+      var container = error.data("unobtrusiveContainer");
+      if (!container || !container.length) {
+         error.removeClass(options.messageErrorClass).addClass(options.messageValidClass);
+
+         var fb = options.successFallback;
+         if (fb != null) {
+            if (typeof fb == "string") {
+               label.addClass(fb)
+            }
+            else {
+               fb.call(validator, error);
+            }
+         }
+         return;
+      }
+
+      if (container) {
+         var ec = $(container).data("jtac-errorclass");
+         if (ec == null) { // ec == "" is used
+            ec = options.messageErrorClass;
+         }
+         var vc = $(container).data("jtac-validclass");
+         if (vc == null) { // vc == "" is used
+            vc = options.messageValidClass;
+         }
+
+         container.removeClass("field-validation-error").addClass("field-validation-valid");
+
+         error.removeData("unobtrusiveContainer");
+         error.removeClass(ec).addClass(vc);
+
+         var replace = $.parseJSON(container.attr("data-valmsg-replace"));
+         if (replace) {
+            container.empty();
+         }
+      }
+   }
 /* !!!PENDING
 function onErrors(form, validator) {  // 'this' is the form element
    var validator = $.data(this, "validator");
