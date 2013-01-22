@@ -1,21 +1,23 @@
 REM Minifies only your \jTAC\Translations folder,
 REM placing the results in your \jTAC-min\Translations folder.
 REM You must modify this file before running it. 
-REM Change the two SET statements to reflect the correct paths
-REM into your app.
+REM Change the SET RootSource statement to point to the app root folder in your app
+SET YUI=%CD%\yuicompressor-2.4.7.jar
 
-REM REMOVE THIS EXIT STATEMENT AFTER YOU MODIFY THE TWO SET LINES
+REM REMOVE THIS EXIT STATEMENT AFTER YOU MODIFY THE SET STATEMENT
 pause
-exit
+REM exit
 
-SET RootSource=C:\Folder\MyApp\jTAC\Translations
-SET RootDest=C:\Folder\MyApps\jTAC-min\Translations
+REM UPDATE THIS LINE TO POINT TO YOUR APP ROOT FOLDER. OMIT DRIVE LETTER
+SET AppRootFolder=\Folder\MyApp
+REM IF YOU NEED TO CHANGE THE DRIVE, UPDATE THE LINE BELOW
+C:
 
-java -jar yuicompressor-2.4.7.jar -o ".js$:.xjs"  "%RootSource%\*.js"
 
-COPY %RootSource%\*.xjs %RootDest%\
-DEL %RootDest%\*.js
-RENAME %RootDest%\*.xjs *.js
-DEL %RootSource%\*.xjs
+PUSHD "%AppRootFolder%\jTAC\Translations\"
+
+FOR %%f IN ("*.js")  DO java -jar "%YUI%" -o "..\..\jTAC-min\Translations\%%f" "%%f"
+
+POPD
 
 pause
