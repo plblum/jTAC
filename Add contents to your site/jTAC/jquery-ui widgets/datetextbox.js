@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------
-Module: TypeManager objects
+Module: jquery-ui widgets
 
 Purpose:
 datetextbox is a jquery-ui widget that incorporates the features of

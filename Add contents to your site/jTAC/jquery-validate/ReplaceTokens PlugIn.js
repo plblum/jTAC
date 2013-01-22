@@ -42,6 +42,7 @@ before loading /jTAC/jquery-validate/Rules.js
 This object is intended have its properties added to $.validate through $.extend.
 It replaces one, formatAndAdd. It adds the rest.
 */
+if ($ && $.validator) {
 (function ($)
 {
    if ($.validator.replaceTokens) // already exists
@@ -266,3 +267,4 @@ It replaces one, formatAndAdd. It adds the rest.
    $.extend($.validator, plugin);   // for some reason, extend to the prototype has no impact on the default $.validator
 } (jQuery));    // function($) ends
 
+}  // if $ && $.validator

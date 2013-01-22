@@ -759,3 +759,14 @@ if (jTAC.isDefined("Conditions.BooleanLogic")) {
    }
    jTAC.addMembers("Conditions.BooleanLogic", jTAC_Temp);
 }
+
+/* ---- EXTENDS Conditions.UserFunction --------------------------------- */
+
+if (jTAC.isDefined("Conditions.UserFunction")) {
+   jTAC_Temp = {
+      defaultErrorMessage: function () {
+         return "*** EXPLICITY ASSIGN THIS MESSAGE ***";
+      }
+   }
+   jTAC.addMembers("Conditions.UserFunction", jTAC_Temp);
+}

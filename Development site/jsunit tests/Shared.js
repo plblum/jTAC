@@ -30,6 +30,21 @@ function ToIllegalValueMain(instance, text)
    fail("Converted [" + text + "].");
 }
 
+function ToValueNeutralMain(instance, text, compareval) {
+   var vResult = null;
+   try {
+      vResult = instance.toValueNeutral(text);
+   }
+   catch (e) {
+      fail(e.message);
+   }
+   if (compareval != null)
+      assertNotNull(vResult);
+   assertEquals(typeof (vResult), instance.nativeTypeName());
+   assertEquals("The text [" + text + "] does not convert correctly.", compareval, vResult);
+}
+
+
 function ToIllegalValueNeutralMain(instance, text)
 {
    try

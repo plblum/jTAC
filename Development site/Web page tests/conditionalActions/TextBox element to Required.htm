@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-ui-1.8.11.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Boolean.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareToValue.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/conditionalActions.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/jqActions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/jqActions/Show.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <script type="text/javascript">
+      $(document).ready(
+      function () {
+         var cond = "enabler1";
+         var options = new jTAC_ConditionalActionsOptions();
+         options.condition = cond;
+         options.actions = 'jqActions.Show';
+         $("#textbox1").ConditionalActions(options);
+      }
+      );
+   </script>
+   <p>Options.Condition uses id of the first textbox which auto creates Required condition.</p>
+   <p>Options.Action uses just the class name 'jqActions.Show'."</p>
+   <form action="" method="get" id="Form1">
+      <input type="text" id="enabler1" /><label for="enabler1">Type to show:</label>
+      <input type="text" id="textbox1" /><br />
+   </form>
+
+</body>
+</html>

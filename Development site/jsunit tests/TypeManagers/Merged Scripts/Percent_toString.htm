@@ -171,6 +171,12 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.Percent", {cultureName: "fr-FR"});// forces different separator characters
          assertNotNull(vInstance1);
+         assertTrue(vInstance1.oneEqualsOneHundred);
+         assertEquals("100.0", vInstance1.toStringNeutral(1));
+         assertEquals("1000012.3", vInstance1.toStringNeutral(10000.123));
+         assertEquals("-110.0", vInstance1.toStringNeutral(-1.1));
+         assertEquals("", vInstance1.toStringNeutral(null));
+         vInstance1.oneEqualsOneHundred = false;
          assertEquals("1.0", vInstance1.toStringNeutral(1));
          assertEquals("10000.123", vInstance1.toStringNeutral(10000.123));
          assertEquals("-1.1", vInstance1.toStringNeutral(-1.1));
@@ -178,7 +184,13 @@
 
          var vInstance2 = jTAC.create("TypeManagers.Percent", {cultureName: "fr-FR"}); // forces different separator characters
          assertNotNull(vInstance2);
+         assertTrue(vInstance2.oneEqualsOneHundred);
          vInstance2.maxDecimalPlaces = 0; // show this does NOT impact the result. Its always a decimal with all available decimal places
+         assertEquals("1.0", vInstance2.toStringNeutral(1));
+         assertEquals("10000.123", vInstance2.toStringNeutral(10000.123));
+         assertEquals("-1.1", vInstance2.toStringNeutral(-1.1));
+         assertEquals("", vInstance1.toStringNeutral(null));
+         vInstance2.oneEqualsOneHundred = false;   // show this doesn't impact the result
          assertEquals("1.0", vInstance2.toStringNeutral(1));
          assertEquals("10000.123", vInstance2.toStringNeutral(10000.123));
          assertEquals("-1.1", vInstance2.toStringNeutral(-1.1));

@@ -145,6 +145,8 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "fr-FR"});   
          assertNotNull(vInstance1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          severalDates(vInstance1, "dd/MM");
 
          vInstance1.setDateFormat(1);
@@ -164,6 +166,8 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "hi-IN"});   
          assertNotNull(vInstance1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          severalDates(vInstance1, "dd-MM");
 
          vInstance1.setDateFormat(1);
@@ -183,6 +187,8 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "ii-CN"});  
          assertNotNull(vInstance1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          severalDates(vInstance1, "M/d");
 
          vInstance1.setDateFormat(1);
@@ -193,6 +199,8 @@
 
          // chinese uses the month number, not name
          var vInstance2 = jTAC.create("TypeManagers.DayMonth", {cultureName: "ii-CN"});   
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          vInstance2.setDateFormat(10);
          severalDates(vInstance2, "M'ꆪ' d'ꑍ'");
 
@@ -204,6 +212,8 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "quz-EC"});
          assertNotNull(vInstance1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          severalDates(vInstance1, "dd/MM");
 
          vInstance1.setDateFormat(1);
@@ -213,6 +223,8 @@
          severalDates(vInstance1, "dd/MMM");   // same as 1.
 
          var vInstance2 = jTAC.create("TypeManagers.DayMonth", {cultureName: "quz-EC"});   
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          vInstance2.setDateFormat(10);
          ToValueForDates(vInstance2, "Qul 01", new Date(2012, 0, 1));
 
@@ -225,6 +237,8 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth", {cultureName: "am-ET"});   
          assertNotNull(vInstance1);
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          severalDates(vInstance1, "d/M");
 
          vInstance1.setDateFormat(1);
@@ -272,6 +286,8 @@
       {
          // try parser
          var vInstance1 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          vInstance1.parserOptions.monthAsTwoCharName = false;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance1, "01/01", date1);
@@ -292,6 +308,8 @@
          ToIllegalValueMain(vInstance1, "January/01");
 
          var vInstance2 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          vInstance2.parserOptions.monthAsTwoCharName = false;
          vInstance2.dateFormat = 10;
          var date1 = new Date(2012, 0, 1);
@@ -313,6 +331,8 @@
          ToIllegalValueMain(vInstance2, "January 01");
 
          var vInstance3 = new jTAC.create("TypeManagers.DayMonth");  
+         vInstance3.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance3.parserOptions.defaultMonth = 0;
          vInstance3.parserOptions.monthAsTwoCharName = false;
          vInstance3.dateFormat = 20;
          var date1 = new Date(2012, 0, 1);
@@ -342,6 +362,8 @@
       function testOptionMonthAsTwoCharName()
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance1, "Jan/01", date1);
          ToValueForDates(vInstance1, "Jaxyz/01", date1);
@@ -351,6 +373,8 @@
          ToIllegalValueMain(vInstance1, "Jaxyz/01");
 
          var vInstance2 = jTAC.create("TypeManagers.DayMonth");
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          vInstance2.dateFormat = 10;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance2, "Jan 01", date1);
@@ -361,6 +385,8 @@
          ToIllegalValueMain(vInstance2, "Jaxzy 01");
 
          var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance3.parserOptions.defaultMonth = 0;
          vInstance3.dateFormat = 20;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance3, "January 01", date1);
@@ -376,6 +402,8 @@
       function testOptionInsertDateSeps()
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance1, "01/01", date1);
          ToValueForDates(vInstance1, "0101", date1);
@@ -386,6 +414,8 @@
 
          // has no impact on dateFormat = 10 or 20.
          var vInstance2 = jTAC.create("TypeManagers.DayMonth");
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          vInstance2.dateFormat = 10;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance2, "Jan 01", date1);
@@ -394,6 +424,8 @@
          ToValueForDates(vInstance2, "Jan 01", date1);
 
          var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance3.parserOptions.defaultMonth = 0;
          vInstance3.dateFormat = 20;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance3, "January 01", date1);
@@ -408,6 +440,8 @@
       function testOptionMoreDateSeps()
       {
          var vInstance1 = jTAC.create("TypeManagers.DayMonth");
+         vInstance1.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance1.parserOptions.defaultMonth = 0;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance1, "01/01", date1);
          ToIllegalValueMain(vInstance1, "01,01");
@@ -421,6 +455,8 @@
          // has no impact on dateFormat = 10 or 20.
          var vInstance2 = jTAC.create("TypeManagers.DayMonth");
          vInstance2.dateFormat = 10;
+         vInstance2.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance2.parserOptions.defaultMonth = 0;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance2, "Jan 01", date1);
 
@@ -428,6 +464,8 @@
          ToValueForDates(vInstance2, "Jan 01", date1);
 
          var vInstance3 = jTAC.create("TypeManagers.DayMonth");
+         vInstance3.parserOptions.defaultYear = 2012;   // overrides the current month and year as this code will be used past 2012
+         vInstance3.parserOptions.defaultMonth = 0;
          vInstance3.dateFormat = 20;
          var date1 = new Date(2012, 0, 1);
          ToValueForDates(vInstance3, "January 01", date1);

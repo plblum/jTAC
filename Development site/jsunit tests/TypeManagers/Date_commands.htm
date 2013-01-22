@@ -139,9 +139,26 @@
          InvokeCmd(vInstance1, prevargs, "12/31/2012");
          InvokeCmd(vInstance1, prevargs, "12/30/2012");
 
+
+      // set any specific date
+         vInstance1.blankStartsAt = new Date(2012, 5, 1);
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, nextargs, "6/1/2012");
+         InvokeCmd(vInstance1, nextargs, "6/2/2012");
+
+         conn.setTextValue("");
+         InvokeCmd(vInstance1, prevargs, "6/1/2012");
+         InvokeCmd(vInstance1, prevargs, "5/31/2012");
+
+
       // while min and max are still set, this forces using today.
+      // NOTE: "Now" demands the current year, so revise dates to reflect this year.
          conn.setTextValue("");
          vInstance1.blankStartsAt = "Now";
+         var year = new Date().getFullYear();
+         vInstance1.minValue = new Date(year, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(year, 11, 31);   // dec 31
 
          args = { commandName : "NextDay", connection : conn};
          vInstance1.invoke.call(vInstance1, args);
@@ -156,16 +173,6 @@
          assertTrue(today.getMonth() == args.value.getMonth());
          assertTrue(today.getDate() == args.value.getDate());
 
-      // set any specific date
-         vInstance1.blankStartsAt = new Date(2012, 5, 1);
-
-         conn.setTextValue("");
-         InvokeCmd(vInstance1, nextargs, "6/1/2012");
-         InvokeCmd(vInstance1, nextargs, "6/2/2012");
-
-         conn.setTextValue("");
-         InvokeCmd(vInstance1, prevargs, "6/1/2012");
-         InvokeCmd(vInstance1, prevargs, "5/31/2012");
 
          conn.setTextValue("");  // reset
 
@@ -282,21 +289,6 @@
          InvokeCmd(vInstance1, prevargs, "12/31/2012");
          InvokeCmd(vInstance1, prevargs, "11/30/2012");
 
-      // while min and max are still set, this forces using today.
-         vInstance1.blankStartsAt = "Now";
-
-         conn.setTextValue("");
-         vInstance1.invoke.call(vInstance1, nextargs);
-         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
-         assertTrue(today.getMonth() == nextargs.value.getMonth());
-         assertTrue(today.getDate() == nextargs.value.getDate());
-
-         conn.setTextValue("");
-         vInstance1.invoke.call(vInstance1, prevargs);
-         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
-         assertTrue(today.getMonth() == prevargs.value.getMonth());
-         assertTrue(today.getDate() == prevargs.value.getDate());
-
       // set any specific date
          vInstance1.blankStartsAt = new Date(2012, 5, 1);
 
@@ -313,6 +305,26 @@
 
          InvokeCmd(vInstance1, nextargs, "6/1/2012");
          InvokeCmd(vInstance1, nextargs, "7/1/2012");
+
+         conn.setTextValue("");
+      // while min and max are still set, this forces using today.
+      // NOTE: "Now" demands the current year, so revise dates to reflect this year.
+         vInstance1.blankStartsAt = "Now";
+         var year = new Date().getFullYear();
+         vInstance1.minValue = new Date(year, 0, 1);  // jan 1
+         vInstance1.maxValue = new Date(year, 11, 31);   // dec 31
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, nextargs);
+         assertTrue(today.getFullYear() == nextargs.value.getFullYear());
+         assertTrue(today.getMonth() == nextargs.value.getMonth());
+         assertTrue(today.getDate() == nextargs.value.getDate());
+
+         conn.setTextValue("");
+         vInstance1.invoke.call(vInstance1, prevargs);
+         assertTrue(today.getFullYear() == prevargs.value.getFullYear());
+         assertTrue(today.getMonth() == prevargs.value.getMonth());
+         assertTrue(today.getDate() == prevargs.value.getDate());
 
          conn.setTextValue("");  // reset
 
@@ -432,10 +444,10 @@
          InvokeCmd(vInstance1, prevargs, "12/31/2020");
          InvokeCmd(vInstance1, prevargs, "12/31/2019");
 
-      // while min and max are still set, this forces using today.
+         conn.setTextValue("");
+     // while min and max are still set, this forces using today.
          vInstance1.blankStartsAt = "Now";
 
-         conn.setTextValue("");
          vInstance1.invoke.call(vInstance1, args);
          assertTrue(today.getFullYear() == args.value.getFullYear());
          assertTrue(today.getYear() == args.value.getYear());

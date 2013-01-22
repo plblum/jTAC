@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../../../jquery/jquery-ui-1.8.11.js" type="text/javascript"></script>
+   <script src="../../../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../../../jTAC-min/Merged/jtac-all.js" type="text/javascript"></script>
+   <script src="../../../../jTAC-min/Merged/jquery extensions/conditionalActions-unobtrusive.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <p>Options.Condition uses instance of Conditions.CompareToValue</p>
+   <p>Options.Actions uses array of instance of jqActions.Show.</p>
+   <form action="" method="get" id="Form1">
+      <input type="checkbox" id="enabler1" /><label for="enabler1">Check to show:</label>
+      <input type="text" id="textbox1" 
+      data-jtac-conditionalActions="{'condition' : {'jtacClass': 'Conditions.CompareToValue', 'elementId' : 'enabler1', 'valueToCompare': true}, 
+         'actions' : [{'jtacClass':'jqActions.Show'}]}" /><br />
+   </form>
+
+</body>
+</html>

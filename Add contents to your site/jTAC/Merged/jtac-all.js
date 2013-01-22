@@ -1,5 +1,5 @@
 ﻿// jTAC/jTAC.js
-/* -----------------------------------------------------------
+/*! -----------------------------------------------------------
 JavaScript Types and Conditions ("jTAC")
 Copyright (C) 2012  Peter L. Blum
 
@@ -15,7 +15,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------
+------------------------------------------------------------- */
+/*
 Module: jTAC
 
 Purpose:
@@ -1278,8 +1279,10 @@ replaces &, ', ", < and >.
                If existingObject is null, an exception is thrown.
                If illegal properties are found, exceptions are thrown.
             string - Specify the class or alias name of the class to create. 
-               That class is created with default properties
-               and returned.
+               That class is created with default properties and returned.
+               Specify a JSON string with the jtacClass property defining
+               the class to create and propertise that match properties on the
+               object to create. This string must be enclosed in "{ }".
             null - return the value of existingObject.
          existingObject - Either null or an object instance. Usage depends on val.
          classCtor - Class constructor used to verify the class instance created
@@ -1310,8 +1313,25 @@ replaces &, ', ", < and >.
                   return existingObject;
                }
             }
-            else if (typeof(val) == "string") {
-               val = jTAC.create(val, null, true);
+            else if (typeof (val) == "string") {
+               if (val.indexOf("{") == 0) { // try a JSON string
+                  try {
+                     val = eval("(" + val + ");");
+
+                  }
+                  catch (e) {
+                     jTAC.error("JSon parsing error. " + e.message, this, null, true);
+                  }
+                  if (val.jtacClass) { // convert to object
+                     val = jTAC.create(null, val);
+                  }
+                  else
+                     jTAC.error("JSon parsing error. Missing 'jtacClass' property.");
+
+               }
+               else {   // assume it is a class name or alias
+                  val = jTAC.create(val, null, true);
+               }
             }
             if (val instanceof classCtor) {
                return val;
@@ -1768,7 +1788,7 @@ The property isn't required to use this to set this.config.
 Always call to set 'this' to the instance of the object.
 EXAMPLE:
    setPropertyName: function(val) {
-      this._updateConfig.call(this, "PropertyName", val);
+      this._defaultSetter.call(this, "PropertyName", val);
       // do other stuff.
    }
 */
@@ -6821,6 +6841,11 @@ Properties introduced by this class:
    oneEqualsOneHundred (bool) - Determines if the numeric value of 1.0 is shown as 1% or 100%,
       but only when using floating point values. If maxDecimalPlaces = 0,
       it is not used. It defaults to true (convert 1 to 100).
+      This property will convert values passed into toValue() and toValueNeutral()
+      by dividing the result by 100.
+      It converts values passed into toString() and toStringNeutral()
+      by multiplying the result by 100.
+      Since it defaults to true, remember that by default, numbers are converted.
 
 Requires: 
 ALWAYS LOAD jTAC.js BEFORE THIS FILE IS LOADED
@@ -6834,8 +6859,8 @@ globalize.js from jquery-globalize: https://github.com/jquery/globalize
 jTAC._internal.temp._TypeManagers_Percent = {
    extend: "TypeManagers.BaseFloat",
 
-   constructor: function ( propertyVals ) {
-      this.callParent( [propertyVals] );
+   constructor: function (propertyVals) {
+      this.callParent([propertyVals]);
    },
 
    config: {
@@ -6846,11 +6871,11 @@ jTAC._internal.temp._TypeManagers_Percent = {
       oneEqualsOneHundred: true
    },
 
-   dataTypeName : function () {
+   dataTypeName: function () {
       return "percent";
    },
 
-   storageTypeName : function () {
+   storageTypeName: function () {
       return "float";
    },
 
@@ -6858,19 +6883,13 @@ jTAC._internal.temp._TypeManagers_Percent = {
    Support for toValue() method. This is an override from the base class.
    Returns a float or throws an exception.
    */
-   _stringToNative : function (text) {
+   _stringToNative: function (text) {
       if (!this.getAllowPercentSymbol() && (text.indexOf(this._nf("Symbol")) > -1))
          this._inputError("Percent symbol found but not allowed.");
 
       var n = this.callParent([text]);   // throws exceptions if it cannot return a number
 
-      if ((n != null) && this.getOneEqualsOneHundred() && (this.getMaxDecimalPlaces() != 0)) {
-         // calculation errors are fixed by rounding
-         var ndp = this.numDecPlaces(n);
-         n = n / 100;
-         ndp = ndp + 2;  // 2 is due to / 100
-         n = this.round(n, 2, ndp);
-      }
+      n = this._toNativeAdjust(n);
 
       return n;
    },
@@ -6878,18 +6897,8 @@ jTAC._internal.temp._TypeManagers_Percent = {
    /*
    Returns a string converted from the float passed.
    */
-   _nativeToString : function (value) {
-      var mdc = this.getMaxDecimalPlaces();
-      if (this.getOneEqualsOneHundred() && (mdc != 0)) {
-         // calculation errors occur: 1.1 * 100 = 110.000000000000001
-         // Fixed by rounding
-         var ndp = this.numDecPlaces(value);
-         value = 100.0 * value;
-         ndp = ndp - 2;  // 2 is due to x 100
-         if (ndp < 0)
-            ndp = 0;
-         value = this.round(value, 2, ndp);
-      }
+   _nativeToString: function (value) {
+      value = this._toStringAdjust(value);
 
       var s = this.callParent([value]);
       // at this point, thousands separators, decimal character and negative characters are localized.
@@ -6909,11 +6918,22 @@ jTAC._internal.temp._TypeManagers_Percent = {
       return s;
    },
 
+   toValueNeutral: function (text) {
+      var value = this.callParent([text]);
+      return this._toNativeAdjust(value);
+   },
+
+
+   toStringNeutral: function (val) {
+      val = this._toStringAdjust(val);
+      return this.callParent([val]);
+
+   },
 
    /*
-     Used by the _valCharRE method to add characters that it doesn't normally add.
+   Used by the _valCharRE method to add characters that it doesn't normally add.
    */
-   _moreValidChars : function(nf) {
+   _moreValidChars: function (nf) {
       return this.getAllowPercentSymbol() ? this._nf("Symbol") : "";
    },
 
@@ -6927,11 +6947,11 @@ jTAC._internal.temp._TypeManagers_Percent = {
    ---------------------------------------------------------------------*/
 
    /*
-      Overrides ancestor to return percentFormat("Decimals")
-      or the value that the user set for trailingZeroDecimalPlaces. 
-      Always returns 0 when MaxDecimalPlaces = 0.
+   Overrides ancestor to return percentFormat("Decimals")
+   or the value that the user set for trailingZeroDecimalPlaces. 
+   Always returns 0 when MaxDecimalPlaces = 0.
    */
-   getTrailingZeroDecimalPlaces : function () {
+   getTrailingZeroDecimalPlaces: function () {
       if (this.getMaxDecimalPlaces() == 0)
          return 0;
       if (this.config.trailingZeroDecimalPlaces != null)
@@ -6941,7 +6961,54 @@ jTAC._internal.temp._TypeManagers_Percent = {
 
    // --- UTILITY METHODS ---------------------------------
 
-   _nf: function(rule) {
+
+   /* 
+   Adjusts the number passed by dividing by 100 when
+   the oneEqualsOneHundred property is true and the number represents 
+   a decimal value (maxDecimalPlaces <> 0.)
+   Supports toValue() and toValueNeutral() methods
+   n (number) - the number to cleanup.
+   Returns either the same number or adjusted by 100.
+   */
+   _toNativeAdjust: function (value) {
+      var mdc = this.getMaxDecimalPlaces();
+
+      if ((value != null) && this.getOneEqualsOneHundred() && (mdc != 0)) {
+         // calculation errors are fixed by rounding
+         var ndp = this.numDecPlaces(value);
+         value = value / 100;
+         ndp = ndp + 2;  // 2 is due to / 100
+         value = this.round(value, 2, ndp);
+      }
+
+      return value;
+   },
+
+   /*
+   Adjusts the number passed by multiplying by 100 when
+   the oneEqualsOneHundred property is true and the number represents 
+   a decimal value (maxDecimalPlaces <> 0.)
+   Supports toString() and toStringNeutral() methods
+   n (number) - the number to cleanup.
+   Returns either the same number or adjusted by 100.
+   */
+   _toStringAdjust: function (value) {
+      var mdc = this.getMaxDecimalPlaces();
+      if ((value != null) && this.getOneEqualsOneHundred() && (mdc != 0)) {
+         // calculation errors occur: 1.1 * 100 = 110.000000000000001
+         // Fixed by rounding
+         var ndp = this.numDecPlaces(value);
+         value = 100.0 * value;
+         ndp = ndp - 2;  // 2 is due to x 100
+         if (ndp < 0)
+            ndp = 0;
+         value = this.round(value, 2, ndp);
+      }
+
+      return value;
+   },
+
+   _nf: function (rule) {
       var r = this.percentFormat(rule);
       if (r === undefined)
          r = this.numberFormat(rule);  // fallback
@@ -14429,6 +14496,133 @@ jTAC._internal.temp._Conditions_CountSelections = {
 }
 jTAC.define("Conditions.CountSelections", jTAC._internal.temp._Conditions_CountSelections);
 jTAC.defineAlias("CountSelections", "Conditions.CountSelections");
+
+﻿// jTAC/Conditions/UserFunction.js
+/* -----------------------------------------------------------
+JavaScript Types and Conditions ("jTAC")
+Copyright (C) 2012  Peter L. Blum
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-------------------------------------------------------------
+Module: Condition objects
+Class : Conditions.UserFunction
+Extends: Conditions.BaseOneOrMoreConnections
+
+Purpose:
+Lets the user assign a function to do the work of the _evaluateRule() method.
+Your function will be passed the instance of the Condition so it can
+access all of its Connections and any properties assigned by the user.
+It returns a value of 1 ("success"), 0 ("failed"), and -1 ("cannot evaluate").
+
+Examples:
+function IsVisible(cond) {
+   // check if the first Connection is a visible DOM element
+   var conn = cond.connection;
+   if (!conn || !conn.getElement(true))   // nothing to evaluate
+      return -1; // cannot evaluate
+   return conn.isVisible() ? 1 : 0;
+
+}
+
+function MatchClassName(cond) {
+   // check if the first Connection's class name is the value of 
+   // cond.options.ClassName which is a custom property you defined.
+   if (cond.options.ClassName === undefined)
+      return -1;  // cannot evaluate
+   var conn = cond.connection;
+   if (!conn || !conn.getElement(true))   // nothing to evaluate
+      return -1; // cannot evaluate
+   return conn.getClass() == cond.options.ClassName ? 1 : 0;
+}
+
+Set up:
+   Assign the element’s id to the [elementId] property and any additional
+   elements to the [moreConnections] property. You can also omit
+   these values and let your function acquire the elements it needs.
+
+   Assign the [fnc] property to your function. 
+
+   If you want to pass in values, create an object with properties hosting
+   the desired values and assign that object to the [options] property.
+   Your function can access them as cond.options.propertyname.
+
+See \jTAC\Conditions\Base.js for an overview of Conditions.
+
+Properties introduced by this class:
+   fnc (function) -
+      Reference to the function that is evaluated.
+      You can pass a string name of the function so long
+      as that function is defined on the window object.
+
+   options (object) -
+      An option where you can define property names 
+      and values for those properties. This object is passed along
+      with the condition object passed to your function giving
+      you a way to pass along data that your function can use.
+      One way to assign it is to use javascript's object notation:
+
+      cond.options = {propertyName: value, propertyName2: value};
+
+Requires: 
+ALWAYS LOAD jTAC.js BEFORE THIS FILE IS LOADED
+Conditions.Base
+Conditions.BaseOneConnection
+Connections.Base
+Connections.BaseElement
+TypeManagers.Base
+Other TypeManager classes as needed
+
+----------------------------------------------------------- */
+jTAC._internal.temp._Conditions_UserFunction = {
+   extend: "Conditions.BaseOneOrMoreConnections",
+
+   constructor: function ( propertyVals ) {
+      this.callParent( [propertyVals] );
+
+   },
+
+   config: {
+      fnc: null,
+      options: null,
+      autoDisable : false  // overrides default because this is often used with non-editable connections
+   },
+
+   configrules: {
+      fnc: jTAC.checkAsFunction
+   },
+
+   /*
+   Requires the function is assigned.
+   */
+   canEvaluate : function () {
+      return this.callParent() && this.fnc;
+   },
+   _evaluateRule : function () {
+      return this.fnc(this);
+   }
+
+   /* --- PROPERTY GETTER AND SETTER METHODS ---------------------------
+   These members are GETTER and SETTER methods associated with properties
+   of this class.
+   Not all are defined here. Any that are defined in this.config
+   can be setup by the autoGet and autoSet capability. If they are, they 
+   will not appear here.
+   ---------------------------------------------------------------------*/
+
+}
+jTAC.define("Conditions.UserFunction", jTAC._internal.temp._Conditions_UserFunction);
+// while valid, there are other object heirarchies with the same name. jTAC.defineAlias("UserFunction", "Conditions.UserFunction");
 
 ﻿// jTAC/Connections/Value.js
 /* -----------------------------------------------------------

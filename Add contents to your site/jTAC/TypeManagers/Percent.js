@@ -37,6 +37,11 @@ Properties introduced by this class:
    oneEqualsOneHundred (bool) - Determines if the numeric value of 1.0 is shown as 1% or 100%,
       but only when using floating point values. If maxDecimalPlaces = 0,
       it is not used. It defaults to true (convert 1 to 100).
+      This property will convert values passed into toValue() and toValueNeutral()
+      by dividing the result by 100.
+      It converts values passed into toString() and toStringNeutral()
+      by multiplying the result by 100.
+      Since it defaults to true, remember that by default, numbers are converted.
 
 Requires: 
 ALWAYS LOAD jTAC.js BEFORE THIS FILE IS LOADED
@@ -50,8 +55,8 @@ globalize.js from jquery-globalize: https://github.com/jquery/globalize
 jTAC._internal.temp._TypeManagers_Percent = {
    extend: "TypeManagers.BaseFloat",
 
-   constructor: function ( propertyVals ) {
-      this.callParent( [propertyVals] );
+   constructor: function (propertyVals) {
+      this.callParent([propertyVals]);
    },
 
    config: {
@@ -62,11 +67,11 @@ jTAC._internal.temp._TypeManagers_Percent = {
       oneEqualsOneHundred: true
    },
 
-   dataTypeName : function () {
+   dataTypeName: function () {
       return "percent";
    },
 
-   storageTypeName : function () {
+   storageTypeName: function () {
       return "float";
    },
 
@@ -74,19 +79,13 @@ jTAC._internal.temp._TypeManagers_Percent = {
    Support for toValue() method. This is an override from the base class.
    Returns a float or throws an exception.
    */
-   _stringToNative : function (text) {
+   _stringToNative: function (text) {
       if (!this.getAllowPercentSymbol() && (text.indexOf(this._nf("Symbol")) > -1))
          this._inputError("Percent symbol found but not allowed.");
 
       var n = this.callParent([text]);   // throws exceptions if it cannot return a number
 
-      if ((n != null) && this.getOneEqualsOneHundred() && (this.getMaxDecimalPlaces() != 0)) {
-         // calculation errors are fixed by rounding
-         var ndp = this.numDecPlaces(n);
-         n = n / 100;
-         ndp = ndp + 2;  // 2 is due to / 100
-         n = this.round(n, 2, ndp);
-      }
+      n = this._toNativeAdjust(n);
 
       return n;
    },
@@ -94,18 +93,8 @@ jTAC._internal.temp._TypeManagers_Percent = {
    /*
    Returns a string converted from the float passed.
    */
-   _nativeToString : function (value) {
-      var mdc = this.getMaxDecimalPlaces();
-      if (this.getOneEqualsOneHundred() && (mdc != 0)) {
-         // calculation errors occur: 1.1 * 100 = 110.000000000000001
-         // Fixed by rounding
-         var ndp = this.numDecPlaces(value);
-         value = 100.0 * value;
-         ndp = ndp - 2;  // 2 is due to x 100
-         if (ndp < 0)
-            ndp = 0;
-         value = this.round(value, 2, ndp);
-      }
+   _nativeToString: function (value) {
+      value = this._toStringAdjust(value);
 
       var s = this.callParent([value]);
       // at this point, thousands separators, decimal character and negative characters are localized.
@@ -125,11 +114,22 @@ jTAC._internal.temp._TypeManagers_Percent = {
       return s;
    },
 
+   toValueNeutral: function (text) {
+      var value = this.callParent([text]);
+      return this._toNativeAdjust(value);
+   },
+
+
+   toStringNeutral: function (val) {
+      val = this._toStringAdjust(val);
+      return this.callParent([val]);
+
+   },
 
    /*
-     Used by the _valCharRE method to add characters that it doesn't normally add.
+   Used by the _valCharRE method to add characters that it doesn't normally add.
    */
-   _moreValidChars : function(nf) {
+   _moreValidChars: function (nf) {
       return this.getAllowPercentSymbol() ? this._nf("Symbol") : "";
    },
 
@@ -143,11 +143,11 @@ jTAC._internal.temp._TypeManagers_Percent = {
    ---------------------------------------------------------------------*/
 
    /*
-      Overrides ancestor to return percentFormat("Decimals")
-      or the value that the user set for trailingZeroDecimalPlaces. 
-      Always returns 0 when MaxDecimalPlaces = 0.
+   Overrides ancestor to return percentFormat("Decimals")
+   or the value that the user set for trailingZeroDecimalPlaces. 
+   Always returns 0 when MaxDecimalPlaces = 0.
    */
-   getTrailingZeroDecimalPlaces : function () {
+   getTrailingZeroDecimalPlaces: function () {
       if (this.getMaxDecimalPlaces() == 0)
          return 0;
       if (this.config.trailingZeroDecimalPlaces != null)
@@ -157,7 +157,54 @@ jTAC._internal.temp._TypeManagers_Percent = {
 
    // --- UTILITY METHODS ---------------------------------
 
-   _nf: function(rule) {
+
+   /* 
+   Adjusts the number passed by dividing by 100 when
+   the oneEqualsOneHundred property is true and the number represents 
+   a decimal value (maxDecimalPlaces <> 0.)
+   Supports toValue() and toValueNeutral() methods
+   n (number) - the number to cleanup.
+   Returns either the same number or adjusted by 100.
+   */
+   _toNativeAdjust: function (value) {
+      var mdc = this.getMaxDecimalPlaces();
+
+      if ((value != null) && this.getOneEqualsOneHundred() && (mdc != 0)) {
+         // calculation errors are fixed by rounding
+         var ndp = this.numDecPlaces(value);
+         value = value / 100;
+         ndp = ndp + 2;  // 2 is due to / 100
+         value = this.round(value, 2, ndp);
+      }
+
+      return value;
+   },
+
+   /*
+   Adjusts the number passed by multiplying by 100 when
+   the oneEqualsOneHundred property is true and the number represents 
+   a decimal value (maxDecimalPlaces <> 0.)
+   Supports toString() and toStringNeutral() methods
+   n (number) - the number to cleanup.
+   Returns either the same number or adjusted by 100.
+   */
+   _toStringAdjust: function (value) {
+      var mdc = this.getMaxDecimalPlaces();
+      if ((value != null) && this.getOneEqualsOneHundred() && (mdc != 0)) {
+         // calculation errors occur: 1.1 * 100 = 110.000000000000001
+         // Fixed by rounding
+         var ndp = this.numDecPlaces(value);
+         value = 100.0 * value;
+         ndp = ndp - 2;  // 2 is due to x 100
+         if (ndp < 0)
+            ndp = 0;
+         value = this.round(value, 2, ndp);
+      }
+
+      return value;
+   },
+
+   _nf: function (rule) {
       var r = this.percentFormat(rule);
       if (r === undefined)
          r = this.numberFormat(rule);  // fallback

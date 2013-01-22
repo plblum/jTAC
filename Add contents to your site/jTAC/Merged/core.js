@@ -1,5 +1,5 @@
 ﻿// jTAC/jTAC.js
-/* -----------------------------------------------------------
+/*! -----------------------------------------------------------
 JavaScript Types and Conditions ("jTAC")
 Copyright (C) 2012  Peter L. Blum
 
@@ -15,7 +15,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------
+------------------------------------------------------------- */
+/*
 Module: jTAC
 
 Purpose:
@@ -1278,8 +1279,10 @@ replaces &, ', ", < and >.
                If existingObject is null, an exception is thrown.
                If illegal properties are found, exceptions are thrown.
             string - Specify the class or alias name of the class to create. 
-               That class is created with default properties
-               and returned.
+               That class is created with default properties and returned.
+               Specify a JSON string with the jtacClass property defining
+               the class to create and propertise that match properties on the
+               object to create. This string must be enclosed in "{ }".
             null - return the value of existingObject.
          existingObject - Either null or an object instance. Usage depends on val.
          classCtor - Class constructor used to verify the class instance created
@@ -1310,8 +1313,25 @@ replaces &, ', ", < and >.
                   return existingObject;
                }
             }
-            else if (typeof(val) == "string") {
-               val = jTAC.create(val, null, true);
+            else if (typeof (val) == "string") {
+               if (val.indexOf("{") == 0) { // try a JSON string
+                  try {
+                     val = eval("(" + val + ");");
+
+                  }
+                  catch (e) {
+                     jTAC.error("JSon parsing error. " + e.message, this, null, true);
+                  }
+                  if (val.jtacClass) { // convert to object
+                     val = jTAC.create(null, val);
+                  }
+                  else
+                     jTAC.error("JSon parsing error. Missing 'jtacClass' property.");
+
+               }
+               else {   // assume it is a class name or alias
+                  val = jTAC.create(val, null, true);
+               }
             }
             if (val instanceof classCtor) {
                return val;
@@ -1768,7 +1788,7 @@ The property isn't required to use this to set this.config.
 Always call to set 'this' to the instance of the object.
 EXAMPLE:
    setPropertyName: function(val) {
-      this._updateConfig.call(this, "PropertyName", val);
+      this._defaultSetter.call(this, "PropertyName", val);
       // do other stuff.
    }
 */

@@ -117,7 +117,7 @@ Uses jsunit as it loads. Once it passes those tests, you can interact with the U
       }
       function testTextBox2()
       {
-         runJqueryValidate("TextBox2", "ABC", false, '<span class="message-label">Currency</span> must be a valid currency.');
+         runJqueryValidate("TextBox2", "ABC", false, '<span class="message-label">Currency</span> must be a valid monetary value.');
          runJqueryValidate("TextBox2", "$123.00", true, '');
       }
       function testTextBox3()

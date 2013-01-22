@@ -22,6 +22,7 @@
       {
          var vInstance1 = jTAC.create("TypeManagers.Percent");
          assertNotNull(vInstance1);
+         assertTrue(vInstance1.oneEqualsOneHundred);
          ToValueMain(vInstance1, "1020.30%", 10.203);
          ToValueMain(vInstance1, "1020.30", 10.203);
          ToValueMain(vInstance1, "1,020.30", 10.203);
@@ -38,6 +39,10 @@
          ToValueMain(vInstance1, "-1,020.30%", -10.203);
          ToValueMain(vInstance1, "-1,020.30", -10.203);
          ToValueMain(vInstance1, "%1,000,000.30", 10000.003); // because it strips the % in any position before processing the number
+
+         ToValueNeutralMain(vInstance1, "1020.3", 10.203);
+         ToValueNeutralMain(vInstance1, "1020", 10.2);
+         ToValueNeutralMain(vInstance1, "-1020.3", -10.203);
       }
 
       function testToValueOneEqualsOne()
@@ -61,6 +66,10 @@
          ToValueMain(vInstance1, "-1,020.30%", -1020.3);
          ToValueMain(vInstance1, "-1,020.30", -1020.3);
          ToValueMain(vInstance1, "%1,000,000.30", 1000000.30); // because it strips the % in any position before processing the number
+
+         ToValueNeutralMain(vInstance1, "1020.3", 1020.3);
+         ToValueNeutralMain(vInstance1, "1020", 1020.0);
+         ToValueNeutralMain(vInstance1, "-1020.3", -1020.3);
       }
 
       function testToIllegalValue()

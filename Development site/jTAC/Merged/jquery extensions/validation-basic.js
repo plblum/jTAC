@@ -1570,6 +1570,7 @@ before loading /jTAC/jquery-validate/Rules.js
 This object is intended have its properties added to $.validate through $.extend.
 It replaces one, formatAndAdd. It adds the rest.
 */
+if ($ && $.validator) {
 (function ($)
 {
    if ($.validator.replaceTokens) // already exists
@@ -1794,7 +1795,7 @@ It replaces one, formatAndAdd. It adds the rest.
    $.extend($.validator, plugin);   // for some reason, extend to the prototype has no impact on the default $.validator
 } (jQuery));    // function($) ends
 
-﻿// jTAC/jquery-validate/Condition Extensions.js
+}  // if $ && $.validator﻿// jTAC/jquery-validate/Condition Extensions.js
 /* -----------------------------------------------------------
 JavaScript Types and Conditions ("jTAC")
 Copyright (C) 2012  Peter L. Blum
@@ -2554,6 +2555,17 @@ if (jTAC.isDefined("Conditions.BooleanLogic")) {
       }
    }
    jTAC.addMembers("Conditions.BooleanLogic", jTAC_Temp);
+}
+
+/* ---- EXTENDS Conditions.UserFunction --------------------------------- */
+
+if (jTAC.isDefined("Conditions.UserFunction")) {
+   jTAC_Temp = {
+      defaultErrorMessage: function () {
+         return "*** EXPLICITY ASSIGN THIS MESSAGE ***";
+      }
+   }
+   jTAC.addMembers("Conditions.UserFunction", jTAC_Temp);
 }
 // jTAC/jquery-validate/Rules.js
 /* -----------------------------------------------------------

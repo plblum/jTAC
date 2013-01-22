@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------
-Module: TypeManager objects
+Module: jquery-ui widgets
 
 Purpose:
 datatypeeditor is a jquery-ui widget that filters keystrokes in a textbox
@@ -998,7 +998,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------
-Module: TypeManager objects
+Module: jquery-ui widgets
 
 Purpose:
 datetextbox is a jquery-ui widget that incorporates the features of
@@ -1932,8 +1932,8 @@ It returns true if it is or the range does not apply.
    },
 
 /*
-Utility to ensure the value is within the range. If it in the range,
-the value is returned. If it outside the range, the range limit is returned.
+Utility to ensure the value is within the range. If it's in the range,
+the value is returned. If it's outside the range, the range limit is returned.
 */
    _adjustForRange : function(value) {
       var mv = this.getMinValue();

@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   <script src="../../jsunit/jsUnitCore.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-1.5.1.js" type="text/javascript"></script>
+   <script src="../../jquery/jquery-ui-1.8.11.js" type="text/javascript"></script>
+   <script src="../../jquery-globalize/globalize.js" type="text/javascript"></script>
+   <script src="../../jTAC/jTAC.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseCulture.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/BaseNumber.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Integer.js" type="text/javascript"></script>
+   <script src="../../jTAC/TypeManagers/Boolean.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/BaseElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Connections/FormElement.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneConnection.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseTwoConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOneOrMoreConnections.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/BaseOperator.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/CompareToValue.js" type="text/javascript"></script>
+   <script src="../../jTAC/Conditions/Required.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/conditionalActions.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/conditionalActions-unobtrusive.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/jqActions/Base.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/jqActions/Enable.js" type="text/javascript"></script>
+   <script src="../../jTAC/jquery-ui widgets/jqActions/Style.js" type="text/javascript"></script>
+
+</head>
+<body>
+   <script type="text/javascript">
+      $(document).ready(
+      function () {
+         $("#textbox1").ConditionalActions(
+         [
+         // options group 1: using disabled attribute based on enabler1
+            {
+               'condition' : {'jtacClass': 'Conditions.CompareToValue', 'elementId' : 'enabler1', 'valueToCompare': true},
+               'actions': { 'jtacClass': 'jqActions.Enable'}
+            },
+         // options group 2: use style attribute based on enabler2
+            { 
+               'condition': 'enabler2',
+               'actions': { 'jtacClass': 'jqActions.Style', 'styleName': 'background-color', 'value': 'green', 'valueFailed': 'blue'}
+            }
+         ]);
+      }
+      );
+   </script>
+   <p>Each checkbox is a toggle for its own ConditionalActions object. The first
+   changes the disabled state. The second changes the background color.</p>
+   <form action="" method="get" id="Form1">
+      <input type="checkbox" id="enabler1" /><label for="enabler1">Check to enable:</label>
+      <input type="checkbox" id="enabler2" /><label for="enabler2">Check to toggle color:</label>
+      <input type="text" id="textbox1" value="12345" /><br />
+   </form>
+
+</body>
+</html>

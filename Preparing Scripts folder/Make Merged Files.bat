@@ -22,7 +22,7 @@ REM conditions-typical.js contains conditions-basic.js plus these Conditions: Co
 COPY "%Merged%\conditions-basic.js" /B + "%RootSource%\Conditions\CompareToValue.js" /B + "%RootSource%\Conditions\CompareTwoElements.js" /B + "%RootSource%\Conditions\BaseRegExp.js" /B + "%RootSource%\Conditions\RegExp.js" /B "%Merged%\conditions-typical.js"
 
 REM conditions-all.js contains all conditions
-COPY "%Merged%\conditions-typical.js" /B +  "%RootSource%\Conditions\Difference.js" /B + "%RootSource%\Conditions\RequiredIndex.js" /B + "%RootSource%\Conditions\SelectedIndex.js" /B + "%RootSource%\Conditions\BooleanLogic.js" /B + "%RootSource%\Conditions\DuplicateEntry.js" /B + "%RootSource%\Conditions\CharacterCount.js" /B + "%RootSource%\Conditions\WordCount.js" /B + "%RootSource%\Conditions\CountSelections.js" /B + "%RootSource%\Connections\Value.js" /B "%Merged%\conditions-all.js"
+COPY "%Merged%\conditions-typical.js" /B +  "%RootSource%\Conditions\Difference.js" /B + "%RootSource%\Conditions\RequiredIndex.js" /B + "%RootSource%\Conditions\SelectedIndex.js" /B + "%RootSource%\Conditions\BooleanLogic.js" /B + "%RootSource%\Conditions\DuplicateEntry.js" /B + "%RootSource%\Conditions\CharacterCount.js" /B + "%RootSource%\Conditions\WordCount.js" /B + "%RootSource%\Conditions\CountSelections.js" /B + "%RootSource%\Conditions\UserFunction.js" /B + "%RootSource%\Connections\Value.js" /B "%Merged%\conditions-all.js"
 
 REM TypeManagers. (NOTE: PowerDateParser and PowerTimeParser are not merged here. If you add them, remember that they override the default parsers.)
 
@@ -84,11 +84,18 @@ REM textbox widgets contains the datatypeeditor and datetextbox widgets with uno
 COPY "%jquery%\textbox widgets.js" /B + "%RootSource%\jquery-ui widgets\datatypeeditor-unobtrusive.js" /B  + "%RootSource%\jquery-ui widgets\datetextbox-unobtrusive.js" /B "%jquery%\textbox widgets-unobtrusive.js"
 
 
+REM conditionalActions widget contains the all jaActions
+COPY "%RootSource%\jquery-ui widgets\jqActions\Base.js" /B + "%RootSource%\jquery-ui widgets\jqActions\Attribute.js" /B + "%RootSource%\jquery-ui widgets\jqActions\ClassName.js" /B + "%RootSource%\jquery-ui widgets\jqActions\Enable.js" /B + "%RootSource%\jquery-ui widgets\jqActions\FieldValue.js" /B + "%RootSource%\jquery-ui widgets\jqActions\Href.js" /B + "%RootSource%\jquery-ui widgets\jqActions\InnerHtml.js" /B + "%RootSource%\jquery-ui widgets\jqActions\ReadOnly.js" /B + "%RootSource%\jquery-ui widgets\jqActions\Show.js" /B + "%RootSource%\jquery-ui widgets\jqActions\Style.js" /B + "%RootSource%\jquery-ui widgets\jqActions\UserFunction.js" /B + "%RootSource%\jquery-ui widgets\conditionalActions.js" /B   "%jquery%\conditionalActions.js"
+
+REM conditionalActions widget contains the all jaActions and unobtrusive support
+COPY "%jquery%\conditionalActions.js" /B + "%RootSource%\jquery-ui widgets\conditionalActions-unobtrusive.js" /B  "%jquery%\conditionalActions-unobtrusive.js"
+
+
 REM jtac-all: all without jquery
 COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%Merged%\typemanagers-all.js" /B + "%Merged%\conditions-all.js" /B  + "%Merged%\calculations.js" /B "%Merged%\jtac-all.js"
 
 
 REM jtac-all: all with jquery
-COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%Merged%\typemanagers-all.js" /B + "%jquery%\validation-all.js" /B  + "%jquery%\calculations-unobtrusive.js" /B + "%jquery%\textbox widgets-unobtrusive.js" /B "%jquery%\jtac-all.js"
+COPY "%Merged%\core.js" /B + "%RootSource%\Connections\UserFunction.js" /B + "%Merged%\typemanagers-all.js" /B + "%jquery%\validation-all.js" /B  + "%jquery%\calculations-unobtrusive.js" /B + "%jquery%\textbox widgets-unobtrusive.js" /B + "%jquery%\conditionalActions-unobtrusive.js" /B "%jquery%\jtac-all.js"
 
 pause
